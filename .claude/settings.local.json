@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i 's/name: \"\"关于\"\",/name: \"\"关于我\"\",/g' \"f:/一些乱起八糟/AI开发/Axis gw/Star个人博客/src/config.ts\")",
+      "Bash(sed -i 's/name: \"\"About\"\",/name: \"\"关于我\"\",/g' \"f:/一些乱起八糟/AI开发/Axis gw/Star个人博客/src/config.ts\")"
+    ]
+  }
+}
