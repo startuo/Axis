@@ -32,7 +32,7 @@ export const siteConfig: SiteConfig = {
 	lang: SITE_LANG,
 
 	themeColor: {
-		hue: 60, // 主题色的默认色相，范围从 0 到 360。例如：红色：0，青色：200，蓝绿色：250，粉色：345
+		hue: 345, // 主题色的默认色相，范围从 0 到 360。例如：红色：0，青色：200，蓝绿色：250，粉色：345
 		fixed: false, // 对访问者隐藏主题色选择器
 	},
 
@@ -160,7 +160,7 @@ export const siteConfig: SiteConfig = {
 
 		homeText: {
 			enable: true, // 在主页显示自定义文本
-			title: "欢迎来到我的个人博客", // 主页横幅主标题
+			title: "欢迎来到STAR的个人博客", // 主页横幅主标题
 
 			subtitle: [
 				"记录生活中的点点滴滴",
@@ -169,25 +169,25 @@ export const siteConfig: SiteConfig = {
 				"每一天都是新的开始",
 				"感谢你的来访",
 				"慢慢来别着急，时光会赠予你所有温柔与惊喜",
-                "心怀热爱奔赴山海，平凡日子也会闪闪发光",
-                "接纳生活所有不完美，温柔与美好总会如期而至",
-                "把琐碎的日常收藏，让人间烟火治愈所有迷茫",
-                "岁月缓缓温柔生长，所有美好都在悄悄奔赴你",
-                "沉淀心事轻装前行，往后余生皆是晴朗与安然",
-                "一隅清净安放初心，静享时光里的岁月清欢",
-                "风遇山止船到岸停，人生旅途终会万事顺遂",
-                "收集世间点滴温柔，赠予漫长且热烈的生活",
-                "向阳而生眼底有光，不慌不忙慢慢惊艳时光",
-                "抛开纷扰随心而活，三餐四季皆是满心欢喜",
-                "所有遗憾皆是铺垫，所有相逢都是命中温柔",
-                "日子温柔步履轻盈，人间值得来日岁岁方长",
-                "与生活握手言和，在烟火人间寻一份心安",
-                "时光不语静待花开，平凡岁月自有万般深情",
-                "眼里藏着星辰大海，心底装着人间烟火温柔",
-                "放下焦虑好好生活，美好总会在不经意降临",
-                "温柔自持落落大方，奔赴一场浪漫人间朝夕",
-                "生活细碎万物温柔，沿途风景皆是岁月馈赠",
-                "不慌不忙慢慢长大，岁岁安然岁岁皆是欢愉",
+				"心怀热爱奔赴山海，平凡日子也会闪闪发光",
+				"接纳生活所有不完美，温柔与美好总会如期而至",
+				"把琐碎的日常收藏，让人间烟火治愈所有迷茫",
+				"岁月缓缓温柔生长，所有美好都在悄悄奔赴你",
+				"沉淀心事轻装前行，往后余生皆是晴朗与安然",
+				"一隅清净安放初心，静享时光里的岁月清欢",
+				"风遇山止船到岸停，人生旅途终会万事顺遂",
+				"收集世间点滴温柔，赠予漫长且热烈的生活",
+				"向阳而生眼底有光，不慌不忙慢慢惊艳时光",
+				"抛开纷扰随心而活，三餐四季皆是满心欢喜",
+				"所有遗憾皆是铺垫，所有相逢都是命中温柔",
+				"日子温柔步履轻盈，人间值得来日岁岁方长",
+				"与生活握手言和，在烟火人间寻一份心安",
+				"时光不语静待花开，平凡岁月自有万般深情",
+				"眼里藏着星辰大海，心底装着人间烟火温柔",
+				"放下焦虑好好生活，美好总会在不经意降临",
+				"温柔自持落落大方，奔赴一场浪漫人间朝夕",
+				"生活细碎万物温柔，沿途风景皆是岁月馈赠",
+				"不慌不忙慢慢长大，岁岁安然岁岁皆是欢愉",
 			],
 			typewriter: {
 				enable: true, // 启用副标题打字机效果
@@ -357,7 +357,7 @@ export const navBarConfig: NavBarConfig = {
 				},
 			],
 		},
-			],
+	],
 };
 
 export const profileConfig: ProfileConfig = {
@@ -370,20 +370,20 @@ export const profileConfig: ProfileConfig = {
 	},
 	links: [
 		{
-		name: "抖音",
-		icon: "material-symbols:play-circle",
-		url: "https://v.douyin.com/URQkOW6a_d0/",
-	},
-	{
-		name: "Discord",
-		icon: "fa7-brands:discord",
-		url: "https://discord.gg/PtujUDxq",
-	},
-	{
-		name: "GitHub",
-		icon: "fa7-brands:github",
-		url: "https://github.com/startuo",
-	},
+			name: "抖音",
+			icon: "material-symbols:play-circle",
+			url: "https://v.douyin.com/URQkOW6a_d0/",
+		},
+		{
+			name: "Discord",
+			icon: "fa7-brands:discord",
+			url: "https://discord.gg/PtujUDxq",
+		},
+		{
+			name: "GitHub",
+			icon: "fa7-brands:github",
+			url: "https://github.com/startuo",
+		},
 	],
 };
 
@@ -454,10 +454,12 @@ export const announcementConfig: AnnouncementConfig = {
 export const musicPlayerConfig: MusicPlayerConfig = {
 	enable: true,
 	mode: "meting",
-	meting_api: "https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&auth=:auth&r=:r",
+	meting_api:
+		"https://api.injahow.cn/meting/?server=:server&type=:type&id=:id&auth=:auth&r=:r",
 	id: "9559551921",
 	server: "tencent",
 	type: "playlist",
+	autoplay: true, // 开启自动播放
 };
 
 export const footerConfig: FooterConfig = {
@@ -643,3 +645,4 @@ export const widgetConfigs = {
 } as const;
 
 // umamiConfig相关配置已移动至astro.config.mjs中,统计脚本请自行在Layout.astro文件的<head>中插入
+

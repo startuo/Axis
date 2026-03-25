@@ -20,6 +20,8 @@ let meting_id = musicPlayerConfig.id ?? "14164869977";
 let meting_server = musicPlayerConfig.server ?? "netease";
 // Meting API 的类型，从配置中获取或使用默认值
 let meting_type = musicPlayerConfig.type ?? "playlist";
+// 是否自动播放
+let autoplay = musicPlayerConfig.autoplay ?? false;
 
 // 播放状态，默认为 false (未播放)
 let isPlaying = false;
@@ -157,6 +159,14 @@ async function fetchMetingPlaylist() {
 		});
 		if (playlist.length > 0) {
 			loadSong(playlist[0]);
+			// 自动播放 - 延迟确保 DOM 就绪
+			if (autoplay) {
+				setTimeout(() => {
+					if (audio) {
+						audio.play().catch(() => {});
+					}
+				}, 100);
+			}
 		}
 		isLoading = false;
 	} catch (e) {
@@ -424,6 +434,10 @@ onMount(() => {
 		playlist = [...localPlaylist];
 		if (playlist.length > 0) {
 			loadSong(playlist[0]);
+			// 自动播放
+			if (autoplay && audio) {
+				audio.play().catch(() => {});
+			}
 		} else {
 			showErrorMessage("本地播放列表为空");
 		}
