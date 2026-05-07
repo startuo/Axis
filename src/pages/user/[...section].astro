@@ -1,0 +1,30 @@
+---
+import AdminConsole from "../../components/admin/AdminConsole.svelte";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+
+export function getStaticPaths() {
+	return [
+		{ params: { section: undefined } },
+		{ params: { section: "overview" } },
+		{ params: { section: "dashboard" } },
+		{ params: { section: "profile" } },
+		{ params: { section: "messages" } },
+		{ params: { section: "favorites" } },
+		{ params: { section: "comments" } },
+		{ params: { section: "history" } },
+	];
+}
+---
+
+<AdminLayout title="STAR Client" description="STAR's Blog 客户端后台">
+	<div class="admin-page-shell">
+		<AdminConsole client:load />
+	</div>
+</AdminLayout>
+
+<style>
+	.admin-page-shell {
+		width: 100%;
+		min-height: 100%;
+	}
+</style>

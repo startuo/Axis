@@ -169,6 +169,41 @@ if (siteConfig.font) {
 	data-overlayscrollbars-initialize
 >
 	<head>
+		<script is:inline>
+			(() => {
+				const isAdminPath = (pathname) =>
+					pathname === "/admin" ||
+					pathname.startsWith("/admin/") ||
+					pathname === "/user" ||
+					pathname.startsWith("/user/");
+
+				const forceFullReloadAcrossAdminBoundary = (event) => {
+					if (event.defaultPrevented || event.button !== 0) return;
+					if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+					const target = event.target;
+					const anchor =
+						target instanceof Element ? target.closest("a[href]") : null;
+					if (!anchor || (anchor.target && anchor.target !== "_self")) return;
+
+					const nextUrl = new URL(anchor.href, window.location.href);
+					if (nextUrl.origin !== window.location.origin) return;
+
+					const currentIsAdmin = isAdminPath(window.location.pathname);
+					const nextIsAdmin = isAdminPath(nextUrl.pathname);
+					if (currentIsAdmin !== nextIsAdmin) {
+						event.preventDefault();
+						event.stopImmediatePropagation();
+						window.location.assign(nextUrl.href);
+					}
+				};
+
+				document.documentElement.classList.add("frontend-document");
+				document.documentElement.classList.remove("admin-document");
+				delete window.__starAdminMode;
+				document.addEventListener("click", forceFullReloadAcrossAdminBoundary, true);
+			})();
+		</script>
 		<!-- 第三方分析脚本 - 延迟加载优化 -->
 		<script is:inline>
 			// 使用 requestIdleCallback 延迟加载第三方脚本
@@ -383,6 +418,15 @@ if (siteConfig.font) {
 		style={bodyFontFamily ? `font-family: ${bodyFontFamily};` : ""}
 		data-overlayscrollbars-initialize
 	>
+		<script is:inline>
+			(() => {
+				document.body.classList.remove("admin-mode");
+				document.body.style.removeProperty("overflow");
+				document.documentElement.classList.add("frontend-document");
+				document.documentElement.classList.remove("admin-document");
+				delete window.__starAdminMode;
+			})();
+		</script>
 		<noscript
 			><iframe
 				src="https://www.googletagmanager.com/ns.html?id=GTM-KRX3XGVH"
@@ -430,22 +474,28 @@ if (siteConfig.font) {
 				return colors[Math.floor(Math.random() * colors.length)];
 			};
 
-			const createHeart = (e) => {
+			const createHeart = (e: MouseEvent) => {
 				const x = e.pageX;
 				const y = e.pageY;
 				const randContentIndex = Math.floor(Math.random() * content.length);
 				const randColor = getRandomColor();
+				const heartContainer = document.getElementById('heart-container');
+
+				if (!heartContainer) {
+					return;
+				}
+
 				const span = document.createElement('span');
 				span.textContent = content[randContentIndex];
 				span.className = 'text-float';
 				span.style.top = `${y - 20}px`;
 				span.style.left = `${x - 50}px`;
 				span.style.color = randColor;
-				document.getElementById('heart-container').appendChild(span);
+				heartContainer.appendChild(span);
 				let i = 0;
 				const interval = setInterval(() => {
 					span.style.top = `${y - 20 - i}px`;
-					span.style.opacity = 1 - (i / 100);
+					span.style.opacity = String(1 - (i / 100));
 					i++;
 				}, 20);
 				setTimeout(() => {

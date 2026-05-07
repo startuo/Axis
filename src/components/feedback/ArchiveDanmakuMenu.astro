@@ -1,0 +1,145 @@
+---
+import { Icon } from "astro-icon/components";
+import type { NavBarLink } from "../../types/config";
+import { url } from "../../utils/url-utils";
+
+interface Props {
+	link: NavBarLink;
+	class?: string;
+}
+
+const { link, class: className } = Astro.props;
+
+const menuItems = [
+	{
+		name: "文章归档",
+		url: link.url,
+		icon: "material-symbols:archive-outline-rounded",
+	},
+	{
+		name: "留言",
+		url: "/message/",
+		icon: "material-symbols:chat-bubble-outline-rounded",
+	},
+];
+---
+
+<div class:list={["dropdown-container group", className]} data-dropdown>
+	<button
+		class="btn-plain scale-animation rounded-lg h-11 font-bold w-11 lg:w-auto lg:px-5 active:scale-95 dropdown-trigger flex items-center justify-center lg:justify-start whitespace-nowrap"
+		aria-expanded="false"
+		aria-haspopup="true"
+		data-dropdown-trigger
+	>
+		{link.icon && <Icon name={link.icon} class="text-[1.1rem] lg:mr-2 shrink-0" />}
+		<span class="truncate hidden lg:inline">{link.name}</span>
+		<Icon
+			name="material-symbols:keyboard-arrow-down-rounded"
+			class="text-[1.25rem] transition-transform duration-200 dropdown-arrow ml-1 shrink-0 hidden lg:inline"
+		/>
+	</button>
+
+	<div class="dropdown-menu" data-dropdown-menu>
+		<div class="dropdown-content bg-(--float-panel-bg) rounded-(--radius-large) shadow-xl dark:shadow-none border border-black/5 dark:border-white/10 p-2 min-w-48">
+			{menuItems.map((item) => (
+				<a
+					href={url(item.url)}
+					class="dropdown-item flex items-center justify-between px-4 py-2.5 hover:text-(--primary) hover:bg-(--btn-plain-bg-hover) transition-colors duration-150 font-medium rounded-lg"
+					aria-label={item.name}
+				>
+					<div class="flex items-center">
+						<Icon name={item.icon} class="text-[1rem] mr-2" />
+						<span>{item.name}</span>
+					</div>
+				</a>
+			))}
+		</div>
+	</div>
+</div>
+
+<style>
+	@reference "tailwindcss";
+
+	.dropdown-container {
+		@apply relative;
+	}
+
+	.dropdown-menu {
+		@apply absolute top-full left-0 pt-2 opacity-0 invisible pointer-events-none translate-y-[-8px] transition-all duration-200 ease-out z-50;
+	}
+
+	.dropdown-container:hover .dropdown-menu,
+	.dropdown-container:focus-within .dropdown-menu,
+	.dropdown-trigger[aria-expanded="true"] + .dropdown-menu {
+		@apply opacity-100 visible pointer-events-auto translate-y-0;
+	}
+
+	.dropdown-container:hover .dropdown-arrow,
+	.dropdown-container:focus-within .dropdown-arrow,
+	.dropdown-trigger[aria-expanded="true"] .dropdown-arrow {
+		@apply rotate-180;
+	}
+
+	@media (max-width: 767px) {
+		.dropdown-container {
+			@apply hidden;
+		}
+	}
+</style>
+
+<script>
+	document.addEventListener("DOMContentLoaded", () => {
+		const dropdowns = document.querySelectorAll("[data-dropdown]");
+
+		dropdowns.forEach((dropdown) => {
+			const trigger = dropdown.querySelector(
+				"[data-dropdown-trigger]",
+			) as HTMLElement;
+			const items = dropdown.querySelectorAll(
+				".dropdown-item",
+			) as NodeListOf<HTMLElement>;
+
+			if (!trigger) return;
+
+			const closeMenu = () => {
+				trigger.setAttribute("aria-expanded", "false");
+			};
+
+			trigger.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+					trigger.setAttribute("aria-expanded", String(!isExpanded));
+				} else if (event.key === "ArrowDown") {
+					event.preventDefault();
+					trigger.setAttribute("aria-expanded", "true");
+					items[0]?.focus();
+				} else if (event.key === "Escape") {
+					closeMenu();
+				}
+			});
+
+			items.forEach((item, index) => {
+				item.addEventListener("keydown", (event) => {
+					if (event.key === "ArrowDown") {
+						event.preventDefault();
+						items[(index + 1) % items.length]?.focus();
+					} else if (event.key === "ArrowUp") {
+						event.preventDefault();
+						items[(index - 1 + items.length) % items.length]?.focus();
+					} else if (event.key === "Escape") {
+						event.preventDefault();
+						closeMenu();
+						trigger.focus();
+					}
+				});
+			});
+
+			document.addEventListener("click", (event) => {
+				if (!dropdown.contains(event.target as Node)) {
+					closeMenu();
+				}
+			});
+		});
+	});
+</script>

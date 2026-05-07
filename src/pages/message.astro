@@ -1,0 +1,130 @@
+---
+import Calendar from "../components/widget/Calendar.astro";
+import Categories from "../components/widget/Categories.astro";
+import Profile from "../components/widget/Profile.astro";
+import SiteStats from "../components/widget/SiteStats.astro";
+import Tags from "../components/widget/Tags.astro";
+import DanmakuWall from "../components/feedback/DanmakuWall.svelte";
+import MainGridLayout from "../layouts/MainGridLayout.astro";
+
+const title = "留言";
+const description = "STAR 博客沉浸式留言弹幕墙";
+---
+
+<MainGridLayout title={title} description={description} showSidebars={false}>
+	<section
+		class="message-page-shell onload-animation"
+		aria-label="博客留言弹幕墙"
+		data-main-grid-show-sidebars="false"
+	>
+		<aside class="message-profile" aria-label="个人信息">
+			<Profile />
+		</aside>
+
+		<main class="message-main">
+			<DanmakuWall client:only="svelte" />
+		</main>
+
+		<aside class="message-context" aria-label="站点信息">
+			<SiteStats />
+			<Calendar />
+		</aside>
+
+		<aside class="message-taxonomy" aria-label="标签与分类">
+			<Tags />
+			<Categories />
+		</aside>
+	</section>
+</MainGridLayout>
+
+<style>
+	.message-page-shell {
+		display: grid;
+		grid-template-columns:
+			minmax(15.625rem, 17.5rem)
+			minmax(0, 1fr)
+			minmax(15.625rem, 17.5rem);
+		grid-template-areas:
+			"profile main context"
+			"taxonomy main context";
+		align-items: start;
+		gap: 20px;
+		width: 100%;
+		max-width: 96rem;
+		margin-inline: auto;
+	}
+
+	.message-profile {
+		grid-area: profile;
+		min-width: 0;
+	}
+
+	.message-taxonomy {
+		grid-area: taxonomy;
+	}
+
+	.message-context {
+		grid-area: context;
+	}
+
+	.message-main {
+		grid-area: main;
+		align-self: stretch;
+		min-width: 0;
+		min-height: clamp(42rem, 72vh, 54rem);
+		border: 1px solid color-mix(in oklch, var(--primary) 14%, transparent);
+		border-radius: var(--radius-large);
+		background:
+			radial-gradient(circle at 20% 12%, color-mix(in oklch, var(--primary) 14%, transparent), transparent 32%),
+			color-mix(in oklch, var(--card-bg) 74%, transparent);
+		box-shadow: 0 24px 90px rgba(0, 0, 0, 0.18);
+		padding: clamp(0.9rem, 1.5vw, 1.35rem);
+		backdrop-filter: blur(22px);
+	}
+
+	.message-taxonomy,
+	.message-context {
+		display: grid;
+		gap: 20px;
+		align-content: start;
+		min-width: 0;
+	}
+
+	:global(.message-page-shell .card-base) {
+		border: 1px solid color-mix(in oklch, var(--primary) 13%, transparent);
+		background: color-mix(in oklch, var(--card-bg) 76%, transparent);
+		box-shadow: 0 18px 58px rgba(0, 0, 0, 0.2);
+		backdrop-filter: blur(20px);
+	}
+
+	@media (min-width: 768px) and (max-width: 1199px) {
+		.message-page-shell {
+			grid-template-columns: minmax(15.625rem, 18rem) minmax(0, 1fr);
+			grid-template-areas:
+				"profile main"
+				"context main"
+				"taxonomy main";
+		}
+
+		.message-main {
+			min-height: clamp(38rem, 72vh, 50rem);
+		}
+	}
+
+	@media (max-width: 767px) {
+		.message-page-shell {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-areas:
+				"profile"
+				"main"
+				"context"
+				"taxonomy";
+			gap: 1rem;
+		}
+
+		.message-main {
+			min-height: 0;
+			padding: 0.75rem;
+		}
+	}
+</style>

@@ -18,6 +18,16 @@ let pioCanvas;
 
 // 样式已通过 Layout.astro 静态引入，无需动态加载
 
+function cleanupPio() {
+	if (typeof document === "undefined") return;
+
+	pioInstance = null;
+	pioInitialized = false;
+	document
+		.querySelectorAll(".pio-container, #pio, #pio-container, canvas#live2d, canvas.pio-live2d")
+		.forEach((node) => node.remove());
+}
+
 // 等待 DOM 加载完成后再初始化 Pio
 function initPio() {
 	if (typeof window !== "undefined" && typeof Paul_Pio !== "undefined") {
@@ -81,6 +91,8 @@ function loadPioAssets() {
 onMount(() => {
 	if (!pioConfig.enable) return;
 
+	window.__starCleanupPio = cleanupPio;
+
 	// 如果配置了手机端隐藏，且当前屏幕宽度小于 1280px (平板/手机)，则直接终止，不加载脚本
     if (pioConfig.hiddenOnMobile && window.matchMedia("(max-width: 1280px)").matches) {
         return;
@@ -91,8 +103,14 @@ onMount(() => {
 });
 
 onDestroy(() => {
-	// Svelte 组件销毁时不需要清理 Pio 实例
-	// 因为我们希望它在页面切换时保持状态
+	if (typeof document === "undefined") return;
+
+	if (document.body.classList.contains("admin-mode")) {
+		cleanupPio();
+		return;
+	}
+
+	// 前台内部页面切换时保持 Pio 状态，进入后台时由 AdminLayout 强制清理。
 	console.log("Pio Svelte component destroyed (keeping instance alive)");
 });
 </script>

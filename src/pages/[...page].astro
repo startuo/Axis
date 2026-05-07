@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
+import BackendArticleFeed from "../components/backend/BackendArticleFeed.svelte";
 import Pagination from "../components/control/Pagination.astro";
 import PostPage from "../components/PostPage.astro";
 import { PAGE_SIZE } from "../constants/constants";
@@ -18,9 +19,11 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 
 const len = page.data.length;
+const isFirstPage = page.currentPage === 1;
 ---
 
 <MainGridLayout>
     <PostPage page={page}></PostPage>
+    {isFirstPage && <BackendArticleFeed client:load />}
     <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
 </MainGridLayout>

@@ -1,0 +1,11 @@
+---
+import BackendArticleReader from "../../components/backend/BackendArticleReader.svelte";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout
+	title="后端文章 | STAR's Blog"
+	description="STAR's Blog 后端发布文章阅读页"
+>
+	<BackendArticleReader client:only="svelte" />
+</MainGridLayout>

@@ -38,6 +38,7 @@ interface Props {
 	setOGTypeArticle?: boolean;
 	postSlug?: string;
 	headings?: MarkdownHeading[];
+	showSidebars?: boolean;
 }
 
 // 类型守卫函数
@@ -106,6 +107,7 @@ const {
 	setOGTypeArticle,
 	postSlug,
 	headings = [],
+	showSidebars = true,
 } = Astro.props;
 const hasBannerCredit = siteConfig.banner.credit.enable;
 const hasBannerLink = !!siteConfig.banner.credit.url;
@@ -131,23 +133,27 @@ const finalMainPanelTop =
 
 // 检查左侧边栏是否有组件
 const hasLeftSidebarComponents =
-	widgetManager.getComponentsByPosition("top", "left", "desktop").length > 0 ||
-	widgetManager.getComponentsByPosition("sticky", "left", "desktop").length > 0;
+	showSidebars &&
+	(widgetManager.getComponentsByPosition("top", "left", "desktop").length > 0 ||
+		widgetManager.getComponentsByPosition("sticky", "left", "desktop").length > 0);
 
 // 检查右侧边栏是否有组件
 const hasRightSidebarComponents =
-	widgetManager.getComponentsByPosition("top", "right", "desktop").length > 0 ||
-	widgetManager.getComponentsByPosition("sticky", "right", "desktop").length > 0;
+	showSidebars &&
+	(widgetManager.getComponentsByPosition("top", "right", "desktop").length > 0 ||
+		widgetManager.getComponentsByPosition("sticky", "right", "desktop").length > 0);
 
 // 检查手机端 drawer 是否有组件
 const hasMobileDrawerComponents =
-	widgetManager.getComponentsByPosition("top", "drawer", "mobile").length > 0 ||
-	widgetManager.getComponentsByPosition("sticky", "drawer", "mobile").length > 0;
+	showSidebars &&
+	(widgetManager.getComponentsByPosition("top", "drawer", "mobile").length > 0 ||
+		widgetManager.getComponentsByPosition("sticky", "drawer", "mobile").length > 0);
 
 // 平板端是否有组件（考虑自动移动逻辑）
 const hasTabletLeftSidebarComponents =
-	widgetManager.getComponentsByPosition("top", "left", "tablet").length > 0 ||
-	widgetManager.getComponentsByPosition("sticky", "left", "tablet").length > 0;
+	showSidebars &&
+	(widgetManager.getComponentsByPosition("top", "left", "tablet").length > 0 ||
+		widgetManager.getComponentsByPosition("sticky", "left", "tablet").length > 0);
 
 // 检查侧边栏是否启用，动态调整网格布局
 const mobileShowSidebar = hasMobileDrawerComponents;
@@ -462,6 +468,18 @@ const transparentClass = shouldEnableTransparency
 	window.addEventListener('wallpaper-mode-change', function(_event) {
 		applyWallpaperMode();
 	});
+
+	function applyCurrentPageSidebarMode() {
+		const mainGrid = document.getElementById('main-grid');
+		if (!mainGrid) return;
+
+		const pagePreference = document.querySelector('[data-main-grid-show-sidebars]');
+		const showSidebars = pagePreference
+			? pagePreference.getAttribute('data-main-grid-show-sidebars') !== 'false'
+			: true;
+
+		mainGrid.setAttribute('data-show-sidebars', showSidebars ? 'true' : 'false');
+	}
 	
 	// 支持 Swup 页面过渡 - 在内容替换之前就应用布局，避免闪烁
 	function setupSwupLayoutSync() {
@@ -483,6 +501,8 @@ const transparentClass = shouldEnableTransparency
 			window.swup.hooks.on('content:replace', function() {
 				const mainGrid = document.getElementById('main-grid');
 				if (mainGrid) {
+					applyCurrentPageSidebarMode();
+
 					// @ts-ignore
 					const currentLayout = window.__pendingLayoutMode || localStorage.getItem('postListLayout') || defaultPostListLayout;
 					mainGrid.setAttribute('data-layout-mode', currentLayout);
@@ -545,6 +565,8 @@ const transparentClass = shouldEnableTransparency
 		requestAnimationFrame(function() {
 			const mainGrid = document.getElementById('main-grid');
 			if (mainGrid) {
+				applyCurrentPageSidebarMode();
+
 				const savedLayout = localStorage.getItem('postListLayout');
 				const currentLayout = savedLayout || defaultPostListLayout;
 				mainGrid.setAttribute('data-layout-mode', currentLayout);
@@ -568,6 +590,8 @@ const transparentClass = shouldEnableTransparency
 		document.addEventListener('DOMContentLoaded', function() {
 			const mainGrid = document.getElementById('main-grid');
 			if (mainGrid) {
+				applyCurrentPageSidebarMode();
+
 				const savedLayout = localStorage.getItem('postListLayout');
 				const currentLayout = savedLayout || defaultPostListLayout;
 				mainGrid.setAttribute('data-layout-mode', currentLayout);
@@ -802,6 +826,7 @@ const transparentClass = shouldEnableTransparency
     <div class="relative max-w-(--page-width) mx-auto pointer-events-auto">
         <div id="main-grid" class={`transition duration-700 w-full left-0 right-0 grid ${gridCols} grid-rows-none md:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 ${!mobileShowSidebar || !hasMobileDrawerComponents ? 'mobile-no-sidebar' : ''} ${hasRightSidebarComponents ? 'mobile-both-sidebar' : ''}`}
              data-layout-mode={defaultPostListLayout}
+             data-show-sidebars={showSidebars ? "true" : "false"}
         >
             <!-- Banner image credit -->
             {hasBannerCredit && <a href={siteConfig.banner.credit.url} id="banner-credit" target="_blank" rel="noopener" aria-label="Visit image source"
@@ -1405,6 +1430,19 @@ body.wallpaper-transparent #toc-inner-wrapper:has(table-of-contents[data-loaded=
     /* 在桌面端只显示左侧边栏和主内容 */
 }
 
+#main-grid[data-show-sidebars="false"] {
+    grid-template-columns: 1fr !important;
+}
+
+#main-grid[data-show-sidebars="false"] #sidebar,
+#main-grid[data-show-sidebars="false"] .right-sidebar-container {
+    display: none !important;
+}
+
+#main-grid[data-show-sidebars="false"] #swup-container {
+    grid-column: 1 / -1 !important;
+}
+
 /* 平板设备Grid模式：使用单列布局，侧边栏移动到底部并横向排列 */
 @media (min-width: 768px) and (max-width: 1279px) {
     #main-grid[data-layout-mode="grid"] {
@@ -1447,22 +1485,6 @@ body.wallpaper-transparent #toc-inner-wrapper:has(table-of-contents[data-loaded=
         flex: 0 0 calc(25% - 0.75rem) !important;
         margin-top: 0 !important; /* 确保没有垂直间距干扰 */
         margin-bottom: 0 !important;
-    }
-    
-    /* 公告栏特殊样式调整 */
-    :global(#main-grid[data-layout-mode="grid"] #sidebar widget-layout[data-id="announcement"] .flex.items-center.justify-between > div:first-child) {
-        width: 100% !important;
-        flex: 1 !important;
-    }
-    /* 公告栏拉伸链接按钮 */
-    :global(#main-grid[data-layout-mode="grid"] #sidebar widget-layout[data-id="announcement"] a) {
-        display: block !important;
-        width: 100% !important;
-        text-align: center !important;
-    }
-    /* 公告栏隐藏关闭按钮 */
-    :global(#main-grid[data-layout-mode="grid"] #sidebar widget-layout[data-id="announcement"] button[onclick="closeAnnouncement()"]) {
-        display: none !important;
     }
 }
 

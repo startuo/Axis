@@ -1,0 +1,17 @@
+---
+import AdminConsole from "../../components/admin/AdminConsole.svelte";
+import AdminLayout from "../../layouts/AdminLayout.astro";
+---
+
+<AdminLayout title="STAR Admin" description="STAR's Blog 管理控制台">
+	<div class="admin-page-shell">
+		<AdminConsole client:load />
+	</div>
+</AdminLayout>
+
+<style>
+	.admin-page-shell {
+		width: 100%;
+		min-height: 100%;
+	}
+</style>

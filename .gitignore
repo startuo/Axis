@@ -10,3 +10,4 @@ dist
 .cache
 public/fonts
 public/videos
+.codex-screenshots/

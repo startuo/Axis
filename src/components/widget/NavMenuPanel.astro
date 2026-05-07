@@ -41,17 +41,39 @@ type ProcessedNavBarLink = Omit<NavBarLink, "children"> & {
 
 // 处理links中的LinkPreset转换
 const processedLinks: ProcessedNavBarLink[] = Astro.props.links.map(
-	(link: NavBarLink): ProcessedNavBarLink => ({
-		...link,
-		children: link.children?.map(
+	(link: NavBarLink): ProcessedNavBarLink => {
+		const children = link.children?.map(
 			(child: NavBarLink | LinkPreset): ProcessedNavBarLink => {
 				if (typeof child === "number") {
 					return LinkPresets[child] as ProcessedNavBarLink;
 				}
 				return child as ProcessedNavBarLink;
 			},
-		),
-	}),
+		);
+
+		if (!link.external && link.url === "/archive/") {
+			return {
+				...link,
+				children: [
+					{
+						name: "文章归档",
+						url: "/archive/",
+						icon: "material-symbols:archive-outline-rounded",
+					},
+					{
+						name: "留言",
+						url: "/message/",
+						icon: "material-symbols:chat-bubble-outline-rounded",
+					},
+				],
+			};
+		}
+
+		return {
+			...link,
+			children,
+		};
+	},
 );
 ---
 <div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2 max-h-[80vh] overflow-y-auto"]}>

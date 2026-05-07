@@ -32,7 +32,7 @@ import { rehypeImageWidth } from "./src/plugins/rehype-image-width.mjs";
 export default defineConfig({
 	site: siteConfig.siteURL,
 	base: "/",
-	trailingSlash: "always",
+	trailingSlash: "ignore",
 
 	output: "static",
 
