@@ -21,6 +21,8 @@ interface DashboardSocketData {
   clientType?: 'admin' | 'visitor';
   presenceMember?: string;
   userId?: string;
+  nextHeartbeatAt?: number;
+  heartbeatPending?: boolean;
 }
 
 @WebSocketGateway({
@@ -40,6 +42,7 @@ export class DashboardGateway
   private readonly pushIntervalMs: number;
   private readonly visitorTtlSeconds: number;
   private broadcastTimer?: NodeJS.Timeout;
+  private broadcastPending = false;
 
   constructor(
     private readonly configService: ConfigService<AppEnvironment, true>,
@@ -61,7 +64,7 @@ export class DashboardGateway
     }
 
     this.broadcastTimer = setInterval(() => {
-      void this.broadcastDashboardSnapshot('scheduled');
+      void this.broadcastDashboardSnapshot('scheduled').catch(() => undefined);
     }, this.pushIntervalMs);
   }
 
@@ -83,16 +86,32 @@ export class DashboardGateway
       return;
     }
 
+    const rawId = client.handshake.query.visitorId;
+    if (
+      rawId !== undefined &&
+      (typeof rawId !== 'string' || !/^[a-zA-Z0-9_-]{1,128}$/.test(rawId))
+    ) {
+      client.disconnect(true);
+      return;
+    }
     const presenceMember = this.resolvePresenceMember(client);
     const state = this.getSocketState(client);
     state.clientType = 'visitor';
     state.presenceMember = presenceMember;
-    await this.dashboardService.updateVisitorPresence(
-      presenceMember,
-      this.visitorTtlSeconds,
-    );
+    state.nextHeartbeatAt = Date.now() + 5000;
+    state.heartbeatPending = true;
+    try {
+      await this.dashboardService.updateVisitorPresence(
+        presenceMember,
+        this.visitorTtlSeconds,
+      );
+    } catch {
+      client.disconnect(true);
+      return;
+    } finally {
+      state.heartbeatPending = false;
+    }
     client.emit('presence:ack', { visitorId: presenceMember });
-    await this.broadcastDashboardSnapshot('visitor_connected');
   }
 
   async handleDisconnect(client: Socket) {
@@ -105,8 +124,6 @@ export class DashboardGateway
     if (presenceMember?.startsWith('socket:')) {
       await this.dashboardService.removeVisitorPresence(presenceMember);
     }
-
-    await this.broadcastDashboardSnapshot('visitor_disconnected');
   }
 
   @SubscribeMessage('presence:heartbeat')
@@ -114,42 +131,63 @@ export class DashboardGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload?: { visitorId?: string },
   ) {
-    if (this.getClientType(client) === 'admin') {
+    const state = this.getSocketState(client);
+    if (
+      state.clientType !== 'visitor' ||
+      !state.presenceMember ||
+      state.heartbeatPending ||
+      Date.now() < (state.nextHeartbeatAt ?? 0)
+    ) {
       return { ok: false };
     }
-
-    const presenceMember = this.resolvePresenceMember(
-      client,
-      payload?.visitorId,
-    );
-    const state = this.getSocketState(client);
-    state.clientType = 'visitor';
-    state.presenceMember = presenceMember;
-    const onlineVisitors = await this.dashboardService.updateVisitorPresence(
-      presenceMember,
-      this.visitorTtlSeconds,
-    );
-
-    return {
-      ok: true,
-      onlineVisitors,
-      visitorId: presenceMember,
-    };
+    // Identity is fixed at handshake; event payloads cannot add Redis members.
+    if (
+      payload !== undefined &&
+      (typeof payload !== 'object' ||
+        payload === null ||
+        Array.isArray(payload) ||
+        (payload.visitorId !== undefined &&
+          (typeof payload.visitorId !== 'string' ||
+            payload.visitorId.length > 160 ||
+            (payload.visitorId !== state.presenceMember &&
+              `visitor:${payload.visitorId}` !== state.presenceMember))))
+    ) {
+      return { ok: false };
+    }
+    state.nextHeartbeatAt = Date.now() + 5000;
+    state.heartbeatPending = true;
+    try {
+      const onlineVisitors = await this.dashboardService.updateVisitorPresence(
+        state.presenceMember,
+        this.visitorTtlSeconds,
+      );
+      return { ok: true, onlineVisitors, visitorId: state.presenceMember };
+    } catch {
+      return { ok: false };
+    } finally {
+      state.heartbeatPending = false;
+    }
   }
 
   async broadcastDashboardSnapshot(reason: string) {
-    const snapshot = await this.dashboardService.getDashboardSnapshot(
-      this.visitorTtlSeconds,
-    );
+    if (this.broadcastPending) return;
+    this.broadcastPending = true;
+    try {
+      const snapshot = await this.dashboardService.getDashboardSnapshot(
+        this.visitorTtlSeconds,
+      );
 
-    this.server.to(this.adminRoom).emit('dashboard:snapshot', {
-      reason,
-      data: snapshot,
-    });
+      this.server.to(this.adminRoom).emit('dashboard:snapshot', {
+        reason,
+        data: snapshot,
+      });
+    } finally {
+      this.broadcastPending = false;
+    }
   }
 
   async onArticleDetailViewed() {
-    await this.broadcastDashboardSnapshot('article_view');
+    // Scheduled snapshots coalesce public traffic into a bounded query rate.
   }
 
   onModuleDestroy() {

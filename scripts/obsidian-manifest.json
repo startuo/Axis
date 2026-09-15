@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "agentic-os",
+    "source": "Agentic OS - Fable 5 构建者指南.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "apple-design",
+    "source": "Apple设计语言深度分析.md",
+    "category": "设计"
+  },
+  {
+    "slug": "claude-code-loops",
+    "source": "Claude Code 循环系统入门.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "hyperframes-workflow",
+    "source": "Codex Hyperframes AI视频复刻工作流 - 深度拆解.md",
+    "category": "内容生产"
+  },
+  {
+    "slug": "codex-skill-workflow",
+    "source": "Codex Skill 工作流沉淀方法论 - 深度研究.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "automated-editing",
+    "source": "Codex自动化剪辑工作流 - 从抄爆款到批量生产.md",
+    "category": "内容生产"
+  },
+  {
+    "slug": "dynamic-workflows",
+    "source": "Dynamic Workflows 与环路工程 - 从提示到系统.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "instruction-subtraction",
+    "source": "GPT-6 Astra 技能与提示重审 - 指令减法的艺术.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "graph-roadmap",
+    "source": "Graph Engineering 14步路线图 - Claude Code 实战课程.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "graph-four-problems",
+    "source": "Graph Engineering 四个硬问题 - 深度研究.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "harness-loop-graph",
+    "source": "Harness vs Loop vs Graph Engineering - 三层架构深度研究.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "harness-engineering",
+    "source": "Harness工程学习总结.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "continuous-learning",
+    "source": "How to Build an AI That Never Stops Learning - 深度研究.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "shared-memory",
+    "source": "Memmy-Agent 跨Agent共享记忆系统 - 深度分析.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "visual-dictionary",
+    "source": "Vibe Coding 视觉词典 - 网页设计AI提示词工程系统.md",
+    "category": "设计"
+  },
+  {
+    "slug": "steelman-thinking",
+    "source": "双向钢人论证Prompt - 深度思考的核心方法论.md",
+    "category": "思考方法"
+  },
+  {
+    "slug": "wechat-publishing",
+    "source": "微信公众号全自动发布方案.md",
+    "category": "内容生产"
+  },
+  {
+    "slug": "douyin-growth",
+    "source": "抖音万粉复盘 - 内容增长的概率游戏与系统策略.md",
+    "category": "内容生产"
+  },
+  {
+    "slug": "ai-creator-start",
+    "source": "普通人怎么吃上第一碗AI饭 - AI自媒体起号方法论.md",
+    "category": "内容生产"
+  },
+  {
+    "slug": "karpathy-loop",
+    "source": "环路工程-卡帕西方法.md",
+    "category": "Agent 工程"
+  }
+]

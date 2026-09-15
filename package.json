@@ -3,6 +3,8 @@
 	"type": "module",
 	"version": "8.3",
 	"scripts": {
+		"sync:obsidian": "node scripts/sync-obsidian.mjs",
+		"build:static": "astro build && pagefind --site dist",
 		"sync-content": "node scripts/sync-content.js",
 		"init-content": "node scripts/init-content-repo.js",
 		"predev": "node scripts/sync-content.js || true",

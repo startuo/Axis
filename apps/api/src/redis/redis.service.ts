@@ -17,6 +17,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     private readonly configService: ConfigService<AppEnvironment, true>,
   ) {
     this.client = createClient({
+      disableOfflineQueue: true,
       url: this.configService.get('REDIS_URL', { infer: true }),
     });
 

@@ -56,8 +56,10 @@ export const siteConfig: SiteConfig = {
 		text: "STAR的个人博客",
 		// 顶栏标题图标路径，默认使用 public/assets/home/home.png
 		icon: "assets/home/home.png",
+		iconLight: "assets/home/home-light.png",
 		// 网站Logo图片路径
 		logo: "assets/home/default-logo.png",
+		logoLight: "assets/home/home-light.png",
 	},
 
 	// 页面自动缩放配置
@@ -228,22 +230,22 @@ export const siteConfig: SiteConfig = {
 
 	// 字体配置
 	font: {
-		// 注意：自定义字体需要在 src/styles/main.css 中引入字体文件
-		// 注意：字体子集优化功能目前仅支持 TTF 格式字体,开启后需要在生产环境才能看到效果,在Dev环境下显示的是浏览器默认字体!
+		// 自定义字体在 src/styles/fonts.css 中加载
+		// 使用完整本地 TTF，避免未生成的压缩字体导致回退。
 		asciiFont: {
 			// 英文字体 - 优先级最高
 			// 指定为英文字体则无论字体包含多大范围，都只会保留 ASCII 字符子集
-			fontFamily: "ZenMaruGothic-Medium",
+			fontFamily: "萝莉体 第二版",
 			fontWeight: "400",
-			localFonts: ["ZenMaruGothic-Medium.ttf"],
-			enableCompress: true, // 启用字体子集优化，减少字体文件大小
+			localFonts: ["萝莉体 第二版.ttf"],
+			enableCompress: false, // 直接加载现有 TTF，开发与静态构建保持一致
 		},
 		cjkFont: {
 			// 中日韩字体 - 作为回退字体
 			fontFamily: "萝莉体 第二版",
-			fontWeight: "500",
+			fontWeight: "400",
 			localFonts: ["萝莉体 第二版.ttf"],
-			enableCompress: true, // 启用字体子集优化，减少字体文件大小
+			enableCompress: false, // 直接加载现有 TTF，开发与静态构建保持一致
 		},
 	},
 	showLastModified: true, // 控制“上次编辑”卡片显示的开关
@@ -287,6 +289,7 @@ export const navBarConfig: NavBarConfig = {
 			url: "/links/",
 			icon: "material-symbols:link",
 			children: [
+				{ name: "X", url: "https://x.com/star_xiao7920", external: true, icon: "fa7-brands:x-twitter" },
 				{
 					name: "GitHub",
 					url: "https://github.com/startuo",
@@ -333,11 +336,6 @@ export const navBarConfig: NavBarConfig = {
 					icon: "material-symbols:devices",
 					external: false,
 				},
-				{
-					name: "简历",
-					url: "/resume/",
-					icon: "material-symbols:description",
-				},
 			],
 		},
 		{
@@ -369,6 +367,7 @@ export const profileConfig: ProfileConfig = {
 		speed: 80, // 打字速度（毫秒）
 	},
 	links: [
+		{ name: "X", url: "https://x.com/star_xiao7920", icon: "fa7-brands:x-twitter" },
 		{
 			name: "抖音",
 			icon: "material-symbols:play-circle",

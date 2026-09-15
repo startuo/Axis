@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from "astro";
+import { API_ENABLED } from "../utils/api-config";
 import BackendArticleFeed from "../components/backend/BackendArticleFeed.svelte";
 import Pagination from "../components/control/Pagination.astro";
 import PostPage from "../components/PostPage.astro";
@@ -24,6 +25,6 @@ const isFirstPage = page.currentPage === 1;
 
 <MainGridLayout>
     <PostPage page={page}></PostPage>
-    {isFirstPage && <BackendArticleFeed client:load />}
+    {isFirstPage && API_ENABLED && <BackendArticleFeed client:load />}
     <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${(len)*50}ms)`}></Pagination>
 </MainGridLayout>

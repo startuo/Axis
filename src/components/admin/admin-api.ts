@@ -1,3 +1,4 @@
+import { apiUrl, SOCKET_URL, API_UNAVAILABLE_MESSAGE } from "../../utils/api-config";
 import { io, type Socket } from "socket.io-client";
 
 export type UserRole = "ADMIN" | "USER";
@@ -93,16 +94,8 @@ export interface ArticleQuery {
 	keyword?: string;
 }
 
-const DEFAULT_API_BASE_URL = "http://localhost:3001/api/v1";
-const DEFAULT_SOCKET_URL = "http://localhost:3001/dashboard";
-
-export const API_BASE_URL =
-	import.meta.env.PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL;
-export const SOCKET_URL =
-	import.meta.env.PUBLIC_SOCKET_URL ?? DEFAULT_SOCKET_URL;
-
 function buildUrl(path: string, query?: Record<string, string | number | undefined>) {
-	const url = new URL(`${API_BASE_URL}${path}`);
+	const url = apiUrl(path);
 
 	Object.entries(query ?? {}).forEach(([key, value]) => {
 		if (value !== undefined && value !== "") {
@@ -251,6 +244,7 @@ export async function getPublicArticle(slug: string, visitorId: string) {
 }
 
 export function createAdminDashboardSocket(token: string): Socket {
+	if (!SOCKET_URL) throw new Error(API_UNAVAILABLE_MESSAGE);
 	return io(SOCKET_URL, {
 		auth: { token },
 		query: { clientType: "admin" },

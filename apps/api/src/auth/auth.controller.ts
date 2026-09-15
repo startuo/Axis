@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -14,6 +15,7 @@ import type { SafeUser } from '../users/interfaces/safe-user.interface';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +23,7 @@ export class AuthController {
 
   @Public()
   @Post('register')
+  @UseGuards(AuthRateLimitGuard)
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -28,6 +31,7 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
+  @UseGuards(AuthRateLimitGuard)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }

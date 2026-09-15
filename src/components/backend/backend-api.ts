@@ -1,3 +1,4 @@
+import { apiUrl } from "../../utils/api-config";
 export interface BackendArticleAuthor {
 	id: string;
 	username: string;
@@ -29,13 +30,8 @@ export interface BackendArticleList {
 	};
 }
 
-const DEFAULT_API_BASE_URL = "http://localhost:3001/api/v1";
-
-export const API_BASE_URL =
-	import.meta.env.PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL;
-
 function buildUrl(path: string, query?: Record<string, string | number | undefined>) {
-	const url = new URL(`${API_BASE_URL}${path}`);
+	const url = apiUrl(path);
 
 	Object.entries(query ?? {}).forEach(([key, value]) => {
 		if (value !== undefined && value !== "") {

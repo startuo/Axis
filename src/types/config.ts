@@ -80,7 +80,9 @@ export type SiteConfig = {
 		mode?: "text-icon" | "logo"; // 显示模式："text-icon" 显示图标+文本，"logo" 仅显示Logo
 		text: string; // 顶栏标题文本
 		icon?: string; // 顶栏标题图标路径
+		iconLight?: string; // 明亮主题图标，未设置时沿用 icon
 		logo?: string; // 网站Logo图片路径
+		logoLight?: string; // 明亮主题Logo，未设置时沿用 logo
 	};
 
 	// 页面自动缩放配置

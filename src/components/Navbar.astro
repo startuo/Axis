@@ -41,6 +41,10 @@ const logoSrc = rawLogo.match(/^(http|https|\/\/)/) ? rawLogo : url(rawLogo);
 
 const rawIcon = siteConfig.navbarTitle?.icon || "/assets/home/home.png";
 const iconSrc = rawIcon.match(/^(http|https|\/\/)/) ? rawIcon : url(rawIcon);
+const rawLightLogo = siteConfig.navbarTitle?.logoLight || rawLogo;
+const lightLogoSrc = rawLightLogo.match(/^(http|https|\/\/)/) ? rawLightLogo : url(rawLightLogo);
+const rawLightIcon = siteConfig.navbarTitle?.iconLight || rawIcon;
+const lightIconSrc = rawLightIcon.match(/^(http|https|\/\/)/) ? rawLightIcon : url(rawLightIcon);
 ---
 <div id="navbar" class="z-50 onload-animation group" data-transparent-mode={navbarTransparentMode} data-is-home={isHomePage}>
     <div class="absolute h-8 left-0 right-0 -top-8 bg-(--card-bg) transition"></div> <!-- used for onload animation -->
@@ -50,10 +54,14 @@ const iconSrc = rawIcon.match(/^(http|https|\/\/)/) ? rawIcon : url(rawIcon);
 				{/* 使用navbarTitle配置或默认配置 */}
                 {siteConfig.navbarTitle ? (
                     siteConfig.navbarTitle.mode === "logo" ? (
-                        <img src={logoSrc} alt={siteConfig.navbarTitle.text} class="h-10 md:h-13 md:in-[.enable-banner]:h-10 md:in-[.enable-banner]:group-[.scrolled]:h-13 max-w-full object-contain transition-all duration-300" loading="lazy" />
+                        <>
+                            <img src={lightLogoSrc} alt={siteConfig.navbarTitle.text} class="block dark:hidden h-10 md:h-13 md:in-[.enable-banner]:h-10 md:in-[.enable-banner]:group-[.scrolled]:h-13 max-w-full object-contain transition-all duration-300" />
+                            <img src={logoSrc} alt={siteConfig.navbarTitle.text} class="hidden dark:block h-10 md:h-13 md:in-[.enable-banner]:h-10 md:in-[.enable-banner]:group-[.scrolled]:h-13 max-w-full object-contain transition-all duration-300" />
+                        </>
                     ) : (
                         <>
-                            <img src={iconSrc} alt={siteConfig.navbarTitle.text} class="h-7 w-7 mr-2 object-contain" loading="lazy" />
+                            <img src={lightIconSrc} alt="" class="block dark:hidden h-7 w-7 mr-2 object-contain" />
+                            <img src={iconSrc} alt="" class="hidden dark:block h-7 w-7 mr-2 object-contain" />
                             <span>{siteConfig.navbarTitle.text}</span>
                         </>
                     )

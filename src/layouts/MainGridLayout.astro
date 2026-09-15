@@ -114,7 +114,6 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 
 // 检查是否为首页
 const isHomePage = Astro.url.pathname === "/" || Astro.url.pathname === "";
-const showHomeText = siteConfig.banner.homeText?.enable && isHomePage;
 // 手机端非首页不显示banner的CSS类
 const mobileNonHomeBannerClass = !isHomePage ? "mobile-hide-banner" : "";
 
@@ -730,8 +729,9 @@ const transparentClass = shouldEnableTransparency
     )}
     
     <!-- Home page text overlay -->
-    {siteConfig.banner.homeText?.enable && showHomeText && (
-        <div class="banner-text-overlay absolute inset-0 z-20 flex items-center justify-center">
+    {/* Banner persists across Swup navigation, so inner pages also need its title DOM. */}
+    {siteConfig.banner.homeText?.enable && (
+        <div class:list={["banner-text-overlay absolute inset-0 z-20 flex items-center justify-center", { hidden: !isHomePage }]}>
             <div class="max-w-(--page-width) w-full px-0 md:px-4 mx-auto flex items-center justify-center h-full">
                 <div class="w-4/5 lg:w-3/4 text-center mb-0">
                     <div class="flex flex-col">

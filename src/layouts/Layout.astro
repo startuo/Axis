@@ -158,7 +158,7 @@ if (siteConfig.font) {
 		"sans-serif",
 	);
 	// 组合成完整的 font-family 字符串
-	bodyFontFamily = fonts.join(", ");
+	bodyFontFamily = [...new Set(fonts)].join(", ");
 }
 ---
 

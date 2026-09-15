@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SOCKET_URL } from "../../utils/api-config";
 	import { onDestroy, onMount, tick } from "svelte";
 	import type { Socket } from "socket.io-client";
 	import InteractiveMascot from "./InteractiveMascot.svelte";
@@ -339,6 +340,7 @@
 
 	function connectDashboard(accessToken: string) {
 		disconnectDashboard();
+		if (!SOCKET_URL) return;
 		socketState = "connecting";
 		socket = createAdminDashboardSocket(accessToken);
 
@@ -1429,7 +1431,7 @@
 		position: relative;
 		width: 100%;
 		color: var(--admin-text);
-		font-family: "ZenMaruGothic-Medium", "Roboto", "Noto Sans SC", ui-rounded, sans-serif;
+		font-family: "萝莉体 第二版", "Roboto", "Noto Sans SC", ui-rounded, sans-serif;
 	}
 
 	:global(:root.dark) .admin-shell {

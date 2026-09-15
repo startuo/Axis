@@ -11,3 +11,6 @@ dist
 public/fonts
 public/videos
 .codex-screenshots/
+
+.codex-logs/
+.claude/worktrees/

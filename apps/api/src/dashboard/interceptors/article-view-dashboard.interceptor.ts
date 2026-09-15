@@ -5,6 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import type { Request } from 'express';
+import { createHash } from 'node:crypto';
 import { from } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { DashboardGateway } from '../dashboard.gateway';
@@ -50,38 +51,19 @@ export class ArticleViewDashboardInterceptor implements NestInterceptor {
     response: ArticleDetailResponse,
   ) {
     const visitorId = this.resolveVisitorId(request);
-    await this.dashboardService.trackArticleView({
-      articleId: response.id,
-      visitorId,
-    });
+    await this.dashboardService
+      .trackArticleView({
+        articleId: response.id,
+        visitorId,
+      })
+      .catch(() => undefined);
     void this.dashboardGateway.onArticleDetailViewed();
   }
 
   private resolveVisitorId(request: DashboardRequest): string {
-    const headerVisitorId = request.headers['x-visitor-id'];
-    if (
-      typeof headerVisitorId === 'string' &&
-      headerVisitorId.trim().length > 0
-    ) {
-      return `visitor:${headerVisitorId.trim()}`;
-    }
-
-    const queryVisitorId = request.query.visitorId;
-    if (
-      typeof queryVisitorId === 'string' &&
-      queryVisitorId.trim().length > 0
-    ) {
-      return `visitor:${queryVisitorId.trim()}`;
-    }
-
-    const forwardedFor = request.headers['x-forwarded-for'];
-    if (typeof forwardedFor === 'string' && forwardedFor.trim().length > 0) {
-      const firstIp = forwardedFor.split(',')[0]?.trim();
-      if (firstIp) {
-        return `ip:${firstIp}`;
-      }
-    }
-
-    return `ip:${request.ip}`;
+    // Client IDs are untrusted; hash the trusted transport address for bounded UV identity.
+    return createHash('sha256')
+      .update(request.ip || request.socket.remoteAddress || 'unknown')
+      .digest('hex');
   }
 }

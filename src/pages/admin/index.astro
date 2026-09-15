@@ -1,11 +1,12 @@
 ---
+import { API_ENABLED, API_UNAVAILABLE_MESSAGE } from "../../utils/api-config";
 import AdminConsole from "../../components/admin/AdminConsole.svelte";
 import AdminLayout from "../../layouts/AdminLayout.astro";
 ---
 
 <AdminLayout title="STAR Admin" description="STAR's Blog 管理控制台">
 	<div class="admin-page-shell">
-		<AdminConsole client:load />
+		{API_ENABLED ? <AdminConsole client:load /> : <section class="card-base p-8"><h1>在线服务暂未启用</h1><p>{API_UNAVAILABLE_MESSAGE}</p><a href="/">返回博客阅读文章</a></section>}
 	</div>
 </AdminLayout>
 

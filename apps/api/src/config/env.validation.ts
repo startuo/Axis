@@ -29,6 +29,17 @@ function requireValue(
 }
 
 export function validateEnvironment(environment: EnvironmentVariables) {
+  const jwtSecret = requireValue(environment, 'JWT_SECRET');
+  if (
+    Buffer.byteLength(jwtSecret.trim(), 'utf8') < 32 ||
+    /please.change.me|change.?me|replace.?me|your.?secret|example|development.?secret/i.test(
+      jwtSecret,
+    )
+  ) {
+    throw new Error(
+      'JWT_SECRET must be a non-placeholder secret of at least 32 bytes',
+    );
+  }
   const port = environment.PORT ?? '3001';
   const dashboardPushInterval =
     environment.DASHBOARD_PUSH_INTERVAL_MS ?? '5000';
@@ -52,6 +63,19 @@ export function validateEnvironment(environment: EnvironmentVariables) {
   if (Number.isNaN(Number(articleViewFlushInterval))) {
     throw new Error('ARTICLE_VIEW_FLUSH_INTERVAL_MS must be a valid number');
   }
+  if (
+    !Number.isFinite(Number(onlineVisitorTtlSeconds)) ||
+    Number(onlineVisitorTtlSeconds) < 10 ||
+    Number(onlineVisitorTtlSeconds) > 300
+  ) {
+    throw new Error('ONLINE_VISITOR_TTL_SECONDS must be between 10 and 300');
+  }
+  if (
+    !Number.isFinite(Number(dashboardPushInterval)) ||
+    Number(dashboardPushInterval) < 1000
+  ) {
+    throw new Error('DASHBOARD_PUSH_INTERVAL_MS must be at least 1000');
+  }
 
   return {
     NODE_ENV: environment.NODE_ENV ?? 'development',
@@ -60,7 +84,7 @@ export function validateEnvironment(environment: EnvironmentVariables) {
     CORS_ORIGIN: environment.CORS_ORIGIN ?? 'http://localhost:4321',
     DATABASE_URL: requireValue(environment, 'DATABASE_URL'),
     REDIS_URL: requireValue(environment, 'REDIS_URL'),
-    JWT_SECRET: environment.JWT_SECRET ?? 'please-change-me',
+    JWT_SECRET: jwtSecret,
     JWT_EXPIRES_IN: environment.JWT_EXPIRES_IN ?? '7d',
     DASHBOARD_PUSH_INTERVAL_MS: dashboardPushInterval,
     ONLINE_VISITOR_TTL_SECONDS: onlineVisitorTtlSeconds,
