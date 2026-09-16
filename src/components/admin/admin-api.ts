@@ -1,5 +1,4 @@
-import { apiUrl, SOCKET_URL, API_UNAVAILABLE_MESSAGE } from "../../utils/api-config";
-import { io, type Socket } from "socket.io-client";
+import { apiUrl } from "../../utils/api-config";
 
 export type UserRole = "ADMIN" | "USER";
 export type ArticleStatus = "DRAFT" | "PUBLISHED";
@@ -80,11 +79,6 @@ export interface DashboardSnapshot {
 	todayNewReadCount: number;
 	hotArticles: DashboardSnapshotHotArticle[];
 	generatedAt: string;
-}
-
-export interface DashboardSnapshotEvent {
-	reason: string;
-	data: DashboardSnapshot;
 }
 
 export interface ArticleQuery {
@@ -243,13 +237,8 @@ export async function getPublicArticle(slug: string, visitorId: string) {
 	return payload as AdminArticle;
 }
 
-export function createAdminDashboardSocket(token: string): Socket {
-	if (!SOCKET_URL) throw new Error(API_UNAVAILABLE_MESSAGE);
-	return io(SOCKET_URL, {
-		auth: { token },
-		query: { clientType: "admin" },
-		transports: ["websocket", "polling"],
-	});
+export function getDashboardSnapshot(token: string, signal?: AbortSignal) {
+	return request<DashboardSnapshot>("/dashboard/snapshot", { token, signal });
 }
 
 export function emptyDashboardSnapshot(): DashboardSnapshot {

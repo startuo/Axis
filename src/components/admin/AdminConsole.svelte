@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { SOCKET_URL } from "../../utils/api-config";
+	import { API_ENABLED } from "../../utils/api-config";
 	import { onDestroy, onMount, tick } from "svelte";
-	import type { Socket } from "socket.io-client";
 	import InteractiveMascot from "./InteractiveMascot.svelte";
 	import {
 		clearAdminUserInfo,
@@ -16,7 +15,7 @@
 		type FeedbackStatus,
 	} from "../feedback/feedback-api";
 	import {
-		createAdminDashboardSocket,
+		getDashboardSnapshot,
 		createArticle,
 		deleteArticle,
 		emptyDashboardSnapshot,
@@ -31,7 +30,6 @@
 		type ArticleMutation,
 		type ArticleStatus,
 		type DashboardSnapshot,
-		type DashboardSnapshotEvent,
 	} from "./admin-api";
 
 	const TOKEN_KEY = "star_blog_auth_token";
@@ -97,7 +95,8 @@
 	let dashboard: DashboardSnapshot = emptyDashboardSnapshot();
 	let lastDashboardReason = "waiting";
 	let socketState: "idle" | "connecting" | "connected" | "error" = "idle";
-	let socket: Socket | null = null;
+	let dashboardTimer: ReturnType<typeof setTimeout> | null = null;
+	let dashboardAbort: AbortController | null = null;
 
 	let articles: AdminArticle[] = [];
 	let articlesLoading = false;
@@ -162,7 +161,7 @@
 	$: hasNextPage = meta.page < meta.totalPages;
 	$: socketStatusLabel =
 		socketState === "connected"
-			? "实时已连接"
+			? "每 30 秒更新"
 			: socketState === "connecting"
 				? "连接中"
 				: socketState === "error"
@@ -340,40 +339,33 @@
 
 	function connectDashboard(accessToken: string) {
 		disconnectDashboard();
-		if (!SOCKET_URL) return;
+		if (!API_ENABLED) return;
 		socketState = "connecting";
-		socket = createAdminDashboardSocket(accessToken);
-
-		socket.on("connect", () => {
-			socketState = "connected";
-		});
-
-		socket.on("disconnect", () => {
-			socketState = "idle";
-		});
-
-		socket.on("connect_error", (error) => {
-			socketState = "error";
-			globalError = `Socket 连接失败：${error.message}`;
-		});
-
-		socket.on("dashboard:error", (payload: { message?: string }) => {
-			socketState = "error";
-			globalError = payload.message ?? "Dashboard Socket authentication failed.";
-		});
-
-		socket.on("dashboard:snapshot", (event: DashboardSnapshotEvent) => {
-			if (socketState !== "error") {
-				socketState = "connected";
+		const controller = new AbortController();
+		dashboardAbort = controller;
+		async function refresh() {
+			try {
+				if (!document.hidden) {
+					const snapshot = await getDashboardSnapshot(accessToken, controller.signal);
+					if (controller.signal.aborted) return;
+					dashboard = snapshot;
+					socketState = "connected";
+					lastDashboardReason = "定时刷新";
+				}
+			} catch {
+				if (!controller.signal.aborted) socketState = "error";
+			} finally {
+				if (!controller.signal.aborted) dashboardTimer = setTimeout(refresh, 30000);
 			}
-			dashboard = event.data;
-			lastDashboardReason = event.reason;
-		});
+		}
+		void refresh();
 	}
 
 	function disconnectDashboard() {
-		socket?.disconnect();
-		socket = null;
+		dashboardAbort?.abort();
+		dashboardAbort = null;
+		if (dashboardTimer) clearTimeout(dashboardTimer);
+		dashboardTimer = null;
 		socketState = "idle";
 	}
 
@@ -577,7 +569,7 @@
 
 		try {
 			await getPublicArticle(article.slug, visitorId);
-			showToast("已模拟一次公开阅读，PV/热门文章会实时刷新。");
+			showToast("已记录一次公开阅读，统计将在下次刷新时更新。");
 			await loadArticles(filters.page);
 		} catch (error) {
 			globalError = getErrorMessage(error);
@@ -764,7 +756,7 @@
 				<p class="eyebrow">STAR'S BLOG</p>
 				<h1>欢迎来到我的博客</h1>
 				<p class="brand-copy">
-					这里是博客入口和后台通道。管理员登录后进入实时驾驶舱，普通用户登录或注册后进入客户端后台，后续会扩展评论、收藏和个人互动数据。
+					这里是博客入口和后台通道。管理员登录后进入管理驾驶舱，普通用户登录或注册后进入客户端后台，后续会扩展评论、收藏和个人互动数据。
 				</p>
 				<div class="login-mascot-showcase">
 					<InteractiveMascot
@@ -968,12 +960,12 @@
 					</div>
 					<div>
 						<strong>STAR Admin</strong>
-						<span>实时驾驶舱</span>
+						<span>管理驾驶舱</span>
 					</div>
 				</div>
 
 				<nav>
-					<a href="#dashboard">实时看板</a>
+					<a href="#dashboard">统计看板</a>
 					<a href="#hot">热门文章</a>
 					<a href="#articles">文章管理</a>
 					<a href="#feedback">留言审核</a>
@@ -1003,7 +995,7 @@
 				<header class="topbar">
 					<div>
 						<p class="eyebrow">Dashboard</p>
-						<h1>博客实时驾驶舱</h1>
+						<h1>博客管理驾驶舱</h1>
 					</div>
 					<div class="topbar-actions">
 						<span class:connected={socketState === "connected"} class="socket-pill">
@@ -1023,11 +1015,11 @@
 				{/if}
 
 				<section class="dashboard-map" id="dashboard">
-					<div class="metric-grid" aria-label="实时数据看板">
+					<div class="metric-grid" aria-label="统计数据看板">
 						<article class="metric-card featured">
 							<span>在线人数</span>
 							<strong>{formatNumber(dashboard.onlineVisitors)}</strong>
-							<small>实时在线访客</small>
+							<small>最近 90 秒活跃 IP</small>
 						</article>
 						<article class="metric-card">
 							<span>今日 PV</span>
@@ -1037,7 +1029,7 @@
 						<article class="metric-card">
 							<span>今日 UV</span>
 							<strong>{formatNumber(dashboard.todayUniqueVisitors)}</strong>
-							<small>访客去重统计</small>
+							<small>按每日 IP 摘要去重</small>
 						</article>
 						<article class="metric-card">
 							<span>新增阅读</span>
@@ -1118,7 +1110,7 @@
 							</div>
 						</div>
 						<p>
-							现有博客 Markdown 文章会通过种子脚本同步进入后端，后续可在这里统一管理。
+							这里管理在线数据库文章；现有 Markdown 文章仍由 Git 构建发布。
 						</p>
 					</article>
 				</section>

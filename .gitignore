@@ -5,6 +5,10 @@ dist
 *.log
 .env
 .env.local
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.wrangler/
 .astro
 .swup
 .cache

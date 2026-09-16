@@ -1,0 +1,2 @@
+# Copy to .dev.vars for local development. Set the production secret with wrangler secret put.
+JWT_SECRET=replace-with-a-random-secret-at-least-32-bytes

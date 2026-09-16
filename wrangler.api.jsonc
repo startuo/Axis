@@ -1,0 +1,19 @@
+{
+  "name": "axis",
+  "main": "workers/index.mjs",
+  "compatibility_date": "2026-09-16",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "not_found_handling": "404-page"
+  },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "axis-db",
+    // 部署前替换为 Cloudflare D1 控制台的 Database ID。
+    "database_id": "00000000-0000-0000-0000-000000000000",
+    "migrations_dir": "workers/migrations"
+  }],
+  "triggers": { "crons": ["0 19 * * *"] }
+}

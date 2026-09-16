@@ -13,8 +13,8 @@
 - Obsidian 文章同步、双链转换、文章元数据与独立配图。
 - 明暗主题、主题 Logo 切换和本地萝莉体字体。
 - 分类、标签、归档和 Pagefind 本地搜索。
-- 可选 NestJS API，提供认证、文章管理、留言与统计能力。
-- 静态网站可独立部署；在线管理等功能需配置 API、PostgreSQL 和 Redis。
+- Cloudflare Workers + D1 提供认证、文章管理、留言审核与统计能力。
+- 静态网站仍可独立部署；全栈部署步骤见下方文档。旧 NestJS 源码暂保留用于迁移参考。
 
 ## 本地运行
 
@@ -34,6 +34,7 @@ pnpm preview
 
 ## 文档
 
+- [Cloudflare 后端与 D1 部署步骤](docs/CLOUDFLARE_DEPLOYMENT.md)
 - [Obsidian 同步](docs/OBSIDIAN_SYNC.md)
 - [静态网站与后端部署](docs/MAOZIYUN_DEPLOYMENT.md)
 - [功能与验证记录](docs/DELIVERY_CHECKS.md)

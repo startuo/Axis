@@ -3,6 +3,12 @@
 	"type": "module",
 	"version": "8.3",
 	"scripts": {
+		"build:cloudflare": "node scripts/build-cloudflare.mjs",
+		"dev:cloudflare": "wrangler dev --config wrangler.api.jsonc",
+		"deploy:cloudflare": "pnpm build:cloudflare && wrangler deploy --config wrangler.api.jsonc",
+		"db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.api.jsonc",
+		"db:migrate:remote": "wrangler d1 migrations apply DB --remote --config wrangler.api.jsonc",
+		"test:worker": "node --test workers/test/*.test.mjs",
 		"sync:obsidian": "node scripts/sync-obsidian.mjs",
 		"build:static": "astro build && pagefind --site dist",
 		"sync-content": "node scripts/sync-content.js",
@@ -82,7 +88,6 @@
 		"sanitize-html": "^2.17.1",
 		"satori": "^0.19.2",
 		"sharp": "^0.34.5",
-		"socket.io-client": "^4.8.1",
 		"stylus": "^0.64.0",
 		"svelte": "^5.53.6",
 		"tailwindcss": "^4.2.1",
@@ -102,7 +107,8 @@
 		"fontmin": "^1.1.1",
 		"postcss-import": "^16.1.1",
 		"postcss-nesting": "^13.0.2",
-		"prettier": "^3.8.1"
+		"prettier": "^3.8.1",
+		"wrangler": "4.132.0"
 	},
 	"packageManager": "pnpm@10.22.0",
 	"pnpm": {

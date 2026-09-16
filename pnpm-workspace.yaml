@@ -12,3 +12,4 @@ onlyBuiltDependencies:
   - sharp
   - swup
   - ttf2woff2
+  - workerd

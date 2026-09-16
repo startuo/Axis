@@ -1,5 +1,7 @@
 # STAR 博客文档
 
+- [Cloudflare Workers + D1 后端部署](CLOUDFLARE_DEPLOYMENT.md)
+
 - [项目介绍与快速开始](../README.md)
 - [Obsidian 文章同步](OBSIDIAN_SYNC.md)
 - [静态网站与独立后端部署](MAOZIYUN_DEPLOYMENT.md)

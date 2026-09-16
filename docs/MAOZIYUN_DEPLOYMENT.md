@@ -8,10 +8,12 @@
 | --- | --- |
 | 仓库 / 分支 | `startuo/Axis` / `main` |
 | 根目录 | `.` |
-| 构建命令 | `pnpm build:static` |
-| 输出目录 | `dist` |
+| 构建命令 | `pnpm --workspace-root run build:static` |
+| 输出目录 | `../../dist` |
 
 保存后重新部署。这些设置保存在帽子云控制台，Git 推送本身不会替换控制台字段。
+
+第二次日志确认：即使根目录设为 `.`，平台仍在生成的构建步骤里进入 `/src/apps/api`。因此本应用使用 `--workspace-root` 强制调用根包脚本，输出目录从实际工作目录 `/src/apps/api` 回到 `/src/dist`。下文一般静态平台的 `dist` 设置不适用于这个自动识别行为。将来平台不再进入 `apps/api` 时，输出目录需恢复为 `dist`。
 
 最新失败日志中的 Prisma 生成及 NestJS 编译已经成功，错误发生在复制 `/src/apps/api/build`。不要仅将后端输出目录改为 `dist`：NestJS 产物需要 Node.js 运行环境，不能作为静态站点发布。这里应发布仓库根目录生成的 Astro 页面。
 
