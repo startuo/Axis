@@ -12,7 +12,7 @@
     "binding": "DB",
     "database_name": "axis-db",
     // 部署前替换为 Cloudflare D1 控制台的 Database ID。
-    "database_id": "00000000-0000-0000-0000-000000000000",
+    "database_id": "4bea7f5a-4392-4def-bb81-8d2cf36c50e3",
     "migrations_dir": "workers/migrations"
   }],
   "triggers": { "crons": ["0 19 * * *"] }
