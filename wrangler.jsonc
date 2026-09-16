@@ -1,0 +1,9 @@
+{
+  // 若控制台已创建 Worker，请将 name 改为对应的项目名称。
+  "name": "star-blog",
+  "compatibility_date": "2026-09-16",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}

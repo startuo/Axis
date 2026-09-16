@@ -1,5 +1,26 @@
 # 帽子云部署方案
 
+## 2026-09-16 构建日志修复
+
+两份日志对应不同故障，不能共用同一个部署入口：
+
+| 场景 | 工作目录 | 构建命令 | 发布目录或启动命令 |
+| --- | --- | --- | --- |
+| Cloudflare Workers 静态前端 | 仓库根目录 | `pnpm build:static` | 部署命令 `npx wrangler deploy`，配置已指定 `dist` |
+| Cloudflare Pages / 帽子云静态前端 | 仓库根目录 | `pnpm build:static` | 发布目录 `dist` |
+| 支持 Node.js 常驻进程的 API 服务 | `apps/api` | `pnpm build` | `pnpm start:prod` |
+
+安装命令均为 `pnpm install --frozen-lockfile`，构建阶段需安装开发依赖。
+
+- Cloudflare 日志已显示前端构建成功，失败在 Wrangler 对 workspace 根目录的自动识别。根目录新增 `wrangler.jsonc`，显式发布静态资源；将其中 `name` 改为控制台已有 Worker 名称。静态资源配置依据 [Cloudflare 官方文档](https://developers.cloudflare.com/workers/static-assets/binding/)。该配置不启动 NestJS API。
+- 第二份日志实际在 `/src/apps/api` 执行 `nest build`，缺少生成后的 Prisma 模型类型。API 的 `build` 已改为先按 `prisma/schema.prisma` 生成 Client，再编译，避免依赖开发机缓存或依赖安装时的自动 schema 查找。生成 Client 不执行数据库迁移。
+- 如果第二个平台只是用于发布博客，请把根目录改回仓库根目录，按表中静态前端设置。若确实部署 API，则需确认所选服务提供 Node.js 运行环境，并按下文配置数据库、Redis、JWT 与跨域；镜像编译成功不等于服务上线成功。
+- 日志中的 `ttf2woff2` / Python `distutils` 报错未终止依赖安装，且随后前端构建成功，不是本次部署失败原因。
+
+前后端分别部署时，在前端构建环境填写下文的 `PUBLIC_API_BASE_URL`、`PUBLIC_SOCKET_URL`，然后重新构建；数据库迁移与管理员初始化只在后端执行。
+
+本地验证：`pnpm --filter api build` 通过，生成 Prisma Client 6.19.3 和 `apps/api/dist/src/main.js`；`pnpm --filter api test --runInBand` 的 2 个测试套件、16 项测试通过；`pnpm build:static` 生成 56 个页面，Pagefind 索引 28 页。Wrangler 4.132.0 的 `deploy --dry-run` 已读取 492 个静态文件并完成预检，不再触发 workspace 自动识别错误。未执行线上部署、数据库迁移或线上健康检查。
+
 核对日期：2026-09-14。
 
 ## 结论
