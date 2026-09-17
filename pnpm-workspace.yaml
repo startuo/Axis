@@ -1,14 +1,8 @@
-packages:
-  - 'apps/*'
+packages: []
 
 onlyBuiltDependencies:
-  - '@nestjs/core'
   - '@parcel/watcher'
-  - '@prisma/client'
-  - '@prisma/engines'
-  - argon2
   - esbuild
-  - prisma
   - sharp
   - swup
   - ttf2woff2

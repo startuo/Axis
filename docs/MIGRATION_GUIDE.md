@@ -1,3 +1,5 @@
+> 历史文档：旧 NestJS 后端已移除，当前部署请使用 [Cloudflare 部署文档](CLOUDFLARE_DEPLOYMENT.md) 和 [帽子云部署文档](MAOZIYUN_DEPLOYMENT.md)。
+
 # Mizuki 内容迁移指南
 
 本指南将帮助你将现有的 Mizuki 博客从单仓库模式迁移到代码内容分离模式。

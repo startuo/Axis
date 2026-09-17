@@ -2,6 +2,7 @@
 	import { API_ENABLED } from "../../utils/api-config";
 	import { onDestroy, onMount, tick } from "svelte";
 	import InteractiveMascot from "./InteractiveMascot.svelte";
+	import MarkdownManager from "./MarkdownManager.svelte";
 	import {
 		clearAdminUserInfo,
 		setAdminUserInfo,
@@ -967,7 +968,8 @@
 				<nav>
 					<a href="#dashboard">统计看板</a>
 					<a href="#hot">热门文章</a>
-					<a href="#articles">文章管理</a>
+					<a href="#markdown">Markdown 文章</a>
+					<a href="#articles">在线文章</a>
 					<a href="#feedback">留言审核</a>
 				</nav>
 
@@ -1110,11 +1112,12 @@
 							</div>
 						</div>
 						<p>
-							这里管理在线数据库文章；现有 Markdown 文章仍由 Git 构建发布。
+							Markdown 文章可在下方编辑并提交到 GitHub；在线文章保存在 D1。
 						</p>
 					</article>
 				</section>
 
+				<MarkdownManager {token} />
 				<section class="glass-panel article-panel" id="articles">
 					<div class="panel-heading article-heading">
 						<div>

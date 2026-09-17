@@ -1,3 +1,5 @@
+> 历史文档：旧 NestJS 后端已移除，当前部署请使用 [Cloudflare 部署文档](CLOUDFLARE_DEPLOYMENT.md) 和 [帽子云部署文档](MAOZIYUN_DEPLOYMENT.md)。
+
 # STAR's Blog Admin 前端对接文档
 
 本文档面向本地 Admin 控制台和后续独立前端接入。当前成品 Admin 已集成在现有 Astro 项目中：

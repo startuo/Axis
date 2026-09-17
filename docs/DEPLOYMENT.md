@@ -1,3 +1,5 @@
+> 历史文档：旧 NestJS 后端已移除，当前部署请使用 [Cloudflare 部署文档](CLOUDFLARE_DEPLOYMENT.md) 和 [帽子云部署文档](MAOZIYUN_DEPLOYMENT.md)。
+
 # Mizuki 部署指南
 
 本文档提供 Mizuki 博客在各个平台的部署配置说明。

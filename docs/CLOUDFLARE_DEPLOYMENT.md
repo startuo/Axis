@@ -2,7 +2,7 @@
 
 当前架构：Astro 静态资源 + `workers/index.mjs` API + D1。前端和 API 共用 `axis` Worker 域名，API 前缀 `/api/v1`。不需要 PostgreSQL、Redis 或单独的 NestJS 主机。
 
-全栈使用 `wrangler.api.jsonc`，原 `wrangler.jsonc` 保留静态模式，避免你尚未建库时 Git 推送就切换线上架构。完成下面配置后，必须同时修改控制台的构建与部署命令；切换后不要再使用旧静态部署命令覆盖同一 Worker。
+全栈使用 `wrangler.api.jsonc`，原 `wrangler.jsonc` 保留静态模式，用于独立的纯静态部署。完成下面配置后，必须同时修改控制台的构建与部署命令；切换后不要再使用旧静态部署命令覆盖同一 Worker。
 
 ## 1. 安装与创建数据库
 
@@ -16,7 +16,7 @@ pnpm exec wrangler d1 create axis-db
 
 也可以在 Cloudflare 控制台“存储与数据库 → D1 SQL 数据库”创建 `axis-db`。已创建时不要重复创建。
 
-将返回的 Database ID 填入根目录 `wrangler.api.jsonc` 的 `d1_databases[0].database_id`，替换全零占位值。绑定名称必须为 `DB`，数据库名称为 `axis-db`。Worker 名称目前是截图中的 `axis`。不要直接部署占位配置。
+将返回的 Database ID 填入根目录 `wrangler.api.jsonc` 的 `d1_databases[0].database_id`，当前仓库已填写现有 axis-db 的 ID；在其他账号新建数据库时替换为新 ID。绑定名称必须为 `DB`，数据库名称为 `axis-db`。Worker 名称目前是截图中的 `axis`。不要直接部署占位配置。
 
 控制台“Workers 和 Pages → axis → 绑定 → 添加 D1 数据库”可填写变量名称 `DB`、选择 `axis-db`。但还必须同步仓库配置，避免后续 Git 部署覆盖绑定。
 
@@ -81,16 +81,15 @@ pnpm test:worker
 
 登录、注册、留言、阅读和心跳均有服务端限流。密码使用 Web Crypto PBKDF2-SHA256（100,000 次）加随机盐；JWT 为 HS256、有效期 7 天，管理员角色每次从数据库校验。应在实际流量下观察 Workers CPU 和 D1 配额，免费额度不是无限容量。
 
-现有 Obsidian 静态文章仍由 Git 构建，D1 文章由在线后台维护，两者不自动互相导入。若以后希望后台统一编辑全部历史文章，需要额外做内容导入与路由整合。
+现有 src/content/ 下的 Markdown 可在管理员后台的「Markdown 文章」区编辑并提交到 GitHub，详见 [Markdown 编辑配置](MARKDOWN_EDITOR.md)。D1 在线文章另行管理。保存到 GitHub 后自动重建两站，保留原文章路径、搜索和 RSS；不会反写本机 Obsidian Vault。
 
-旧 `apps/api` 暂保留作为迁移参考及回退源码，不参与 Worker 构建和运行。不要将它部署到 Cloudflare Workers。静态托管仍可使用 `pnpm build:static`，但不提供后端。
+旧 `apps/api`、PostgreSQL/Redis 配置及相关依赖已移除。静态托管仍可使用 `pnpm build:static`，但不提供后端。
 
 官方文档：[D1 创建与绑定](https://developers.cloudflare.com/d1/get-started/)、[D1 迁移](https://developers.cloudflare.com/d1/reference/migrations/)、[静态资源与 API](https://developers.cloudflare.com/workers/static-assets/)。
 
-## 本次验证
+## 验证记录
 
-- 10 组 Worker/SQLite 回归测试通过：鉴权、角色撤销、草稿可见性、CRUD、留言审核、限流、非法输入、体积限制和定时清理。
-- Wrangler 本地 D1 实际执行建表，注册、登录、管理员文章发布/读取/删除、统计和静态资源均通过 HTTP 验证。
-- 浏览器实际登录本地后台，文章/留言列表正常加载，统计面板显示“每 30 秒更新”。
-- 全栈构建生成 56 页、搜索索引 28 页；Astro 检查 118 文件，0 错误/警告/提示；Wrangler 全栈 dry-run 通过。
-- 未创建或迁移远端数据库，未设置生产密钥，未将线上 Worker 切换到全栈配置。
+- 16 项 Worker 测试通过，涵盖 API 鉴权、数据库操作、Markdown 路径限制、Front Matter、版本冲突及 GitHub 错误处理。GitHub 写入测试使用模拟接口。
+- Astro 检查 117 文件，0 错误、警告或提示；全栈构建生成 56 页、搜索索引 28 页。
+- Wrangler 全栈 dry-run 通过，包含 DB 与 ASSETS 绑定。
+- 现有 axis-db 已部署，Axis-star 已设为 ADMIN。Markdown 保存仍需配置 Worker 加密变量 GITHUB_TOKEN。

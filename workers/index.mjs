@@ -1,4 +1,5 @@
 import { hashPassword, verifyPassword, issueToken, tokenSubject, fingerprint } from './auth.mjs';
+import { contentService, ContentError } from './content.mjs';
 
 class HttpError extends Error {
   constructor(status, message) { super(message); this.status = status; }
@@ -249,9 +250,20 @@ export default {
         return json({status:'ok',database:'D1'});
       }
       const ip=await fingerprint(day()+':'+(request.headers.get('CF-Connecting-IP') || 'local'));
+      if(path === '/content/admin') {
+        const user = await currentUser(request,env,true);
+        await limit(env.DB,'content:'+user.id,30);
+        const content = contentService(env);
+        if(request.method === 'GET') return json(url.searchParams.has('path') ? await content.read(url.searchParams.get('path')) : await content.list());
+        if(request.method === 'PUT') {
+          await limit(env.DB,'content-save:'+user.id,5);
+          return json(await content.save(await body(request)));
+        }
+        fail(405,'Method not allowed');
+      }
       return await auth(request,env,path,ip) || await articleRoutes(request,env,path,url,ip) || await feedbackRoutes(request,env,path,url) || await dashboard(request,env,path,ip) || json({message:'API not found'},404);
     } catch(error) {
-      if(error instanceof HttpError) return json({message:error.message},error.status);
+      if(error instanceof HttpError || error instanceof ContentError) return json({message:error.message},error.status);
       if(String(error.message).includes('UNIQUE constraint failed')) return json({message:'Username, email or slug already exists'},409);
       console.error('API error',error.message);
       return json({message:'Service unavailable. Check database migrations and Worker secrets.'},503);

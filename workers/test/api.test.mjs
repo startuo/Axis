@@ -58,6 +58,8 @@ test('anonymous, ordinary users and forged tokens cannot access admin endpoints'
   for(const [token,status] of [[undefined,401],[r.accessToken,403],[r.accessToken+'x',401]]) {
     assert.equal((await call('/api/v1/articles/admin','GET',undefined,token)).status,status);
     assert.equal((await call('/api/v1/dashboard/snapshot','GET',undefined,token)).status,status);
+    assert.equal((await call('/api/v1/content/admin','GET',undefined,token)).status,status);
+    assert.equal((await call('/api/v1/content/admin','PUT',{path:'src/content/posts/test.md',source:'test'},token)).status,status);
   }
 });
 test('draft to published to deleted: CRUD, search, counts and visibility',async t=>{

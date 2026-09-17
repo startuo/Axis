@@ -18,3 +18,13 @@ public/videos
 
 .codex-logs/
 .claude/worktrees/
+
+# Local credentials, tools and generated reports
+.env.*
+!.env.example
+.codex-edge-profile/
+.claude/
+.devin/
+output/
+apps/
+docs/obsidian-sync-report.json
