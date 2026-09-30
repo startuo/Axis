@@ -1,0 +1,39 @@
+<script lang="ts">
+ import {onMount} from 'svelte';
+ import {api,upload,blank,labels,type Entry,type EntryData,type Kind} from './api';
+ import {renderMarkdown} from '../../../shared/markdown.mjs';
+ export let kind:Kind; export let entry:Entry|null=null; export let onclose:()=>void; export let onsaved:()=>void;
+ let data:EntryData=structuredClone(entry?.data??blank(kind));let slug=entry?.slug??'';
+ let tags=data.tags.join(', '),busy=false,error='',notice='',preview='',tab='write';
+ let original=JSON.stringify(data),originalTags=tags,originalSlug=slug,current=entry;
+ $: dirty=JSON.stringify(data)!==original||tags!==originalTags||slug!==originalSlug;
+ $: if(tab==='preview') void renderMarkdown(data.content).then(result=>preview=result.html);
+ onMount(()=>{const warn=(e:BeforeUnloadEvent)=>{if(dirty){e.preventDefault();e.returnValue='';}};const leave=(e:Event)=>{if(dirty&&!confirm('有未保存的修改，确定离开？'))e.preventDefault();};window.addEventListener('beforeunload',warn);window.addEventListener('axis:before-leave',leave);return()=>{window.removeEventListener('beforeunload',warn);window.removeEventListener('axis:before-leave',leave);};});
+ function close(){if(!dirty||confirm('有未保存的修改，确定离开？'))onclose();}
+ async function save(publish=false){busy=true;error='';notice='';try{
+  data.tags=tags.split(/[,，]/).map(v=>v.trim()).filter(Boolean);
+  current=await api<Entry>('/content/manage/'+kind+(current?'/'+current.id:''),current?'PATCH':'POST',current?{version:current.version,data}:{slug:slug||undefined,data});
+  if(publish)current=await api<Entry>(`/content/manage/${kind}/${current.id}/publish`,'POST',{version:current.version});
+  data=structuredClone(current.data);original=JSON.stringify(data);originalTags=tags;originalSlug=slug;notice=publish?'已发布，主站已更新。镜像正在等待同步。':'编辑稿已保存。';onsaved();
+ }catch(e){error=String(e instanceof Error?e.message:e);}finally{busy=false;}}
+ async function files(event:Event,where:'content'|'image'|'images'|'photos') {const input=event.target as HTMLInputElement;if(!input.files)return;busy=true;error='';try{for(const file of input.files){const media=await upload(file);if(where==='image')data.image=media.url;else if(where==='content')data.content+=`\n![${file.name.replace(/[\[\]]/g,'')}](${media.url})\n`;else if(where==='images')data.images=[...(data.images??[]),media.url];else data.photos=[...(data.photos??[]),{src:media.url,title:file.name,alt:''}];}}catch(e){error=String(e);}finally{busy=false;input.value='';}}
+ async function importMarkdown(event:Event){const file=(event.target as HTMLInputElement).files?.[0];if(!file)return;try{const {parseDocument}=await import('yaml');const source=await file.text();const match=source.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);if(match){const doc=parseDocument(match[1]);if(doc.errors.length)throw new Error('Front Matter 格式无效');const meta=doc.toJS({maxAliasCount:20});data={...data,...meta,content:source.slice(match[0].length)};tags=(data.tags??[]).join(', ');}else data.content=source;}catch(e){error=String(e);}}
+ function exportMarkdown(){void import('yaml').then(({stringify})=>{const {content,...meta}=data;const blob=new Blob(['---\n'+stringify(meta)+'---\n\n'+content],{type:'text/markdown'});const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=(slug||current?.slug||'article').replaceAll('/','-')+'.md';a.click();URL.revokeObjectURL(u);});}
+ function move(index:number,delta:number){const photos=[...(data.photos??[])];const next=index+delta;if(next<0||next>=photos.length)return;[photos[index],photos[next]]=[photos[next],photos[index]];data.photos=photos;}
+</script>
+<section class="editor panel">
+ <div class="section-head"><div><p class="eyebrow">{current?'编辑':'新建'} / {labels[kind]}</p><h2>{data.title||'未命名内容'}</h2></div><button onclick={close} disabled={busy}>返回列表</button></div>
+ {#if error}<p class="error" role="alert">{error} 编辑内容已保留。</p>{/if}{#if notice}<p class="notice" role="status">{notice}</p>{/if}
+ <div class="editor-grid"><div>
+ <label>标题<input bind:value={data.title} maxlength="255" /></label>
+ {#if !current}<label>链接标识 <small>留空自动生成；创建后固定</small><input bind:value={slug} placeholder="my-first-post" /></label>{/if}
+ {#if kind==='posts'||kind==='diary'}
+ <div class="toolbar"><button class:active={tab==='write'} onclick={()=>tab='write'}>写作</button><button class:active={tab==='preview'} onclick={()=>tab='preview'}>预览</button><label class="button">插入图片<input hidden type="file" accept="image/*" multiple onchange={e=>files(e,'content')} /></label>{#if kind==='posts'}<label class="button">导入 Markdown<input hidden type="file" accept=".md" onchange={importMarkdown}/></label><button onclick={exportMarkdown}>导出</button>{/if}</div>
+ {#if tab==='write'}<label>正文<textarea class="markdown-source" bind:value={data.content} rows="18" spellcheck="false"></textarea></label>{:else}<div class="markdown-preview" data-pagefind-ignore>{@html preview}</div>{/if}
+ {/if}
+ {#if kind==='anime'}<div class="form-grid"><label>观看状态<select bind:value={data.status}><option value="watching">在看</option><option value="completed">已看完</option><option value="planned">想看</option></select></label><label>评分<input type="number" min="0" max="10" step="0.1" bind:value={data.rating}/></label><label>已看集数<input type="number" min="0" bind:value={data.progress}/></label><label>总集数<input type="number" min="0" bind:value={data.totalEpisodes}/></label></div><label>番剧链接<input bind:value={data.link}/></label>{/if}
+ {#if kind==='diary'}<div class="form-grid"><label>心情<input bind:value={data.mood}/></label><label>地点<input bind:value={data.location}/></label></div><label class="button">添加日记图片<input hidden type="file" accept="image/*" multiple onchange={e=>files(e,'images')}/></label><div class="photo-grid">{#each data.images??[] as image,i}<div><img src={image} alt="日记配图"/><button onclick={()=>data.images=data.images?.filter((_,n)=>n!==i)}>移除</button></div>{/each}</div>{/if}
+ {#if kind==='albums'}<label>相册布局<select bind:value={data.layout}><option value="grid">网格</option><option value="masonry">瀑布流</option></select></label><label class="button">上传照片<input hidden type="file" multiple accept="image/*" onchange={e=>files(e,'photos')}/></label><div class="photo-grid">{#each data.photos??[] as photo,i}<div><img src={photo.src} alt={photo.alt}/><label>照片标题<input bind:value={photo.title}/></label><label>图片说明<input bind:value={photo.alt}/></label><div class="toolbar"><button onclick={()=>move(i,-1)} disabled={i===0}>前移</button><button onclick={()=>move(i,1)} disabled={i===(data.photos?.length??0)-1}>后移</button><button onclick={()=>data.image=photo.src}>设为封面</button><button onclick={()=>data.photos=data.photos?.filter((_,n)=>n!==i)}>移除</button></div></div>{/each}</div>{/if}
+ </div><aside class="editor-settings"><label>简介<textarea rows="4" bind:value={data.description}></textarea></label><label>标签 <small>逗号分隔</small><input bind:value={tags}/></label>{#if kind==='posts'}<label>分类<input bind:value={data.category}/></label>{/if}<label>日期<input type="date" value={data.published.slice(0,10)} onchange={e=>data.published=new Date(e.currentTarget.value+'T00:00:00+08:00').toISOString()}/></label><label>排序 <small>数字越小越靠前</small><input type="number" bind:value={data.order}/></label><label>封面链接<input bind:value={data.image}/></label><label class="button">上传封面<input hidden type="file" accept="image/*" onchange={e=>files(e,'image')}/></label>{#if data.image}<img class="cover-preview" src={data.image} alt="封面预览"/>{/if}<p class="muted">保存编辑稿不会更改公开版本。发布后主站立即生效，镜像稍后同步。</p></aside></div>
+ <footer class="editor-footer"><span class="muted">{busy?'正在处理…':dirty?'有未保存的修改':'已保存'}</span><div class="toolbar"><button disabled={busy} onclick={()=>save(false)}>保存编辑稿</button><button class="primary" disabled={busy} onclick={()=>save(true)}>发布</button></div></footer>
+</section>

@@ -104,7 +104,7 @@
 		await loadMessages();
 		if (disposed) return;
 
-		refreshTimer = window.setInterval(loadMessages, 60000);
+		refreshTimer = window.setInterval(() => { if (!document.hidden) void loadMessages(); }, 15000);
 	}
 
 	async function waitForStableLayout(frameCount = 2) {
@@ -128,6 +128,8 @@
 	}
 
 	function setupRouteHandlers() {
+ const refreshVisible=()=>{if(!document.hidden)void loadMessages();};
+ document.addEventListener('visibilitychange',refreshVisible);
 		const handleRouteChange = () => {
 			void remeasureAfterRouteChange();
 		};
@@ -145,7 +147,8 @@
 		document.addEventListener("swup:enable", handleSwupEnable);
 
 		return () => {
-			document.removeEventListener("astro:page-load", handleRouteChange);
+			document.removeEventListener('visibilitychange',refreshVisible);
+ document.removeEventListener("astro:page-load", handleRouteChange);
 			document.removeEventListener("astro:after-swap", handleRouteChange);
 			document.removeEventListener("swup:page:view", handleRouteChange);
 			document.removeEventListener("swup:contentReplaced", handleRouteChange);
@@ -253,7 +256,7 @@
 
 	async function loadMessages() {
 		try {
-			const nextMessages = normalizeMessages(await listPublicFeedbackMessages(120));
+			const nextMessages = normalizeMessages(await listPublicFeedbackMessages(100));
 			if (disposed) return;
 
 			messages = nextMessages;

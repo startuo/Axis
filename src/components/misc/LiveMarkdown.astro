@@ -1,0 +1,11 @@
+---
+import {renderMarkdown} from '../../../shared/markdown.mjs';
+import 'katex/dist/katex.min.css';
+interface Props {source:string}
+const {html}=await renderMarkdown(Astro.props.source);
+---
+<div class="live-markdown" set:html={html}/>
+<script>
+ async function diagrams(){const nodes=document.querySelectorAll<HTMLElement>('.live-markdown code.language-mermaid:not([data-rendered])');if(!nodes.length)return;const {default:mermaid}=await import('mermaid');mermaid.initialize({startOnLoad:false,securityLevel:'strict'});for(const node of nodes){try{const {svg}=await mermaid.render('axis-diagram-'+crypto.randomUUID(),node.textContent??'');const wrapper=document.createElement('div');wrapper.className='mermaid';wrapper.innerHTML=svg;node.parentElement?.replaceWith(wrapper);}catch{node.dataset.rendered='error';}}}
+ document.addEventListener('swup:page:view',diagrams);void diagrams();
+</script>

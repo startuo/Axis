@@ -1,0 +1,38 @@
+name: Publish static mirror
+on:
+  repository_dispatch:
+    types: [axis-mirror]
+  workflow_dispatch:
+concurrency:
+  group: axis-mirror
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      MAIN_SITE_URL: https://axis.1669338073.workers.dev
+      MIRROR_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.MIRROR_PUSH_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/mirror-sync.mjs
+      - name: Commit public snapshot to mirror branch
+        run: |
+          git config user.name 'startuo'
+          git config user.email '1669338073@qq.com'
+          git checkout -B mirror
+          # Static mirror does not need workflows; keep its push token Contents-only.
+          git rm -r --ignore-unmatch .github/workflows
+          git add .mirror/snapshot.json
+          git commit -m 'Update public content snapshot'
+          git push --force-with-lease origin mirror
+      - run: node scripts/mirror-sync.mjs --verify

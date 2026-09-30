@@ -5,7 +5,8 @@ import localAnimeList from "../data/anime";
 import I18nKey from "../i18n/i18nKey";
 import { i18n } from "../i18n/translation";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
-import fs from "node:fs";
+import {publicContent} from '../server/content';
+import fs from 'node:fs';
 import path from "node:path";
 import { widgetManager } from "../utils/widget-manager";
 import "../styles/anime.css";
@@ -141,6 +142,7 @@ if (currentConfig) {
 	console.warn(`[Anime] Unknown or unconfigured mode: ${ANIME_MODE}`);
 }
 
+if(publicContent('anime')) animeList=publicContent('anime')!.map(p=>({title:p.title,cover:p.image,link:p.link??'',status:p.status??'planned',rating:p.rating??0,progress:p.progress??0,totalEpisodes:p.totalEpisodes??0,description:p.description,year:String(p.year??''),studio:String(p.studio??''),genre:p.tags}));
 let emptyMessage = i18n(I18nKey.animeEmpty);
 let emptyDescription = "";
 let showEmptyState = false;

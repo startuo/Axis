@@ -1,4 +1,5 @@
-import { type CollectionEntry, getCollection } from "astro:content";
+import {sourcePosts} from '../server/content';
+import { type CollectionEntry } from "astro:content";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { getCategoryUrl, getPostUrl } from "@utils/url-utils";
@@ -6,9 +7,7 @@ import { initPostIdMap } from "@utils/permalink-utils";
 
 // // Retrieve posts and sort them by publication date
 async function getRawSortedPosts() {
-	const allBlogPosts = await getCollection("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+	const allBlogPosts = await sourcePosts();
 
 	const sorted = allBlogPosts.sort((a, b) => {
 		// 首先按置顶状态排序，置顶文章在前
@@ -76,9 +75,7 @@ export type Tag = {
 };
 
 export async function getTagList(): Promise<Tag[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+	const allBlogPosts = await sourcePosts();
 
 	const countMap: { [key: string]: number } = {};
 	allBlogPosts.forEach((post: { data: { tags: string[] } }) => {
@@ -103,9 +100,7 @@ export type Category = {
 };
 
 export async function getCategoryList(): Promise<Category[]> {
-	const allBlogPosts = await getCollection<"posts">("posts", ({ data }) => {
-		return import.meta.env.PROD ? data.draft !== true : true;
-	});
+	const allBlogPosts = await sourcePosts();
 	const count: { [key: string]: number } = {};
 	allBlogPosts.forEach((post: { data: { category: string | null } }) => {
 		if (!post.data.category) {

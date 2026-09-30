@@ -1,4 +1,5 @@
 <script lang="ts">
+import {API_ENABLED,apiUrl} from "../utils/api-config";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import Icon from "@iconify/svelte";
@@ -108,7 +109,13 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 	}
 	try {
 		let searchResults: SearchResult[] = [];
-		if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
+		if(API_ENABLED) {
+ const response=await fetch(apiUrl('/content/public/posts?q='+encodeURIComponent(keyword)));
+ if(!response.ok)throw new Error('搜索暂不可用');
+ const data=await response.json();
+ const escape=(s:string)=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+ searchResults=data.items.map((p:{url:string;title:string;description:string;content:string})=>({url:p.url,meta:{title:p.title},excerpt:escape(p.description||p.content.slice(0,160))}));
+ } else if (import.meta.env.PROD && pagefindLoaded && window.pagefind) {
 			const response = await window.pagefind.search(keyword);
 			searchResults = await Promise.all(
 				response.results.map((item) => item.data()),
@@ -137,10 +144,7 @@ onMount(() => {
 			typeof window.pagefind.search === "function";
 		console.log("Pagefind status on init:", pagefindLoaded);
 	};
-	if (import.meta.env.DEV) {
-		console.log(
-			"Pagefind is not available in development mode. Using mock data.",
-		);
+	if (API_ENABLED || import.meta.env.DEV) {
 		initializeSearch();
 	} else {
 		document.addEventListener("pagefindready", () => {

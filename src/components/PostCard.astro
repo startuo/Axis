@@ -1,6 +1,5 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { render } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { getFileDirFromPath, getTagUrl, getPostUrl } from "@/utils/url-utils";
 import { siteConfig } from "../config";
@@ -33,7 +32,7 @@ const url = getPostUrl(entry);
 const hasCover = image !== undefined && image !== null && image !== "";
 const coverWidth = "28%";
 
-const { remarkPluginFrontmatter } = await render(entry);
+const remarkPluginFrontmatter = {excerpt:(entry.body??'').replace(/[#*_`]/g,'').slice(0,160),words: (entry.body??'').replace(/\s/g,'').length,minutes:Math.max(1,Math.ceil((entry.body??'').length/350))};
 ---
 
 <div

@@ -7,7 +7,11 @@
  * 例如：permalink: "custom-page" => /custom-page/
  */
 import type { CollectionEntry } from "astro:content";
-import { render } from "astro:content";
+import LiveMarkdown from '../components/misc/LiveMarkdown.astro';
+import {renderMarkdown} from '../../shared/markdown.mjs';
+import {snapshot,findPostId} from '../server/content';
+import {getPostUrl} from '../utils/url-utils';
+import ArticleActions from '../components/console/ArticleActions.svelte';
 import Comment from "@components/comment/index.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
@@ -66,10 +70,14 @@ export async function getStaticPaths() {
 	return paths;
 }
 
-const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
+const entry = Astro.props.entry ?? (await getSortedPosts()).find(p => {
+ const route=snapshot()?.routes.find((r:{path:string;entryId:string})=>r.path===Astro.url.pathname.replace(/\/$/,'')+'/');
+ return p.id===Astro.params.permalink || getPostUrl(p).replace(/\/$/,'')===Astro.url.pathname.replace(/\/$/,'') || (route && route.entryId===findPostId(p.id));
+ });
+ if(!entry) return Astro.redirect('/404/');
+const { headings,remarkPluginFrontmatter } = await renderMarkdown(entry.body??'');
 
-const { remarkPluginFrontmatter } = await render(entry);
+
 
 // 处理加密逻辑
 let encryptedContent = "";
@@ -182,6 +190,7 @@ const jsonLd = {
                 </div>
             </div>
 
+            {findPostId(entry.id) && <ArticleActions client:load id={findPostId(entry.id)!} />}
             <!-- metadata -->
             <div class="onload-animation">
                 <PostMetadata
@@ -221,7 +230,7 @@ const jsonLd = {
                 ) : (
                     <>
                         <Markdown class="mb-6 markdown-content onload-animation">
-                            <Content />
+                            <LiveMarkdown source={entry.body??''} />
                         </Markdown>
                         {licenseConfig.enable && (
                             <License

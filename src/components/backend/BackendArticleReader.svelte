@@ -33,6 +33,7 @@
 		try {
 			const result = await getBackendArticle(slug, getVisitorId());
 			article = result;
+ if('url' in result && typeof result.url==='string'){window.location.replace(result.url);return;}
 			renderedContent = renderMarkdown(result.content ?? "");
 		} catch (err) {
 			error = err instanceof Error ? err.message : "后端文章加载失败。";

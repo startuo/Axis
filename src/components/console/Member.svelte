@@ -1,0 +1,16 @@
+<script lang="ts">
+ import {onMount} from 'svelte';import {api,upload,type PublicEntry} from './api';
+ export let view:string;
+ let profile={nickname:'',bio:'',avatarUrl:'',readingHistory:1,email:''},items:PublicEntry[]=[],messages:{id:string;text:string;status:string}[]=[],error='',notice='',busy=false,text='';
+ async function load(){busy=true;try{if(view==='profile'||view==='overview')profile=await api('/me/profile');else if(view==='messages')messages=(await api<{items:typeof messages}>('/me/messages')).items;else items=(await api<{items:PublicEntry[]}>('/me/'+view)).items;}catch(e){error=String(e);}finally{busy=false;}}
+ onMount(load);
+ async function save(){busy=true;error='';try{await api('/me/profile','PATCH',profile);notice='个人资料已保存。';}catch(e){error=String(e);}finally{busy=false;}}
+ async function avatar(event:Event){const file=(event.target as HTMLInputElement).files?.[0];if(!file)return;try{profile.avatarUrl=(await upload(file)).url;}catch(e){error=String(e);}}
+ async function remove(id?:string){try{await api('/me/'+view+(id?'/'+id:''),'DELETE');await load();}catch(e){error=String(e);}}
+ async function send(){busy=true;try{await api('/feedback/messages','POST',{text,color:'#c45c7b'});text='';notice='留言已提交，审核通过后展示。';await load();}catch(e){error=String(e);}finally{busy=false;}}
+</script>
+<section class="panel"><p class="eyebrow">MY SPACE</p><h2>{view==='profile'||view==='overview'?'个人资料':view==='messages'?'我的留言':view==='favorites'?'我的收藏':'阅读历史'}</h2>
+{#if error}<p class="error" role="alert">{error}</p>{/if}{#if notice}<p class="notice" role="status">{notice}</p>{/if}
+{#if view==='profile'||view==='overview'}<form class="profile-form" onsubmit={e=>{e.preventDefault();void save();}}>{#if profile.avatarUrl}<img class="avatar" src={profile.avatarUrl} alt="我的头像"/>{/if}<label class="button">上传头像<input hidden type="file" accept="image/*" onchange={avatar}/></label><label>昵称<input bind:value={profile.nickname} maxlength="32" required/></label><label>邮箱<input value={profile.email} disabled/></label><label>个性签名<textarea rows="3" bind:value={profile.bio} maxlength="160"></textarea></label><label class="check-label"><input type="checkbox" checked={Boolean(profile.readingHistory)} onchange={e=>profile.readingHistory=e.currentTarget.checked?1:0}/>记录阅读历史</label><button class="primary" disabled={busy}>保存资料</button></form>
+{:else if view==='messages'}<form class="toolbar" onsubmit={e=>{e.preventDefault();void send();}}><label>写一条留言<input bind:value={text} maxlength="50" placeholder="最多 50 字" required/></label><button class="primary" disabled={busy||!text.trim()}>提交审核</button></form>{#each messages as message}<div class="message-row"><p>{message.text}</p><span class="badge">{message.status==='APPROVED'?'已通过':message.status==='REJECTED'?'未通过':'待审核'}</span></div>{/each}
+{:else}{#if view==='history'}<button onclick={()=>{if(confirm('清空自己的阅读历史？'))void remove();}}>清空历史</button>{/if}{#each items as item}<article class="message-row"><div><a href={String(item.url)}><strong>{item.title}</strong></a><p class="muted">{item.description}</p></div><button onclick={()=>remove(item.id)}>{view==='favorites'?'取消收藏':'移除'}</button></article>{/each}{#if !items.length&&!busy}<p class="empty">暂时没有记录，去博客读点什么吧。</p>{/if}{/if}</section>

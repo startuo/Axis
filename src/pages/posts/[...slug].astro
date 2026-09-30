@@ -1,6 +1,10 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { render } from "astro:content";
+import LiveMarkdown from '../../components/misc/LiveMarkdown.astro';
+import {renderMarkdown} from '../../../shared/markdown.mjs';
+import {snapshot,findPostId} from '../../server/content';
+import {getPostUrl} from '../../utils/url-utils';
+import ArticleActions from '../../components/console/ArticleActions.svelte';
 import path from "node:path";
 import Comment from "@components/comment/index.astro";
 import License from "@components/misc/License.astro";
@@ -92,9 +96,13 @@ export async function getStaticPaths() {
 	return paths;
 }
 
-const { entry } = Astro.props;
-const { Content, headings } = await render(entry);
-const { remarkPluginFrontmatter } = await render(entry);
+const entry = Astro.props.entry ?? (await getSortedPosts()).find(p => {
+ const route=snapshot()?.routes.find((r:{path:string;entryId:string})=>r.path===Astro.url.pathname.replace(/\/$/,'')+'/');
+ return p.id===Astro.params.slug || getPostUrl(p).replace(/\/$/,'')===Astro.url.pathname.replace(/\/$/,'') || (route && route.entryId===findPostId(p.id));
+ });
+ if(!entry) return Astro.redirect('/404/');
+const { headings,remarkPluginFrontmatter } = await renderMarkdown(entry.body??'');
+
 
 // Process cover image for SharePoster
 let posterCoverUrl = entry.data.image;
@@ -119,15 +127,7 @@ if (entry.data.image) {
 			posterCoverUrl = img.src;
 		}
 	} else if (entry.data.image.startsWith("http")) {
-		try {
-			const response = await fetch(entry.data.image);
-			const arrayBuffer = await response.arrayBuffer();
-			const base64 = Buffer.from(arrayBuffer).toString("base64");
-			const contentType = response.headers.get("content-type") || "image/jpeg";
-			posterCoverUrl = `data:${contentType};base64,${base64}`;
-		} catch {
-			posterCoverUrl = entry.data.image;
-		}
+		posterCoverUrl = entry.data.image;
 	}
 }
 
@@ -259,6 +259,7 @@ const jsonLd = {
                 </div>
             </div>
 
+            {findPostId(entry.id) && <ArticleActions client:load id={findPostId(entry.id)!} />}
             <!-- metadata -->
             <div class="onload-animation">
                 <PostMetadata
@@ -296,12 +297,12 @@ const jsonLd = {
                 isEncrypted ? (
                     <Encryptor password={entry.data.password}>
                          <Markdown class="mb-6 markdown-content onload-animation">
-                            <Content />
+                            <LiveMarkdown source={entry.body??''} />
                         </Markdown>
                     </Encryptor>
                 ) : (
                     <Markdown class="mb-6 markdown-content onload-animation">
-                        <Content />
+                        <LiveMarkdown source={entry.body??''} />
                     </Markdown>
                 )
             }

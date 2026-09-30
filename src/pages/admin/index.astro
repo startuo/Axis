@@ -1,7 +1,8 @@
 ---
 import { API_ENABLED, API_UNAVAILABLE_MESSAGE } from "../../utils/api-config";
-import AdminConsole from "../../components/admin/AdminConsole.svelte";
+import AdminConsole from "../../components/console/Console.svelte";
 import AdminLayout from "../../layouts/AdminLayout.astro";
+if(__AXIS_TARGET__==='mirror')return Astro.redirect('https://axis.1669338073.workers.dev/admin/');
 ---
 
 <AdminLayout title="STAR Admin" description="STAR's Blog 管理控制台">

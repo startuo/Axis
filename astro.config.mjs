@@ -1,3 +1,8 @@
+import cloudflare from '@astrojs/cloudflare';
+import {iconIncludes} from './scripts/icon-includes.mjs';
+import {readFileSync} from 'node:fs';
+const axisTarget=process.env.AXIS_TARGET || 'static';
+const axisSnapshot=process.env.AXIS_SNAPSHOT ? JSON.parse(readFileSync(process.env.AXIS_SNAPSHOT,'utf8')) : null;
 import sitemap from "@astrojs/sitemap";
 import svelte, { vitePreprocess } from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
@@ -30,11 +35,13 @@ import { rehypeImageWidth } from "./src/plugins/rehype-image-width.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-	site: siteConfig.siteURL,
+	outDir: process.env.AXIS_OUT_DIR || './dist',
+	site: process.env.AXIS_SITE_URL || (axisTarget==='cloudflare'?'https://axis.1669338073.workers.dev':'https://star-0vl490158.maozi.io'),
 	base: "/",
 	trailingSlash: "ignore",
 
-	output: "static",
+	output: axisTarget==='cloudflare'?'server':'static',
+ adapter: axisTarget==='cloudflare'?cloudflare({imageService:'passthrough',platformProxy:{enabled:true,configPath:'wrangler.api.jsonc'}}):undefined,
 
 	integrations: [
 		umami({
@@ -45,8 +52,8 @@ export default defineConfig({
 			animationClass: "transition-swup-",
 			containers: ["main"],
 			smoothScrolling: false, // 禁用平滑滚动以提升性能，避免与锚点导航冲突
-			cache: true,
-			preload: true, // swup 默认鼠标悬停预加载
+			cache: false,
+			preload: false, // swup 默认鼠标悬停预加载
 			accessibility: true,
 			updateHead: true,
 			updateBodyClass: false,
@@ -63,7 +70,7 @@ export default defineConfig({
 				);
 			},
 		}),
-		icon(),
+		icon({include:iconIncludes()}),
 		expressiveCode({
 			themes: ["github-light", "github-dark"],
 			plugins: [
@@ -167,6 +174,7 @@ export default defineConfig({
 		],
 	},
 	vite: {
+ define:{__AXIS_SNAPSHOT__:JSON.stringify(axisSnapshot),__AXIS_TARGET__:JSON.stringify(axisTarget)},
 		plugins: [tailwindcss()],
 		build: {
 			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大（可选，根据需要调整）

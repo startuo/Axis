@@ -1,8 +1,11 @@
+import {publicContent} from '../server/content';
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type { AlbumGroup, Photo } from "../types/album";
 
 export async function scanAlbums(): Promise<AlbumGroup[]> {
+ const published=publicContent('albums');
+ if(published)return published.map(p=>({id:p.slug,title:p.title,description:p.description,cover:p.image,date:p.published,location:p.location,tags:p.tags,layout:p.layout==='masonry'?'masonry':'grid',photos:p.photos??[]}));
 	const albumsDir = path.join(process.cwd(), "public/images/albums");
 	const albums: AlbumGroup[] = [];
 

@@ -28,3 +28,7 @@ public/videos
 output/
 apps/
 docs/obsidian-sync-report.json
+
+.axis/
+
+.playwright-cli/

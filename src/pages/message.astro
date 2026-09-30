@@ -1,4 +1,6 @@
 ---
+import {API_ENABLED} from '../utils/api-config';
+import {snapshot} from '../server/content';
 import Calendar from "../components/widget/Calendar.astro";
 import Categories from "../components/widget/Categories.astro";
 import Profile from "../components/widget/Profile.astro";
@@ -22,7 +24,7 @@ const description = "STAR 博客沉浸式留言弹幕墙";
 		</aside>
 
 		<main class="message-main">
-			<DanmakuWall client:only="svelte" />
+			{API_ENABLED ? <DanmakuWall client:only="svelte" /> : <section class="mirror-messages"><h1>留言</h1><p>这里保存了审核通过的留言。发送新留言请前往主站。</p><a href="https://axis.1669338073.workers.dev/message/">到主站发送留言 ↗</a>{(snapshot()?.messages??[]).map((m:{id:string;text:string})=><p class="card-base p-4 my-4">{m.text}</p>)}</section>}
 		</main>
 
 		<aside class="message-context" aria-label="站点信息">

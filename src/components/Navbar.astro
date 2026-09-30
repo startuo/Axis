@@ -277,7 +277,7 @@ if (document.readyState === 'loading') {
 }
 </script>
 
-{import.meta.env.PROD && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
+{import.meta.env.PROD && __AXIS_TARGET__!=='cloudflare' && <script is:inline define:vars={{scriptUrl: url('/pagefind/pagefind.js')}}>
 async function loadPagefind() {
     try {
         const response = await fetch(scriptUrl, { method: 'HEAD' });

@@ -4,40 +4,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { readFileSync } from 'node:fs';
 import worker from '../index.mjs';
 
-// SQLite runs the actual migration and SQL; this adapter only supplies the D1 interface.
-function database() {
-  const sql = new DatabaseSync(':memory:');
-  sql.exec('PRAGMA foreign_keys=ON');
-  sql.exec(readFileSync(new URL('../migrations/0001_initial.sql',import.meta.url),'utf8'));
-  const db = {
-    prepare(query) {
-      let args=[];
-      return {
-        bind(...values) { args=values; return this; },
-        async first() { return sql.prepare(query).get(...args) ?? null; },
-        async all() { return {results:sql.prepare(query).all(...args)}; },
-        async run() { return {meta:sql.prepare(query).run(...args)}; },
-      };
-    },
-    async batch(statements) {
-      sql.exec('BEGIN');
-      try { const result=[]; for(const s of statements) result.push(await s.run()); sql.exec('COMMIT'); return result; }
-      catch(error) { sql.exec('ROLLBACK'); throw error; }
-    },
-  };
-  return {db,sql};
-}
-function setup(t) {
-  const {db,sql}=database(); t.after(()=>sql.close());
-  const env={DB:db,JWT_SECRET:'test-only-key-'+ 'x'.repeat(40),ASSETS:{fetch:async()=>new Response('static')}};
-  const call=async(path,method='GET',data,token,ip='203.0.113.1')=> {
-    const r=await worker.fetch(new Request('https://axis.test'+path,{method,headers:{'Content-Type':'application/json','CF-Connecting-IP':ip,...(token?{Authorization:'Bearer '+token}:{})},...(data!==undefined?{body:JSON.stringify(data)}:{})}),env);
-    return {status:r.status,data:await r.json().catch(()=>null)};
-  };
-  const register=async(name='reader')=>(await call('/api/v1/auth/register','POST',{username:name,email:name+'@test.dev',password:'long-password-123'})).data;
-  const admin=async()=> { const result=await register('owner'); sql.prepare("UPDATE users SET role='ADMIN' WHERE id=?").run(result.user.id); return result.accessToken; };
-  return {sql,env,call,register,admin};
-}
+import {setup} from './helpers.mjs';
 test('health checks migrated database and static routing stays separate',async t=>{
   const {call,env}=setup(t);
   assert.equal((await call('/api/v1/health')).status,200);
@@ -62,21 +29,11 @@ test('anonymous, ordinary users and forged tokens cannot access admin endpoints'
     assert.equal((await call('/api/v1/content/admin','PUT',{path:'src/content/posts/test.md',source:'test'},token)).status,status);
   }
 });
-test('draft to published to deleted: CRUD, search, counts and visibility',async t=>{
-  const {call,admin}=setup(t); const token=await admin();
-  const created=await call('/api/v1/articles/admin','POST',{title:'中文文章',content:'# 内容',summary:'简介',tags:['测试']},token);
-  assert.equal(created.status,201); const {id,slug}=created.data;
-  assert.equal((await call('/api/v1/articles/public/'+encodeURIComponent(slug))).status,404);
-  assert.equal((await call('/api/v1/articles/public')).data.meta.total,0);
-  assert.equal((await call('/api/v1/articles/admin/'+id,'PATCH',{status:'PUBLISHED'},token)).status,200);
-  assert.equal((await call('/api/v1/articles/public/'+encodeURIComponent(slug))).data.viewCount,1);
-  const list=await call('/api/v1/articles/public?tag='+encodeURIComponent('测试'));
-  assert.equal(list.data.items.length,1); assert.equal(list.data.items[0].content,undefined);
-  const snapshot=(await call('/api/v1/dashboard/snapshot','GET',undefined,token)).data;
-  assert.equal(snapshot.todayPageViews,1); assert.equal(snapshot.todayUniqueVisitors,1); assert.equal(snapshot.hotArticles.length,1);
-  assert.equal((await call('/api/v1/articles/admin/'+id,'DELETE',undefined,token)).data.deleted,true);
-  assert.equal((await call('/api/v1/articles/public/'+encodeURIComponent(slug))).status,404);
+test('legacy article writes are closed after migrating to unified content',async t=>{
+ const {call,admin}=setup(t);const token=await admin();
+ assert.equal((await call('/api/v1/articles/admin','POST',{title:'x'},token)).status,410);
 });
+
 test('feedback is private until approved by an administrator',async t=>{
   const {call,register,admin}=setup(t); const token=await admin(); const reader=await register();
   const r=await call('/api/v1/feedback/messages','POST',{text:'留言',color:'#abcdef'},reader.accessToken);
@@ -90,8 +47,8 @@ test('feedback is private until approved by an administrator',async t=>{
 });
 test('invalid inputs and SQL injection cannot alter tables',async t=>{
   const {call,admin,sql}=setup(t); const token=await admin();
-  assert.equal((await call('/api/v1/articles/admin','POST',{title:'x',content:'x',summary:'x',status:'ADMIN'},token)).status,400);
-  assert.equal((await call('/api/v1/articles/public?page=-1')).status,400);
+  assert.equal((await call('/api/v1/content/manage/posts','POST',{data:{title:'',content:'x'}},token)).status,400);
+  assert.equal((await call('/api/v1/content/public/posts?page=-1')).status,400);
   assert.equal((await call('/api/v1/articles/public?keyword='+encodeURIComponent("'; DROP TABLE users; --"))).status,200);
   assert.equal(sql.prepare('SELECT COUNT(*) AS n FROM users').get().n,1);
   assert.equal((await call('/api/v1/auth/register','POST',{username:'x',email:'bad',password:'short'})).status,400);
@@ -111,8 +68,8 @@ test('revoking database role invalidates admin access even with an existing toke
 test('duplicate registration, invalid dates, oversized bodies and nonexistent feedback',async t=>{
   const {call,register,admin}=setup(t); const token=await admin(); await register();
   assert.equal((await call('/api/v1/auth/register','POST',{username:'reader',email:'reader@test.dev',password:'long-password'})).status,409);
-  assert.equal((await call('/api/v1/articles/admin','POST',{title:'x',summary:'x',content:'x',status:'PUBLISHED',publishedAt:'bad-date'},token)).status,400);
-  assert.equal((await call('/api/v1/articles/admin','POST',{title:'x',summary:'x',content:'x'.repeat(270000)},token)).status,413);
+  assert.equal((await call('/api/v1/content/manage/posts','POST',{data:{title:'x',content:'x',published:'bad-date'}},token)).status,400);
+  assert.equal((await call('/api/v1/content/manage/posts','POST',{data:{title:'x',content:'x'.repeat(270000)}},token)).status,413);
   assert.equal((await call('/api/v1/feedback/messages/admin/missing/status','PATCH',{status:'APPROVED'},token)).status,404);
 });
 test('scheduled cleanup removes expired operational data without deleting users',async t=>{

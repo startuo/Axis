@@ -1,0 +1,610 @@
+.axis-console {
+  --surface: #fff;
+  --canvas: #f6f6f3;
+  --ink: #252724;
+  --muted: #72776f;
+  --line: #e4e6df;
+  --accent: #385846;
+  --soft: #eef2ed;
+  --danger: #a43b3b;
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--ink);
+  font:
+    14px/1.65 Inter,
+    "Segoe UI",
+    "Microsoft YaHei",
+    sans-serif;
+}
+.axis-console.theme-dark {
+  --surface: #202421;
+  --canvas: #181b19;
+  --ink: #edf0ea;
+  --muted: #a3ada5;
+  --line: #363d37;
+  --accent: #bbd4bd;
+  --soft: #303b32;
+  --danger: #ffb2a8;
+}
+.axis-console * {
+  box-sizing: border-box;
+}
+.axis-console a {
+  color: inherit;
+  text-decoration: none;
+}
+.axis-console button,
+.axis-console .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.axis-console button:hover,
+.axis-console .button:hover {
+  background: var(--soft);
+}
+.axis-console button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.axis-console :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.axis-console .primary {
+  background: var(--accent);
+  color: var(--surface);
+  border-color: var(--accent);
+}
+.axis-console .primary:hover {
+  filter: brightness(0.9);
+  background: var(--accent);
+}
+.axis-console h1 {
+  font-size: 36px;
+  letter-spacing: -1px;
+  line-height: 1.25;
+  margin: 12px 0 20px;
+}
+.axis-console h2 {
+  font-size: 23px;
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.axis-console h3 {
+  font-size: 16px;
+  margin: 10px 0;
+}
+.axis-console p {
+  margin: 8px 0 16px;
+}
+.axis-console small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.axis-console .muted {
+  color: var(--muted);
+}
+.axis-console .eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
+.axis-console .wordmark {
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: 4px;
+}
+.axis-console .wordmark span {
+  color: #c27a88;
+}
+.axis-console label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 18px;
+}
+.axis-console label small {
+  display: inline;
+  font-weight: 400;
+}
+.axis-console input:not([type="checkbox"]),
+.axis-console textarea,
+.axis-console select {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 11px 12px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  min-width: 0;
+}
+.axis-console input[type="file"][hidden] {
+  display: none;
+}
+.axis-console textarea {
+  resize: vertical;
+}
+.axis-console .panel {
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.axis-console .section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.axis-console .toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.axis-console .toolbar label {
+  margin-bottom: 0;
+}
+.axis-console .toolbar .active {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+.axis-console .error,
+.axis-console .notice {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--soft);
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+.axis-console .error {
+  color: var(--danger);
+  border-left-color: var(--danger);
+}
+.axis-console .console-grid {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+  min-height: 100vh;
+}
+.axis-console .sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  padding: 30px 22px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.axis-console .sidebar-caption {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin: 16px 0 35px;
+}
+.axis-console nav {
+  display: grid;
+  gap: 6px;
+}
+.axis-console nav button {
+  justify-content: flex-start;
+  border: 0;
+  background: transparent;
+  padding: 12px;
+}
+.axis-console nav button span {
+  font-size: 10px;
+  color: var(--muted);
+  margin-right: 10px;
+}
+.axis-console nav button.active {
+  background: var(--soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.axis-console .sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 14px;
+  padding: 30px 10px 0;
+  font-size: 12px;
+}
+.axis-console .sidebar-footer small {
+  font-size: 10px;
+}
+.axis-console .workspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.axis-console .topbar {
+  height: 77px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 38px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  gap: 16px;
+}
+.axis-console .breadcrumb {
+  font-size: 12px;
+  color: var(--muted);
+}
+.axis-console .breadcrumb span {
+  padding: 0 14px;
+  color: var(--line);
+}
+.axis-console .topbar button {
+  font-size: 11px;
+  padding: 5px 10px;
+}
+.axis-console .user-name {
+  font-size: 12px;
+  margin: 0 10px;
+}
+.axis-console .workspace-main {
+  padding: 38px;
+  flex: 1;
+  max-width: 1500px;
+  width: 100%;
+  margin: 0 auto;
+}
+.axis-console .welcome {
+  padding: 22px 0 32px;
+}
+.axis-console .metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 28px;
+}
+.axis-console .metrics button {
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 22px;
+  gap: 4px;
+}
+.axis-console .metrics strong {
+  font-size: 37px;
+  font-weight: 500;
+}
+.axis-console .metrics span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.axis-console .publishing-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-top: 24px;
+}
+.axis-console .publishing-steps b {
+  font-weight: 400;
+  color: #acb8ac;
+}
+.axis-console .publishing-steps p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.axis-console .workspace-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 22px 38px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  border-top: 1px solid var(--line);
+}
+.axis-console .table-wrap {
+  overflow: auto;
+  margin-top: 20px;
+}
+.axis-console table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+.axis-console th {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.axis-console td {
+  padding: 18px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.axis-console td:first-child {
+  white-space: normal;
+  min-width: 180px;
+}
+.axis-console td button {
+  font-size: 11px;
+  padding: 5px 9px;
+}
+.axis-console .badge {
+  display: inline-block;
+  padding: 3px 9px;
+  font-size: 11px;
+  border-radius: 4px;
+  background: var(--soft);
+  color: var(--accent);
+}
+.axis-console .pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 12px;
+}
+.axis-console .empty {
+  padding: 65px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.axis-console .editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 28px;
+}
+.axis-console .editor-settings {
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+.axis-console .markdown-source {
+  font-family: Consolas, monospace;
+  min-height: 400px;
+  line-height: 1.8;
+}
+.axis-console .markdown-preview {
+  min-height: 400px;
+  border: 1px solid var(--line);
+  padding: 20px;
+  overflow-wrap: anywhere;
+  margin-top: 12px;
+}
+.axis-console .markdown-preview img {
+  max-width: 100%;
+}
+.axis-console pre {
+  overflow: auto;
+  background: var(--soft);
+  padding: 18px;
+}
+.axis-console .editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  margin-top: 20px;
+}
+.axis-console .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.axis-console .photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+.axis-console .photo-grid img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.axis-console .photo-grid strong {
+  overflow-wrap: anywhere;
+  display: block;
+}
+.axis-console .cover-preview {
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 4px;
+}
+.axis-console .message-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+.axis-console .message-row p {
+  overflow-wrap: anywhere;
+}
+.axis-console .profile-form {
+  max-width: 580px;
+  margin-top: 28px;
+}
+.axis-console .avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+}
+.axis-console .check-label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.axis-console .login-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  max-width: 1300px;
+  margin: auto;
+  padding: 60px;
+  gap: 100px;
+}
+.axis-console .login-story {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+.axis-console .login-story h1 {
+  font-size: 52px;
+  line-height: 1.45;
+}
+.axis-console .login-story p {
+  color: var(--muted);
+}
+.axis-console .login-form {
+  padding: 45px;
+}
+.axis-console .login-form form {
+  margin-top: 30px;
+}
+.axis-console .login-form form button {
+  width: 100%;
+}
+.axis-console .text-button {
+  border: 0;
+  padding-left: 0;
+  background: none;
+}
+.axis-console .login-form > a {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 25px;
+}
+.axis-console .loading-screen {
+  display: grid;
+  place-content: center;
+  min-height: 100vh;
+}
+.axis-console .mobile-toggle {
+  display: none;
+}
+@media (max-width: 1000px) {
+  .axis-console .console-grid {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .axis-console .workspace-main {
+    padding: 24px;
+  }
+  .axis-console .editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .axis-console .editor-settings {
+    border: 0;
+    padding: 0;
+  }
+  .axis-console .login-layout {
+    gap: 40px;
+    padding: 30px;
+  }
+  .axis-console .login-story h1 {
+    font-size: 38px;
+  }
+}
+@media (max-width: 700px) {
+  .axis-console .console-grid {
+    display: block;
+  }
+  .axis-console .sidebar {
+    display: none;
+  }
+  .axis-console .sidebar.open {
+    display: flex;
+    position: fixed;
+    inset: 65px auto 0 0;
+    width: 240px;
+    height: calc(100vh - 65px);
+    z-index: 30;
+    box-shadow: 20px 0 70px #0002;
+  }
+  .axis-console .topbar {
+    height: 65px;
+    padding: 0 16px;
+  }
+  .axis-console .mobile-toggle {
+    display: inline-flex;
+  }
+  .axis-console .breadcrumb {
+    display: none;
+  }
+  .axis-console .workspace-main {
+    padding: 18px;
+  }
+  .axis-console .panel {
+    padding: 20px;
+  }
+  .axis-console .metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .axis-console .publishing-steps {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .axis-console h1 {
+    font-size: 28px;
+  }
+  .axis-console .section-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .axis-console .message-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .axis-console .login-layout {
+    display: block;
+    padding: 25px;
+  }
+  .axis-console .login-story {
+    min-height: 210px;
+  }
+  .axis-console .login-story h1 {
+    font-size: 30px;
+    margin: 10px 0;
+  }
+  .axis-console .login-story > small,
+  .axis-console .login-story div > p:last-child {
+    display: none;
+  }
+  .axis-console .login-form {
+    padding: 25px;
+  }
+  .axis-console .workspace-footer {
+    padding: 20px;
+    font-size: 9px;
+  }
+  .axis-console .editor-footer {
+    gap: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -1,5 +1,5 @@
 ---
-import AdminConsole from "../../components/admin/AdminConsole.svelte";
+import AdminConsole from "../../components/console/Console.svelte";
 import AdminLayout from "../../layouts/AdminLayout.astro";
 
 export function getStaticPaths() {
@@ -14,6 +14,7 @@ export function getStaticPaths() {
 		{ params: { section: "history" } },
 	];
 }
+if(__AXIS_TARGET__==='mirror')return Astro.redirect('https://axis.1669338073.workers.dev/user/');
 ---
 
 <AdminLayout title="STAR Client" description="STAR's Blog 客户端后台">

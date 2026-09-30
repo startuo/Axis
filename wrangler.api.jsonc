@@ -1,19 +1,42 @@
 {
-  "name": "axis",
-  "main": "workers/index.mjs",
-  "compatibility_date": "2026-09-16",
-  "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS",
-    "run_worker_first": ["/api/*"],
-    "not_found_handling": "404-page"
-  },
-  "d1_databases": [{
-    "binding": "DB",
-    "database_name": "axis-db",
-    // 部署前替换为 Cloudflare D1 控制台的 Database ID。
-    "database_id": "4bea7f5a-4392-4def-bb81-8d2cf36c50e3",
-    "migrations_dir": "workers/migrations"
-  }],
-  "triggers": { "crons": ["0 19 * * *"] }
+	"name": "axis",
+	"main": "workers/entry.mjs",
+	"compatibility_date": "2026-09-16",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"run_worker_first": true,
+		"not_found_handling": "404-page"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "axis-db",
+			// 部署前替换为 Cloudflare D1 控制台的 Database ID。
+			"database_id": "4bea7f5a-4392-4def-bb81-8d2cf36c50e3",
+			"migrations_dir": "workers/migrations"
+		}
+	],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"MAIN_SITE_URL": "https://axis.1669338073.workers.dev",
+		"MIRROR_SITE_URL": "https://star-0vl490158.maozi.io",
+		"MIRROR_REPOSITORY": "startuo/Axis"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	},
+	"kv_namespaces": [
+		{
+			"binding": "MEDIA_KV",
+			"id": "25075930fc8c41289ec7f17cb2a56632"
+		}
+	]
 }
