@@ -185,16 +185,34 @@ if (process.argv.includes("--apply")) {
 	if (!base || !token)
 		throw new Error("AXIS_MIGRATION_URL and AXIS_ADMIN_TOKEN are required");
 	const request = async (route, method, data) => {
-		const r = await fetch(new URL("/api/v1" + route, base), {
-			method,
-			headers: {
-				Authorization: "Bearer " + token,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(data),
-		});
-		const result = await r.json();
-		if (!r.ok) throw new Error(result.message ?? r.status);
+		let r;
+		try {
+			r = await fetch(new URL("/api/v1" + route, base), {
+				method,
+				signal: AbortSignal.timeout(30000),
+				headers: {
+					Authorization: "Bearer " + token,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+		} catch (error) {
+			error.retryable = true;
+			throw error;
+		}
+		let result;
+		try {
+			result = await r.json();
+		} catch {
+			const error = new Error("Invalid response: " + r.status);
+			error.retryable = r.ok || r.status === 429 || r.status >= 500;
+			throw error;
+		}
+		if (!r.ok) {
+			const error = new Error(result.message ?? r.status);
+			error.retryable = r.status === 429 || r.status >= 500;
+			throw error;
+		}
 		return result;
 	};
 	// Assets become immutable public files in the next deployment; copy only explicitly inventoried files.
@@ -203,20 +221,34 @@ if (process.argv.includes("--apply")) {
 		await writeFile("public" + dest, await readFile(asset.source));
 	}
 	for (const entry of entries) {
-		const result = await request(
-			"/content/manage/" + entry.kind,
-			"POST",
-			entry,
-		);
-		if (entry.publish && (!result.existing || (result.status==='DRAFT' && result.version===1)))
-			await request(
-				`/content/manage/${entry.kind}/${result.id}/publish`,
-				"POST",
-				{ version: result.version },
-			);
-		console.log(
-			result.existing ? "unchanged" : "imported",
-			entry.sourceKey,
-		);
+		for (let attempt = 0; ; attempt++) {
+			try {
+				const result = await request(
+					"/content/manage/" + entry.kind,
+					"POST",
+					entry,
+				);
+				if (
+					entry.publish &&
+					(!result.existing ||
+						(result.status === "DRAFT" && result.version === 1))
+				)
+					await request(
+						`/content/manage/${entry.kind}/${result.id}/publish`,
+						"POST",
+						{ version: result.version },
+					);
+				console.log(
+					result.existing ? "unchanged" : "imported",
+					entry.sourceKey,
+				);
+				break;
+			} catch (error) {
+				if (!error.retryable || attempt >= 2) throw error;
+				// Restart at sourceKey lookup: never blindly repeat a versioned publish.
+				console.log("retrying", entry.sourceKey);
+				await new Promise((resolve) => setTimeout(resolve, 2000));
+			}
+		}
 	}
 }

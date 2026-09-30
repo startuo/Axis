@@ -13,7 +13,8 @@
 - 重新导出 09-30 生产 D1，内存 SQLite 恢复与完整性校验通过；保存最新 Worker 部署与版本信息，回滚基线为 `bc7c1747-7692-42aa-9dc9-342a6f57fc60`（保留现有三项 Secrets）。备份和哈希清单仅保存在忽略提交的 `.axis/backups/2026-09-30-pre-release/`。
 - 已核对 GitHub Actions 存在 `MIRROR_PUSH_TOKEN`、`MIRROR_TOKEN`，Cloudflare 存在 `MIRROR_GITHUB_TOKEN`、`MIRROR_TOKEN`、`JWT_SECRET`；仅核对名称，实际 dispatch/push 权限仍需上线联调。
 - 根据用户提供的截图，已核对帽子云 `mirror` 分支、根目录 `.`、`build:static` 命令与 `dist` 输出；用户已关闭单页应用。当前成功部署 `k951r9e6h`、此前 `main` 部署 `ne7ahqva0` 均对应静态基线 `7243acd`，部署引用和截图已保存到本地备份目录。
-- 生产 D1 已成功应用 `0002_content_platform.sql`，执行 14 条命令，保留旧文章表；新 Worker 发布与正式内容导入仍待真实管理员会话就绪。镜像构建命令将在新快照准备好后切换为 `build:mirror`。
+- 生产 D1 已成功应用 `0002_content_platform.sql`，执行 14 条命令，保留旧文章表；真实管理员会话已验证，新 Worker `87e4fa9d-53a6-485e-be48-d254544f058f` 已发布，首页、后台入口和已导入文章均返回 200。
+- 历史内容导入因本机 TLS 重置和连接超时中断，尚未完成 54 条清单及生产验收；未推送新版镜像。迁移脚本增加 30 秒超时和逐条最多 3 次重试，每次重试重新检查 sourceKey 与当前版本，避免重复创建和重复发布。镜像构建命令仍保持 `build:static`。
 
 ## 2026-09-29 — 内容平台与双站架构（待生产发布）
 
