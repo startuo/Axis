@@ -47,7 +47,7 @@ let isMuted = false;
 let isLoading = false;
 // 是否随机播放，默认为 false
 let isShuffled = false;
-// 循环模式，0: 不循环, 1: 单曲循环, 2: 列表循环，默认为 0
+// 循环模式，0: 顺序播放（列表结束后停止）, 1: 单曲循环, 2: 列表循环
 let isRepeating = 0;
 // 错误信息，默认为空字符串
 let errorMessage = "";
@@ -317,12 +317,13 @@ function handleLoadError(_event: Event) {
 function handleLoadStart() {}
 
 function handleAudioEnded() {
-	if (isRepeating === 1) {
+	if (isRepeating === 1 || (isRepeating === 2 && playlist.length === 1)) {
 		audio.currentTime = 0;
 		audio.play().catch(() => {});
 	} else if (
 		isRepeating === 2 ||
-		isShuffled
+		isShuffled ||
+		currentIndex < playlist.length - 1
 	) {
 		nextSong(true);
 	} else {
