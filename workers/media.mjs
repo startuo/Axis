@@ -9,13 +9,7 @@ import {
 	limit,
 } from "./core.mjs";
 import { mediaStorage } from "./media-storage.mjs";
-const MIME = {
-	"image/jpeg": "jpg",
-	"image/png": "png",
-	"image/webp": "webp",
-	"image/gif": "gif",
-	"image/avif": "avif",
-};
+import { detectImageMime, IMAGE_MIME_TYPES } from "../shared/media.mjs";
 export async function mediaRoutes(request, env, path) {
 	if (!path.startsWith("/media")) return null;
 	const storage = mediaStorage(env);
@@ -53,7 +47,7 @@ export async function mediaRoutes(request, env, path) {
 			3600,
 		);
 		const type = request.headers.get("content-type")?.split(";")[0];
-		if (!MIME[type]) fail(415, "仅支持 JPEG、PNG、WebP、GIF、AVIF");
+		if (!IMAGE_MIME_TYPES.includes(type)) fail(415, "仅支持 JPEG、PNG、WebP、GIF、AVIF");
 		const max = user.role === "ADMIN" ? 20 * 1024 * 1024 : 2 * 1024 * 1024;
 		const reader = request.body?.getReader();
 		if (!reader) fail(400, "缺少图片");
@@ -75,22 +69,7 @@ export async function mediaRoutes(request, env, path) {
 			bytes.set(c, offset);
 			offset += c.length;
 		}
-		const magic = Array.from(bytes.slice(0, 12));
-		const detected =
-			magic[0] === 255 && magic[1] === 216
-				? "image/jpeg"
-				: magic[0] === 137 && magic[1] === 80
-					? "image/png"
-					: String.fromCharCode(...magic.slice(0, 3)) === "GIF"
-						? "image/gif"
-						: String.fromCharCode(...magic.slice(8, 12)) === "WEBP"
-							? "image/webp"
-							: String.fromCharCode(...magic.slice(4, 8)) ===
-										"ftyp" &&
-								  String.fromCharCode(...magic.slice(8, 12)) ===
-										"avif"
-								? "image/avif"
-								: null;
+		const detected = detectImageMime(bytes.slice(0, 64));
 		if (detected !== type) fail(400, "图片格式与文件内容不符");
 		if (variant) {
 			await storage.put(variant[1] + "/" + variant[2], bytes, {

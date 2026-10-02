@@ -1,4 +1,5 @@
 import { apiUrl } from "../../utils/api-config";
+import { uploadOriginal, type UploadedMedia } from "../../../shared/media.mjs";
 export type Kind = "posts" | "anime" | "diary" | "albums";
 export interface EntryData {
 	title: string;
@@ -37,13 +38,8 @@ export interface PublicEntry extends EntryData {
 	slug: string;
 	kind: Kind;
 }
-export interface Media {
-	id: string;
-	name: string;
-	url: string;
-	type: string;
-	size: number;
-	refs: number;
+export interface Media extends UploadedMedia {
+	refs?: number;
 }
 export const TOKEN_KEY = "star_blog_auth_token";
 export function token() {
@@ -74,48 +70,43 @@ export async function api<T>(
 	return payload;
 }
 export async function upload(file: File): Promise<Media> {
-	const response = await fetch(apiUrl("/media"), {
-		method: "POST",
-		headers: {
-			Authorization: `Bearer ${token()}`,
-			"Content-Type": file.type,
-			"X-File-Name": encodeURIComponent(file.name),
-		},
-		body: file,
-	});
-	const data = await response.json();
-	if (!response.ok) throw new Error(data.message ?? "上传失败");
+	const data = await uploadOriginal(file, apiUrl("/media"), token());
 	try {
-		const bitmap = await createImageBitmap(file);
-		if (bitmap.width * bitmap.height <= 40000000)
-			for (const [variant, width] of [
-				["display", 1600],
-				["thumb", 400],
-			] as const) {
-				const scale = Math.min(1, width / bitmap.width),
-					canvas = document.createElement("canvas");
-				canvas.width = Math.round(bitmap.width * scale);
-				canvas.height = Math.round(bitmap.height * scale);
-				canvas
-					.getContext("2d")!
-					.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-				const blob = await new Promise<Blob | null>((resolve) =>
-					canvas.toBlob(resolve, "image/webp", 0.85),
-				);
-				if (blob)
-					await fetch(
-						apiUrl(`/media/${data.id}/variants/${variant}`),
-						{
-							method: "POST",
-							headers: {
-								Authorization: `Bearer ${token()}`,
-								"Content-Type": blob.type,
-							},
-							body: blob,
-						},
+		const bitmap = await createImageBitmap(
+			new Blob([file], { type: data.type }),
+		);
+		try {
+			if (bitmap.width * bitmap.height <= 40000000)
+				for (const [variant, width] of [
+					["display", 1600],
+					["thumb", 400],
+				] as const) {
+					const scale = Math.min(1, width / bitmap.width),
+						canvas = document.createElement("canvas");
+					canvas.width = Math.round(bitmap.width * scale);
+					canvas.height = Math.round(bitmap.height * scale);
+					canvas
+						.getContext("2d")!
+						.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+					const blob = await new Promise<Blob | null>((resolve) =>
+						canvas.toBlob(resolve, "image/webp", 0.85),
 					);
-			}
-		bitmap.close();
+					if (blob)
+						await fetch(
+							apiUrl(`/media/${data.id}/variants/${variant}`),
+							{
+								method: "POST",
+								headers: {
+									Authorization: `Bearer ${token()}`,
+									"Content-Type": blob.type,
+								},
+								body: blob,
+							},
+						);
+				}
+		} finally {
+			bitmap.close();
+		}
 	} catch {
 		/* Original remains usable when a browser cannot decode a format. */
 	}
