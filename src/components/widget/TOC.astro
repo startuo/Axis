@@ -50,6 +50,13 @@ class TableOfContents extends HTMLElement {
     tocEntries: HTMLAnchorElement[] = [];
     active: boolean[] = [];
     activeIndicator: HTMLElement | null = null;
+    private updateFrame: number | null = null;
+    private initTimer: ReturnType<typeof setTimeout> | null = null;
+    private retryTimer: ReturnType<typeof setTimeout> | null = null;
+    private animationTarget: Element | null = null;
+    private animationListener: (() => void) | null = null;
+    private pageVersion = 0;
+    private beforeSwap = () => this.reset();
 
     constructor() {
         super();
@@ -60,6 +67,7 @@ class TableOfContents extends HTMLElement {
 
     markVisibleSection = (entries: IntersectionObserverEntry[]) => {
         entries.forEach((entry) => {
+            if (!entry.target.isConnected) return;
             const id = entry.target.children[0]?.getAttribute("id");
             const idx = id ? this.headingIdxMap.get(id) : undefined;
             if (idx != undefined)
@@ -141,7 +149,10 @@ class TableOfContents extends HTMLElement {
     };
 
     update = () => {
-        requestAnimationFrame(() => {
+        if (this.updateFrame !== null) cancelAnimationFrame(this.updateFrame);
+        this.updateFrame = requestAnimationFrame(() => {
+            this.updateFrame = null;
+            if (!this.isConnected) return;
             this.toggleActiveHeading();
             // requestAnimationFrame(() => {
             this.scrollToActiveHeading();
@@ -206,6 +217,7 @@ class TableOfContents extends HTMLElement {
     };
 
     connectedCallback() {
+        document.addEventListener('astro:before-swap', this.beforeSwap);
         // 优先监听动画结束，兜底定时初始化，确保二次刷新也能正常显示 TOC
         const element = document.querySelector('.custom-md') || document.querySelector('.prose') || document.querySelector('.markdown-content');
         let initialized = false;
@@ -216,17 +228,20 @@ class TableOfContents extends HTMLElement {
             }
         };
         if (element) {
+            this.animationTarget = element;
+            this.animationListener = tryInit;
             element.addEventListener('animationend', tryInit, { once: true });
             // 兜底：无论动画是否触发，300ms后强制初始化一次
-            setTimeout(tryInit, 300);
+            this.initTimer = setTimeout(tryInit, 300);
         } else {
             // 没有动画元素，直接初始化，兜底再延迟一次
             tryInit();
-            setTimeout(tryInit, 300);
         }
     };
 
     init() {
+        this.reset();
+        if (!this.isConnected) return;
         // 重新生成TOC内容
         this.regenerateTOC();
 
@@ -258,9 +273,9 @@ class TableOfContents extends HTMLElement {
         }
         this.active = new Array(this.tocEntries.length).fill(false);
 
-        this.sections.forEach((section) =>
-            this.observer.observe(section)
-        );
+        this.sections.forEach((section) => {
+            if (section) this.observer.observe(section);
+        });
 
         this.fallback();
         this.update();
@@ -286,7 +301,11 @@ class TableOfContents extends HTMLElement {
             }));
         // 如果没有标题，延迟重试最多3次
         if (headings.length === 0 && retryCount < 3) {
-            setTimeout(() => this.regenerateTOC(retryCount + 1), 120);
+            const version = this.pageVersion;
+            this.retryTimer = setTimeout(() => {
+                this.retryTimer = null;
+                if (this.isConnected && version === this.pageVersion) this.regenerateTOC(retryCount + 1);
+            }, 120);
             return;
         }
         if (headings.length === 0) {
@@ -350,12 +369,29 @@ class TableOfContents extends HTMLElement {
         this.dataset.loaded = "true";
     }
 
-    disconnectedCallback() {
-        this.sections.forEach((section) =>
-            this.observer.unobserve(section)
-        );
+    reset() {
+        this.pageVersion++;
+        if (this.initTimer !== null) clearTimeout(this.initTimer);
+        if (this.retryTimer !== null) clearTimeout(this.retryTimer);
+        if (this.updateFrame !== null) cancelAnimationFrame(this.updateFrame);
+        this.initTimer = this.retryTimer = this.updateFrame = null;
+        if (this.animationTarget && this.animationListener)
+            this.animationTarget.removeEventListener('animationend', this.animationListener);
+        this.animationTarget = this.animationListener = null;
         this.observer.disconnect();
-        this.tocEl?.removeEventListener("click", this.handleAnchorClick);
+        this.headingIdxMap.clear();
+        this.headings = [];
+        this.sections = [];
+        this.tocEntries = [];
+        this.active = [];
+        this.anchorNavTarget = this.activeIndicator = null;
+    }
+
+    disconnectedCallback() {
+        this.reset();
+        document.removeEventListener('astro:before-swap', this.beforeSwap);
+        this.tocEl?.removeEventListener("click", this.handleAnchorClick, true);
+        this.tocEl = null;
     };
 }
 

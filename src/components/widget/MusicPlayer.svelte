@@ -75,6 +75,18 @@ type Song = {
 let playlist: Song[] = [];
 let currentIndex = 0;
 let audio: HTMLAudioElement;
+let disposed = false;
+let playlistController: AbortController | null = null;
+const pendingTimers = new Set<ReturnType<typeof setTimeout>>();
+function later(callback: () => void, delay: number) {
+	const id = setTimeout(() => {
+		pendingTimers.delete(id);
+		if (!disposed) callback();
+	}, delay);
+	pendingTimers.add(id);
+	return id;
+}
+
 let progressBar: HTMLElement;
 let volumeBar: HTMLElement;
 
@@ -132,6 +144,9 @@ function saveVolumeSettings() {
 async function fetchMetingPlaylist() {
 	if (!meting_api || !meting_id) return;
 	isLoading = true;
+	playlistController?.abort();
+	const request = new AbortController();
+	playlistController = request;
 	const apiUrl = meting_api
 		.replace(":server", meting_server)
 		.replace(":type", meting_type)
@@ -139,9 +154,10 @@ async function fetchMetingPlaylist() {
 		.replace(":auth", "")
 		.replace(":r", Date.now().toString());
 	try {
-		const res = await fetch(apiUrl);
+		const res = await fetch(apiUrl, { signal: request.signal });
 		if (!res.ok) throw new Error("meting api error");
 		const list = await res.json();
+		if (disposed || request.signal.aborted) return;
 		playlist = list.map((song: any) => {
 			let title = song.name ?? song.title ?? i18n(Key.unknownSong);
 		let artist = song.artist ?? song.author ?? i18n(Key.unknownArtist);
@@ -161,7 +177,7 @@ async function fetchMetingPlaylist() {
 			loadSong(playlist[0]);
 			// 自动播放 - 延迟确保 DOM 就绪
 			if (autoplay) {
-				setTimeout(() => {
+				later(() => {
 					if (audio) {
 						audio.play().catch(() => {});
 					}
@@ -170,6 +186,7 @@ async function fetchMetingPlaylist() {
 		}
 		isLoading = false;
 	} catch (e) {
+		if (disposed || request.signal.aborted) return;
 		showErrorMessage(i18n(Key.musicPlayerErrorPlaylist));
 		isLoading = false;
 	}
@@ -308,7 +325,7 @@ function handleLoadError(_event: Event) {
 	
     const shouldContinue = isPlaying || willAutoPlay;
 	if (playlist.length > 1) {
-		setTimeout(() => nextSong(shouldContinue), 1000);
+		later(() => nextSong(shouldContinue), 1000);
 	} else {
 		showErrorMessage(i18n(Key.musicPlayerErrorEmpty));
 	}
@@ -334,7 +351,7 @@ function handleAudioEnded() {
 function showErrorMessage(message: string) {
 	errorMessage = message;
 	showError = true;
-	setTimeout(() => {
+	later(() => {
 		showError = false;
 	}, 3000);
 }
@@ -446,6 +463,12 @@ onMount(() => {
 });
 
 onDestroy(() => {
+	disposed = true;
+	playlistController?.abort();
+	for (const timer of pendingTimers) clearTimeout(timer);
+	pendingTimers.clear();
+	if (rafId !== null) cancelAnimationFrame(rafId);
+	audio?.pause();
     if (typeof document !== 'undefined') {
         interactionEvents.forEach(event => {
             document.removeEventListener(event, handleUserInteraction, { capture: true });
@@ -456,7 +479,7 @@ onDestroy(() => {
 
 <audio
 	bind:this={audio}
-	src={getAssetPath(currentSong.url)}
+	src={currentSong.url ? getAssetPath(currentSong.url) : undefined}
 	bind:volume
 	bind:muted={isMuted}
 	on:play={() => isPlaying = true}

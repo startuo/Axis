@@ -5,7 +5,7 @@
  async function load(){busy=true;try{if(view==='profile'||view==='overview')profile=await api('/me/profile');else if(view==='messages')messages=(await api<{items:typeof messages}>('/me/messages')).items;else items=(await api<{items:PublicEntry[]}>('/me/'+view)).items;}catch(e){error=String(e);}finally{busy=false;}}
  onMount(load);
  async function save(){busy=true;error='';try{await api('/me/profile','PATCH',profile);notice='个人资料已保存。';}catch(e){error=String(e);}finally{busy=false;}}
- async function avatar(event:Event){const file=(event.target as HTMLInputElement).files?.[0];if(!file)return;try{profile.avatarUrl=(await upload(file)).url;}catch(e){error=String(e);}}
+ async function avatar(event:Event){const file=(event.target as HTMLInputElement).files?.[0];if(!file)return;try{const media=await upload(file);profile.avatarUrl=media.url;notice=media.variantWarnings?.join(' ')??'';}catch(e){error=String(e);}}
  async function remove(id?:string){try{await api('/me/'+view+(id?'/'+id:''),'DELETE');await load();}catch(e){error=String(e);}}
  async function send(){busy=true;try{await api('/feedback/messages','POST',{text,color:'#c45c7b'});text='';notice='留言已提交，审核通过后展示。';await load();}catch(e){error=String(e);}finally{busy=false;}}
 </script>

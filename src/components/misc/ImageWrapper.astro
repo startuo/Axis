@@ -9,12 +9,13 @@ interface Props {
 	position?: string;
 	basePath?: string;
 	loading?: "eager" | "lazy";
+	variant?: "display" | "original";
 }
 
 import { Image } from "astro:assets";
 import { url } from "../../utils/url-utils";
 
-const { id, src, alt, position = "center", basePath = "/", loading = "lazy" } = Astro.props;
+const { id, src, alt, position = "center", basePath = "/", loading = "lazy", variant = "display" } = Astro.props;
 const className = Astro.props.class;
 
 const isLocal = !(
@@ -24,7 +25,7 @@ const isLocal = !(
 	src.startsWith("data:")
 );
 const isPublic = src.startsWith("/");
-const displaySrc = __AXIS_TARGET__==='cloudflare' && /^\/media\/[a-f0-9-]{36}$/.test(src) ? src+'?variant=display' : src;
+const displaySrc = variant === "display" && __AXIS_TARGET__==='cloudflare' && /^\/media\/[a-f0-9-]{36}$/.test(src) ? src+'?variant=display' : src;
 
 // TODO temporary workaround for images dynamic import
 // https://github.com/withastro/astro/issues/3373
@@ -60,5 +61,5 @@ const referrerPolicy = !isLocal && isBilibiliImage ? "no-referrer" : undefined;
     {isLocal && img && (__AXIS_TARGET__ === "cloudflare"
         ? <img src={img.src} width={img.width} height={img.height} alt={alt || ""} class={imageClass} style={imageStyle} loading={loading} decoding="async"/>
         : <Image src={img} alt={alt || ""} class={imageClass} style={imageStyle} loading={loading}/>)}
-    {!isLocal && <img src={isPublic ? url(displaySrc) : displaySrc} alt={alt || ""} class={imageClass} style={imageStyle} loading={loading} referrerpolicy={referrerPolicy} crossorigin={isBilibiliImage ? "anonymous" : undefined}/>}
+    {!isLocal && <img src={isPublic ? url(displaySrc) : displaySrc} data-src={displaySrc !== src ? (isPublic ? url(src) : src) : undefined} alt={alt || ""} class={imageClass} style={imageStyle} loading={loading} decoding="async" referrerpolicy={referrerPolicy} crossorigin={isBilibiliImage ? "anonymous" : undefined}/>}
 </div>

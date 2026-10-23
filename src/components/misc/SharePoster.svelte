@@ -1,7 +1,7 @@
 <script lang="ts">
 import Icon from "@iconify/svelte";
 import QRCode from "qrcode";
-import { onMount } from "svelte";
+import { onDestroy, onMount } from "svelte";
 import I18nKey from "../../i18n/i18nKey";
 import { i18n } from "../../i18n/translation";
 
@@ -26,6 +26,19 @@ let showModal = false;
 let posterImage: string | null = null;
 let generating = false;
 let themeColor = "#558e88";
+let disposed = false;
+let generation = 0;
+let copyTimer: ReturnType<typeof setTimeout>;
+const pendingImages = new Set<() => void>();
+
+onDestroy(() => {
+	disposed = true;
+	generation++;
+	clearTimeout(copyTimer);
+	for (const cancel of pendingImages) cancel();
+	if (posterImage) URL.revokeObjectURL(posterImage);
+	posterImage = null;
+});
 
 onMount(() => {
 	const temp = document.createElement("div");
@@ -41,26 +54,25 @@ onMount(() => {
 });
 
 async function loadImage(src: string): Promise<HTMLImageElement | null> {
-	return new Promise((resolve) => {
-		const img = new Image();
-		img.crossOrigin = "anonymous";
-
-		img.onload = () => resolve(img);
-		img.onerror = () => {
-			if (src.includes("images.weserv.nl") || src.startsWith("data:")) {
-				resolve(null);
-				return;
-			}
-
-			const proxyImg = new Image();
-			proxyImg.crossOrigin = "anonymous";
-			proxyImg.onload = () => resolve(proxyImg);
-			proxyImg.onerror = () => resolve(null);
-			proxyImg.src = `https://images.weserv.nl/?url=${encodeURIComponent(src)}&output=png`;
+	const read = (url: string) => new Promise<HTMLImageElement | null>((resolve) => {
+		if (disposed) { resolve(null); return; }
+		const image = new Image();
+		image.crossOrigin = "anonymous";
+		const finish = (loaded: boolean) => {
+			image.onload = image.onerror = null;
+			pendingImages.delete(cancel);
+			if (!loaded) image.removeAttribute("src");
+			resolve(loaded && !disposed ? image : null);
 		};
-
-		img.src = src;
+		const cancel = () => finish(false);
+		pendingImages.add(cancel);
+		image.onload = () => finish(true);
+		image.onerror = cancel;
+		image.src = url;
 	});
+	const image = await read(src);
+	if (image || disposed || src.includes("images.weserv.nl") || src.startsWith("data:")) return image;
+	return read(`https://images.weserv.nl/?url=${encodeURIComponent(src)}&output=png`);
 }
 
 function getLines(
@@ -125,9 +137,11 @@ function parseDate(dateStr: string): DateObj | null {
 
 async function generatePoster() {
 	showModal = true;
-	if (posterImage) return;
+	if (posterImage || generating || disposed) return;
 
 	generating = true;
+	const version = ++generation;
+	let canvas: HTMLCanvasElement | null = null;
 	try {
 		const qrCodeUrl = await QRCode.toDataURL(url, {
 			margin: 1,
@@ -140,8 +154,9 @@ async function generatePoster() {
 			coverImage ? loadImage(coverImage) : Promise.resolve(null),
 			avatar ? loadImage(avatar) : Promise.resolve(null),
 		]);
+		if (disposed || version !== generation) return;
 
-		const canvas = document.createElement("canvas");
+		canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
 		if (!ctx) throw new Error("Canvas context not available");
 
@@ -341,11 +356,15 @@ async function generatePoster() {
 		ctx.font = `700 ${20 * SCALE}px ${FONT_FAMILY}`;
 		ctx.fillText(siteTitle, textX, footerY + 60 * SCALE);
 
-		posterImage = canvas.toDataURL("image/png");
+		const blob = await new Promise<Blob | null>((resolve) => canvas!.toBlob(resolve, "image/png"));
+		if (disposed || version !== generation) return;
+		if (!blob) throw new Error("Poster encoding failed");
+		posterImage = URL.createObjectURL(blob);
 	} catch (error) {
 		console.error("Failed to generate poster:", error);
 	} finally {
-		generating = false;
+		if (canvas) canvas.width = canvas.height = 0;
+		if (!disposed && version === generation) generating = false;
 	}
 }
 
@@ -380,8 +399,10 @@ async function copyLink() {
 			document.body.removeChild(textarea);
 		}
 
+		if (disposed) return;
 		copied = true;
-		setTimeout(() => {
+		clearTimeout(copyTimer);
+		copyTimer = setTimeout(() => {
 			copied = false;
 		}, COPY_FEEDBACK_DURATION);
 	} catch (error) {

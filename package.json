@@ -9,6 +9,8 @@
 		"db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.api.jsonc",
 		"db:migrate:remote": "wrangler d1 migrations apply DB --remote --config wrangler.api.jsonc",
 		"test:worker": "node --test workers/test/*.test.mjs",
+		"test:frontend": "node --test scripts/frontend-lifecycle.test.mjs",
+		"test:frontend:browser": "node scripts/frontend-browser.mjs after",
 		"sync:obsidian": "node scripts/sync-obsidian.mjs",
 		"build:static": "astro build && pagefind --site dist",
 		"sync-content": "node scripts/sync-content.js",

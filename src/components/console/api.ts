@@ -40,6 +40,7 @@ export interface PublicEntry extends EntryData {
 }
 export interface Media extends UploadedMedia {
 	refs?: number;
+	variantWarnings?: string[];
 }
 export const TOKEN_KEY = "star_blog_auth_token";
 export function token() {
@@ -71,46 +72,44 @@ export async function api<T>(
 }
 export async function upload(file: File): Promise<Media> {
 	const data = await uploadOriginal(file, apiUrl("/media"), token());
+	const warnings: string[] = [];
+	let bitmap: ImageBitmap | null = null;
 	try {
-		const bitmap = await createImageBitmap(
-			new Blob([file], { type: data.type }),
-		);
-		try {
-			if (bitmap.width * bitmap.height <= 40000000)
-				for (const [variant, width] of [
-					["display", 1600],
-					["thumb", 400],
-				] as const) {
-					const scale = Math.min(1, width / bitmap.width),
-						canvas = document.createElement("canvas");
-					canvas.width = Math.round(bitmap.width * scale);
-					canvas.height = Math.round(bitmap.height * scale);
-					canvas
-						.getContext("2d")!
-						.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-					const blob = await new Promise<Blob | null>((resolve) =>
-						canvas.toBlob(resolve, "image/webp", 0.85),
-					);
-					if (blob)
-						await fetch(
-							apiUrl(`/media/${data.id}/variants/${variant}`),
-							{
-								method: "POST",
-								headers: {
-									Authorization: `Bearer ${token()}`,
-									"Content-Type": blob.type,
-								},
-								body: blob,
-							},
-						);
-				}
-		} finally {
-			bitmap.close();
+		bitmap = await createImageBitmap(new Blob([file], { type: data.type }));
+		if (bitmap.width * bitmap.height > 40000000) {
+			warnings.push("原图已上传，图片尺寸较大，未生成预览图，可继续使用原图。");
+		} else for (const [variant, width, label] of [
+			["display", 1600, "展示图"], ["thumb", 400, "缩略图"],
+		] as const) {
+			const canvas = document.createElement("canvas");
+			try {
+				const scale = Math.min(1, width / bitmap.width);
+				canvas.width = Math.round(bitmap.width * scale);
+				canvas.height = Math.round(bitmap.height * scale);
+				const context = canvas.getContext("2d");
+				if (!context) throw new Error("Canvas unavailable");
+				context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+				const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/webp", 0.85));
+				if (!blob) throw new Error("Image encoding failed");
+				const response = await fetch(apiUrl(`/media/${data.id}/variants/${variant}`), {
+					method: "POST",
+					headers: { Authorization: `Bearer ${token()}`, "Content-Type": blob.type },
+					body: blob,
+				});
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			} catch (error) {
+				const reason = error instanceof Error ? error.message : String(error);
+				warnings.push(`原图已上传，${label}生成失败（${reason}），可继续使用原图。`);
+			} finally {
+				canvas.width = canvas.height = 0;
+			}
 		}
 	} catch {
-		/* Original remains usable when a browser cannot decode a format. */
+		warnings.push("原图已上传，浏览器未能生成预览图，可继续使用原图。");
+	} finally {
+		bitmap?.close();
 	}
-	return data;
+	return warnings.length ? { ...data, variantWarnings: warnings } : data;
 }
 export const labels: Record<Kind, string> = {
 	posts: "文章",

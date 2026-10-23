@@ -193,41 +193,53 @@ export class SakuraManager {
 	private animationId: number | null = null;
 	private img: HTMLImageElement | null = null;
 	private isRunning = false;
+	private pendingInit: Promise<void> | null = null;
+	private cancelLoad: (() => void) | null = null;
+	private generation = 0;
+	private readonly onResize = () => this.handleResize();
+	private readonly onVisibilityChange = () => {
+		if (document.hidden) this.pauseAnimation();
+		else this.startAnimation();
+	};
 
 	constructor(config: SakuraConfig) {
 		this.config = config;
 	}
 
 	// 初始化樱花特效
-	async init(): Promise<void> {
-		if (!this.config.enable || this.isRunning) {
-			return;
-		}
-
-		// 创建图片对象
-		this.img = new Image();
-		this.img.src = "/sakura.png"; // 使用樱花图片
-
-		// 等待图片加载完成
-		await new Promise<void>((resolve, reject) => {
-			if (this.img) {
-				this.img.onload = () => resolve();
-				this.img.onerror = () =>
-					reject(new Error("Failed to load sakura image"));
-			}
+	init(): Promise<void> {
+		if (!this.config.enable || this.isRunning) return Promise.resolve();
+		if (this.pendingInit) return this.pendingInit;
+		const generation = this.generation;
+		const img = new Image();
+		this.img = img;
+		this.pendingInit = new Promise<boolean>((resolve, reject) => {
+			const finish = (loaded: boolean, error?: Error) => {
+				img.onload = img.onerror = null;
+				this.cancelLoad = null;
+				if (error) reject(error);
+				else resolve(loaded);
+			};
+			this.cancelLoad = () => finish(false);
+			img.onload = () => finish(true);
+			img.onerror = () => finish(false, new Error("Failed to load sakura image"));
+			img.src = "/sakura.png";
+		}).then((loaded) => {
+			if (!loaded || generation !== this.generation) return;
+			this.createCanvas();
+			this.createSakuraList();
+			this.isRunning = true;
+			document.addEventListener("visibilitychange", this.onVisibilityChange);
+			this.startAnimation();
+		}).finally(() => {
+			if (generation === this.generation) this.pendingInit = null;
 		});
-
-		this.createCanvas();
-		this.createSakuraList();
-		this.startAnimation();
-		this.isRunning = true;
+		return this.pendingInit;
 	}
 
 	// 创建画布
 	private createCanvas(): void {
 		this.canvas = document.createElement("canvas");
-		this.canvas.height = window.innerHeight;
-		this.canvas.width = window.innerWidth;
 		this.canvas.setAttribute(
 			"style",
 			`position: fixed; left: 0; top: 0; pointer-events: none; z-index: ${this.config.zIndex};`,
@@ -235,9 +247,10 @@ export class SakuraManager {
 		this.canvas.setAttribute("id", "canvas_sakura");
 		document.body.appendChild(this.canvas);
 		this.ctx = this.canvas.getContext("2d");
+		this.handleResize();
 
 		// 监听窗口大小变化
-		window.addEventListener("resize", this.handleResize.bind(this));
+		window.addEventListener("resize", this.onResize);
 	}
 
 	// 创建樱花列表
@@ -285,12 +298,14 @@ export class SakuraManager {
 
 	// 开始动画
 	private startAnimation(): void {
-		if (!this.ctx || !this.canvas || !this.sakuraList) return;
+		if (!this.isRunning || document.hidden || this.animationId !== null ||
+			!this.ctx || !this.canvas || !this.sakuraList) return;
 
 		const animate = () => {
-			if (!this.ctx || !this.canvas || !this.sakuraList) return;
+			this.animationId = null;
+			if (!this.isRunning || document.hidden || !this.ctx || !this.canvas || !this.sakuraList) return;
 
-			this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 			this.sakuraList.update();
 			this.sakuraList.draw(this.ctx);
 			this.animationId = requestAnimationFrame(animate);
@@ -302,45 +317,62 @@ export class SakuraManager {
 	// 处理窗口大小变化
 	private handleResize(): void {
 		if (this.canvas) {
-			this.canvas.width = window.innerWidth;
-			this.canvas.height = window.innerHeight;
+			const dpr = window.devicePixelRatio || 1;
+			this.canvas.style.width = `${window.innerWidth}px`;
+			this.canvas.style.height = `${window.innerHeight}px`;
+			this.canvas.width = Math.round(window.innerWidth * dpr);
+			this.canvas.height = Math.round(window.innerHeight * dpr);
+			this.ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
 		}
 	}
 
-	// 停止樱花特效
-	stop(): void {
-		if (this.animationId) {
+	private pauseAnimation(): void {
+		if (this.animationId !== null) {
 			cancelAnimationFrame(this.animationId);
 			this.animationId = null;
 		}
+	}
+
+	// 停止时也取消尚未完成的加载，旧回调不能重新创建 Canvas。
+	stop(): void {
+		this.generation++;
+		this.cancelLoad?.();
+		this.pendingInit = null;
+		this.pauseAnimation();
 
 		if (this.canvas) {
-			document.body.removeChild(this.canvas);
+			this.canvas.remove();
 			this.canvas = null;
 		}
 
-		window.removeEventListener("resize", this.handleResize.bind(this));
+		window.removeEventListener("resize", this.onResize);
+		document.removeEventListener("visibilitychange", this.onVisibilityChange);
+		this.ctx = null;
+		this.sakuraList = null;
+		this.img = null;
 		this.isRunning = false;
 	}
 
 	// 切换樱花特效
 	toggle(): void {
-		if (this.isRunning) {
+		if (this.isRunning || this.pendingInit) {
 			this.stop();
 		} else {
-			this.init();
+			void this.init().catch(console.error);
 		}
 	}
 
 	// 更新配置
 	updateConfig(newConfig: SakuraConfig): void {
-		const wasRunning = this.isRunning;
+		if (this.config === newConfig) return;
+		const wasRunning = this.isRunning || this.pendingInit !== null;
+		const wasEnabled = this.config.enable;
 		if (wasRunning) {
 			this.stop();
 		}
 		this.config = newConfig;
-		if (wasRunning && newConfig.enable) {
-			this.init();
+		if ((wasRunning || !wasEnabled) && newConfig.enable) {
+			void this.init().catch(console.error);
 		}
 	}
 
@@ -360,7 +392,7 @@ export function initSakura(config: SakuraConfig): void {
 	} else {
 		globalSakuraManager = new SakuraManager(config);
 		if (config.enable) {
-			globalSakuraManager.init();
+			void globalSakuraManager.init().catch(console.error);
 		}
 	}
 }

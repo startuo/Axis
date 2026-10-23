@@ -178,7 +178,11 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 		build: {
 			// 静态资源处理优化，防止小图片转 base64 导致 HTML 体积过大（可选，根据需要调整）
-			assetsInlineLimit: 4096,
+			// Astro inlines small processed scripts using this limit. Swup would execute
+			// those inline modules again on every visit; external modules execute once.
+			// Keep the existing 4 KiB threshold for images and other assets.
+			assetsInlineLimit: (filePath, content) =>
+				/\.[cm]?js$/.test(filePath) ? false : content.byteLength < 4096,
 
 			rollupOptions: {
 				onwarn(warning, warn) {

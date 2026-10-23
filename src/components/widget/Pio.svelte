@@ -15,11 +15,17 @@ let pioInstance = null;
 let pioInitialized = false;
 let pioContainer;
 let pioCanvas;
+let mounted = false;
+let initTimer;
+let assetsController;
 
 // 样式已通过 Layout.astro 静态引入，无需动态加载
 
 function cleanupPio() {
 	if (typeof document === "undefined") return;
+	mounted = false;
+	clearTimeout(initTimer);
+	assetsController?.abort();
 
 	pioInstance = null;
 	pioInitialized = false;
@@ -30,6 +36,7 @@ function cleanupPio() {
 
 // 等待 DOM 加载完成后再初始化 Pio
 function initPio() {
+	if (!mounted) return;
 	if (typeof window !== "undefined" && typeof Paul_Pio !== "undefined") {
 		try {
 			// 确保DOM元素存在
@@ -37,16 +44,10 @@ function initPio() {
 				pioInstance = new Paul_Pio(pioOptions);
 				pioInitialized = true;
 				console.log("Pio initialized successfully (Svelte)");
-			} else if (!pioContainer || !pioCanvas) {
-				console.warn("Pio DOM elements not found, retrying...");
-				setTimeout(initPio, 100);
 			}
 		} catch (e) {
 			console.error("Pio initialization error:", e);
 		}
-	} else {
-		// 如果 Paul_Pio 还未定义，稍后再试
-		setTimeout(initPio, 100);
 	}
 }
 
@@ -59,30 +60,52 @@ function loadPioAssets() {
 	// 样式已通过 Layout.astro 静态引入
 
 	// 加载JS脚本
-	const loadScript = (src, id) => {
+	const loadScript = (src, id, ready) => {
 		return new Promise((resolve, reject) => {
-			if (document.querySelector(`#${id}`)) {
+			if (ready()) {
 				resolve();
 				return;
 			}
-			const script = document.createElement("script");
+			const existing = document.getElementById(id);
+			const script = existing || document.createElement("script");
 			script.id = id;
 			script.src = src;
-			script.onload = resolve;
-			script.onerror = reject;
-			document.head.appendChild(script);
+			const signal = assetsController.signal;
+			const finish = (error) => {
+				clearTimeout(timeout);
+				script.removeEventListener("load", loaded);
+				script.removeEventListener("error", failed);
+				signal.removeEventListener("abort", aborted);
+				if (error) reject(error);
+				else resolve();
+			};
+			const loaded = () => finish(ready() ? null : new Error(`Pio script unavailable: ${src}`));
+			const failed = () => { if (!existing) script.remove(); finish(new Error(`Failed to load ${src}`)); };
+			const aborted = () => finish(new DOMException("Pio unmounted", "AbortError"));
+			const timeout = setTimeout(() => finish(new Error(`Pio script timed out: ${src}`)), 15000);
+			script.addEventListener("load", loaded, { once: true });
+			script.addEventListener("error", failed, { once: true });
+			signal.addEventListener("abort", aborted, { once: true });
+			if (signal.aborted) { aborted(); return; }
+			if (!existing) {
+				script.setAttribute("data-swup-ignore-script", "");
+				document.head.appendChild(script);
+			}
 		});
 	};
 
 	// 按顺序加载脚本
-	loadScript("/pio/static/l2d.js", "pio-l2d-script")
-		.then(() => loadScript("/pio/static/pio.js", "pio-main-script"))
+	loadScript("/pio/static/l2d.js", "pio-l2d-script", () => typeof window.loadlive2d === "function")
+		.then(() => {
+			if (!mounted) return;
+			return loadScript("/pio/static/pio.js", "pio-main-script", () => typeof window.Paul_Pio === "function");
+		})
 		.then(() => {
 			// 脚本加载完成后初始化
-			setTimeout(initPio, 100);
+			if (mounted) initTimer = setTimeout(initPio, 100);
 		})
 		.catch((error) => {
-			console.error("Failed to load Pio scripts:", error);
+			if (mounted) console.error("Failed to load Pio scripts:", error);
 		});
 }
 
@@ -90,6 +113,8 @@ function loadPioAssets() {
 
 onMount(() => {
 	if (!pioConfig.enable) return;
+	mounted = true;
+	assetsController = new AbortController();
 
 	window.__starCleanupPio = cleanupPio;
 
@@ -103,6 +128,9 @@ onMount(() => {
 });
 
 onDestroy(() => {
+	mounted = false;
+	clearTimeout(initTimer);
+	assetsController?.abort();
 	if (typeof document === "undefined") return;
 
 	if (document.body.classList.contains("admin-mode")) {

@@ -250,7 +250,7 @@ const transparentClass = shouldEnableTransparency
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug}>
 
-<script type="module" is:inline define:vars={{navbarTransparentMode: siteConfig.banner?.navbar?.transparentMode || "semi", defaultWallpaperMode: siteConfig.wallpaperMode.defaultMode, defaultPostListLayout: siteConfig.postListLayout?.defaultMode || "list", BANNER_HEIGHT: BANNER_HEIGHT, pageScaling: siteConfig.pageScaling}}>
+<script data-swup-ignore-script type="module" is:inline define:vars={{navbarTransparentMode: siteConfig.banner?.navbar?.transparentMode || "semi", defaultWallpaperMode: siteConfig.wallpaperMode.defaultMode, defaultPostListLayout: siteConfig.postListLayout?.defaultMode || "list", BANNER_HEIGHT: BANNER_HEIGHT, pageScaling: siteConfig.pageScaling}}>
 
 	// 立即执行，在页面渲染前应用壁纸模式和布局模式，避免闪烁
 	(function() {
@@ -348,10 +348,6 @@ const transparentClass = shouldEnableTransparency
 		var mainContent = document.querySelector('.absolute.w-full.z-30.pointer-events-none');
 		var tocWrapper = document.getElementById('toc-wrapper');
 		
-		// 强制重排以确保样式正确应用
-		var forceReflow = function() {
-			void document.body.offsetHeight;
-		};
 		
 		switch(wallpaperMode) {
 			case 'banner':
@@ -373,8 +369,6 @@ const transparentClass = shouldEnableTransparency
 				// 先移除body类，避免CSS冲突
 				body.classList.remove('wallpaper-transparent');
 				body.classList.remove('no-banner-mode');
-				// 强制重排
-				forceReflow();
 				// 移除内联样式，让CSS完全接管
 				if (mainContent) {
 					mainContent.style.removeProperty('top');
@@ -391,8 +385,6 @@ const transparentClass = shouldEnableTransparency
 						window.initSemifullScrollDetection();
 					}
 				}
-				// 强制重排以确保CSS变量正确更新
-				forceReflow();
 				break;
 				
 			case 'fullscreen':
@@ -409,8 +401,6 @@ const transparentClass = shouldEnableTransparency
 				}
 				// 先移除body类，避免CSS冲突
 				body.classList.remove('enable-banner');
-				// 强制重排
-				forceReflow();
 				// 移除内联样式，让CSS完全接管
 				if (mainContent) {
 					mainContent.style.removeProperty('top');
@@ -424,8 +414,6 @@ const transparentClass = shouldEnableTransparency
 					// 强制移除 config 中的 data-transparent-mode 影响
 					navbar.removeAttribute('data-transparent-mode');
 				}
-				// 强制重排以确保CSS变量正确更新
-				forceReflow();
 				break;
 				
 			case 'none':
@@ -443,8 +431,6 @@ const transparentClass = shouldEnableTransparency
 				// 先移除body类，避免CSS冲突
 				body.classList.remove('enable-banner');
 				body.classList.remove('wallpaper-transparent');
-				// 强制重排
-				forceReflow();
 				// 移除内联样式，让CSS完全接管
 				if (mainContent) {
 					mainContent.style.removeProperty('top');
@@ -457,10 +443,9 @@ const transparentClass = shouldEnableTransparency
 					// 强制移除 config 中的 data-transparent-mode 影响
 					navbar.removeAttribute('data-transparent-mode');
 				}
-				// 强制重排以确保CSS变量正确更新
-				forceReflow();
 				break;
 		}
+		window.dispatchEvent(new CustomEvent('wallpaper-mode-applied', {detail: {mode: wallpaperMode}}));
 	}
 	
 	// 监听壁纸模式变化，立即应用（不重载页面）
@@ -481,9 +466,12 @@ const transparentClass = shouldEnableTransparency
 	}
 	
 	// 支持 Swup 页面过渡 - 在内容替换之前就应用布局，避免闪烁
+	let layoutSwup = null;
 	function setupSwupLayoutSync() {
 		// @ts-ignore
 		if (typeof window !== 'undefined' && window.swup) {
+			if (layoutSwup === window.swup) return true;
+			layoutSwup = window.swup;
 			// 关键：在 content:replace 之前（animation:out:start）就准备好布局状态
 			// @ts-ignore
 			window.swup.hooks.on('animation:out:start', function() {
@@ -543,18 +531,8 @@ const transparentClass = shouldEnableTransparency
 		return false;
 	}
 	
-	// 尝试立即设置，如果失败则延迟重试
-	if (!setupSwupLayoutSync()) {
-		const checkSwup = setInterval(function() {
-			if (setupSwupLayoutSync()) {
-				clearInterval(checkSwup);
-			}
-		}, 50);
-		
-		setTimeout(function() {
-			clearInterval(checkSwup);
-		}, 2000);
-	}
+	setupSwupLayoutSync();
+	document.addEventListener('swup:enable', setupSwupLayoutSync);
 	
 	// 支持 Swup 页面过渡
 	document.addEventListener('swup:page:view', function() {
@@ -647,7 +625,7 @@ const transparentClass = shouldEnableTransparency
                         <li class={`carousel-item absolute inset-0 transition-all duration-500 ${index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-110'}`}>
                             <!-- Mobile: use mobile-specific images -->
                             {hasMobileImage && (
-                                <ImageWrapper 
+                                <ImageWrapper variant="original"
                                     alt={`Mobile banner image ${index + 1}`} 
                                     class:list={["block md:hidden object-cover h-full w-full transition-transform duration-500 ease-out"]}
                                     src={Array.isArray(bannerImages.mobile) ? bannerImages.mobile[index] : (typeof bannerImages.mobile === 'string' ? bannerImages.mobile : '')} 
@@ -657,7 +635,7 @@ const transparentClass = shouldEnableTransparency
                             )}
                             <!-- Desktop/Tablet: use desktop-specific images -->
                             {hasDesktopImage && (
-                                <ImageWrapper 
+                                <ImageWrapper variant="original"
                                     alt={`Desktop banner image ${index + 1}`} 
                                     class:list={["hidden md:block object-cover h-full w-full transition-transform duration-500 ease-out"]}
                                     src={Array.isArray(bannerImages.desktop) ? bannerImages.desktop[index] : (typeof bannerImages.desktop === 'string' ? bannerImages.desktop : '')} 
@@ -673,7 +651,7 @@ const transparentClass = shouldEnableTransparency
     ) : (
         <!-- Single image mode -->
         <div id="banner-single-container" class="relative h-full w-full">
-            <script is:inline define:vars={{ desktopImages: bannerImages.desktop, mobileImages: bannerImages.mobile, position: siteConfig.banner.position }}>
+            <script data-swup-ignore-script is:inline define:vars={{ desktopImages: bannerImages.desktop, mobileImages: bannerImages.mobile, position: siteConfig.banner.position }}>
                 (function() {
                     const getRandomImage = (images, storageKey) => {
                         if (Array.isArray(images)) {
