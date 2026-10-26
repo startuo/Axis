@@ -1,6 +1,7 @@
 {
 	"title": "Some lovely pictures",
 	"hidden": false,
+	"cover": "cover.png",
 	"description": "The world is vast, and you have to go explore it.",
 	"date": "2025-08-01",
 	"location": "Bilibili",

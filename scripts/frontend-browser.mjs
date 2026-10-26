@@ -15,7 +15,7 @@ await mkdir(output, {recursive:true});
 const {chromium} = await import(process.env.AXIS_PLAYWRIGHT_MODULE
   ? pathToFileURL(process.env.AXIS_PLAYWRIGHT_MODULE).href : 'playwright');
 const mime = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json',
-  '.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml',
+  '.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.avif':'image/avif','.gif':'image/gif','.ico':'image/x-icon','.svg':'image/svg+xml',
   '.woff2':'font/woff2','.ttf':'font/ttf','.moc':'application/octet-stream'};
 const server = createServer(async(req,res)=>{
   try {

@@ -1,0 +1,29 @@
+name: Asset integrity
+on:
+  pull_request:
+  push:
+    branches-ignore: [mirror]
+permissions:
+  contents: read
+jobs:
+  audit:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit:assets
+      - run: pnpm test:assets
+      - run: pnpm check
+      - run: pnpm type-check

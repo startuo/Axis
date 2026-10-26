@@ -121,20 +121,20 @@ export const siteConfig: SiteConfig = {
 		// 支持单张图片或图片数组，当数组长度 > 1 时自动启用轮播
 		src: {
 			desktop: [
-				"/assets/desktop-banner/1.webp",
-				"/assets/desktop-banner/2.webp",
-				"/assets/desktop-banner/3.webp",
-				"/assets/desktop-banner/4.webp",
-				"/assets/desktop-banner/5.webp",
-				"/assets/desktop-banner/6.webp",
+				"/assets/desktop-banner/1.jpg",
+				"/assets/desktop-banner/2.png",
+				"/assets/desktop-banner/3.jpg",
+				"/assets/desktop-banner/4.jpg",
+				"/assets/desktop-banner/5.png",
+				"/assets/desktop-banner/6.png",
 			], // 桌面横幅图片
 			mobile: [
-				"/assets/mobile-banner/1.webp",
-				"/assets/mobile-banner/2.webp",
-				"/assets/mobile-banner/3.webp",
-				"/assets/mobile-banner/4.webp",
-				"/assets/mobile-banner/5.webp",
-				"/assets/mobile-banner/6.webp",
+				"/assets/mobile-banner/1.jpg",
+				"/assets/mobile-banner/2.jpg",
+				"/assets/mobile-banner/3.jpg",
+				"/assets/mobile-banner/4.png",
+				"/assets/mobile-banner/5.jpg",
+				"/assets/mobile-banner/6.jpg",
 			], // 移动横幅图片
 		}, // 使用本地横幅图片
 
@@ -253,20 +253,20 @@ export const siteConfig: SiteConfig = {
 export const fullscreenWallpaperConfig: FullscreenWallpaperConfig = {
 	src: {
 		desktop: [
-			"/assets/desktop-banner/1.webp",
-			"/assets/desktop-banner/2.webp",
-			"/assets/desktop-banner/3.webp",
-			"/assets/desktop-banner/4.webp",
-			"/assets/desktop-banner/5.webp",
-			"/assets/desktop-banner/6.webp",
+			"/assets/desktop-banner/1.jpg",
+			"/assets/desktop-banner/2.png",
+			"/assets/desktop-banner/3.jpg",
+			"/assets/desktop-banner/4.jpg",
+			"/assets/desktop-banner/5.png",
+			"/assets/desktop-banner/6.png",
 		], // 桌面横幅图片
 		mobile: [
-			"/assets/mobile-banner/1.webp",
-			"/assets/mobile-banner/2.webp",
-			"/assets/mobile-banner/3.webp",
-			"/assets/mobile-banner/4.webp",
-			"/assets/mobile-banner/5.webp",
-			"/assets/mobile-banner/6.webp",
+			"/assets/mobile-banner/1.jpg",
+			"/assets/mobile-banner/2.jpg",
+			"/assets/mobile-banner/3.jpg",
+			"/assets/mobile-banner/4.png",
+			"/assets/mobile-banner/5.jpg",
+			"/assets/mobile-banner/6.jpg",
 		], // 移动横幅图片
 	}, // 使用本地横幅图片
 	position: "center", // 壁纸位置，等同于 object-position
@@ -359,7 +359,7 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "assets/images/avatar.webp", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
+	avatar: "assets/images/avatar.png", // 相对于 /src 目录。如果以 '/' 开头，则相对于 /public 目录
 	name: "STAR",
 	bio: "记录生活，分享成长",
 	typewriter: {

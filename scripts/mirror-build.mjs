@@ -17,6 +17,7 @@ import { readFile, writeFile, mkdir, copyFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import {canonicalPublicAsset,mirrorImageExtension,preserveBundledAssetAliases} from './asset-aliases.mjs';
 const origin =
 	process.env.MAIN_SITE_URL || "https://axis.1669338073.workers.dev";
 const file = process.argv[2] || ".mirror/snapshot.json";
@@ -92,11 +93,13 @@ for (const source of urls) {
 	let bytes;
 	// Existing bundled files are already independent of Cloudflare.
 	if (source.startsWith("/") && !source.startsWith("/media/")) {
-		const local = path.resolve("public", "." + decodeURIComponent(source));
+		const canonical = canonicalPublicAsset(source);
+		const local = path.resolve("public", "." + decodeURIComponent(canonical.split(/[?#]/)[0]));
 		if (!local.startsWith(path.resolve("public") + path.sep))
 			throw new Error("Invalid asset path");
 		try {
 			await stat(local);
+			if(canonical!==source)replacements.set(source,canonical);
 			continue;
 		} catch {}
 	}
@@ -121,15 +124,7 @@ for (const source of urls) {
 		chunks.push(value);
 	}
 	bytes = Buffer.concat(chunks);
-	const ext = {
-		"image/jpeg": ".jpg",
-		"image/png": ".png",
-		"image/webp": ".webp",
-		"image/gif": ".gif",
-		"image/avif": ".avif",
-		"image/svg+xml": ".svg",
-	}[response.headers.get("content-type").split(";")[0]];
-	if (!ext) throw new Error("Unsupported image type");
+	const ext = mirrorImageExtension(bytes);
 	await writeFile(target + ext, bytes);
 	replacements.set(source, "/mirror-media/" + hash + ext);
 }
@@ -164,12 +159,14 @@ const build = spawnSync(
 if (build.status !== 0) process.exit(build.status ?? 1);
 await mkdir(path.join(output, "mirror-media"), { recursive: true });
 for (const url of replacements.values()) {
+	if(!url.startsWith('/mirror-media/'))continue;
 	const hash = url.split("/").pop();
 	await copyFile(
 		path.join(root, hash),
 		path.join(output, "mirror-media", hash),
 	);
 }
+await preserveBundledAssetAliases(output);
 await writeFile(
 	path.join(output, "mirror-version.json"),
 	JSON.stringify({

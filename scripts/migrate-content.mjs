@@ -114,6 +114,7 @@ for (const folder of await readdir("public/images/albums", {
 	} catch {
 		continue;
 	}
+	const coverFile = typeof info.cover === "string" ? info.cover : "cover.jpg";
 	const photos =
 		info.mode === "external"
 			? info.photos
@@ -121,7 +122,7 @@ for (const folder of await readdir("public/images/albums", {
 					.filter(
 						(f) =>
 							/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(f) &&
-							!f.endsWith("cover.jpg"),
+							!f.endsWith("cover.jpg") && path.basename(f) !== coverFile,
 					)
 					.map((f) => ({
 						src:
@@ -141,7 +142,7 @@ for (const folder of await readdir("public/images/albums", {
 			image:
 				info.mode === "external"
 					? info.cover
-					: "/images/albums/" + folder.name + "/cover.jpg",
+					: "/images/albums/" + folder.name + "/" + coverFile,
 			published: info.date
 				? new Date(info.date).toISOString()
 				: new Date().toISOString(),
