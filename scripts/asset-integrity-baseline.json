@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sourceCommit": "8e0328471a8b2c6c08ab70a490da56ae649ea17e",
   "description": "No-reencoding migration. Originals remain byte-pinned. Every legacy mismatch is a named compatibility alias, not a wildcard exemption.",
   "originals": [
@@ -9,7 +9,8 @@
       "size": 188352,
       "format": "webp",
       "width": 1080,
-      "height": 2031
+      "height": 2031,
+      "classification": "content"
     },
     {
       "path": "docs/image/2.webp",
@@ -17,7 +18,8 @@
       "size": 275860,
       "format": "webp",
       "width": 1079,
-      "height": 2043
+      "height": 2043,
+      "classification": "content"
     },
     {
       "path": "docs/image/3.webp",
@@ -25,7 +27,8 @@
       "size": 132540,
       "format": "webp",
       "width": 1080,
-      "height": 2033
+      "height": 2033,
+      "classification": "content"
     },
     {
       "path": "docs/image/4.webp",
@@ -33,7 +36,8 @@
       "size": 56942,
       "format": "webp",
       "width": 1078,
-      "height": 2057
+      "height": 2057,
+      "classification": "content"
     },
     {
       "path": "docs/image/5.webp",
@@ -41,7 +45,8 @@
       "size": 125430,
       "format": "webp",
       "width": 1079,
-      "height": 2036
+      "height": 2036,
+      "classification": "content"
     },
     {
       "path": "docs/image/6.webp",
@@ -49,7 +54,8 @@
       "size": 79196,
       "format": "webp",
       "width": 1080,
-      "height": 2042
+      "height": 2042,
+      "classification": "content"
     },
     {
       "path": "logo.png",
@@ -57,7 +63,8 @@
       "size": 388937,
       "format": "png",
       "width": 2364,
-      "height": 722
+      "height": 722,
+      "classification": "content"
     },
     {
       "path": "public/assets/anime/AIR.webp",
@@ -65,7 +72,9 @@
       "size": 10854,
       "format": "avif",
       "width": 240,
-      "height": 320
+      "height": 320,
+      "source": "public/assets/anime/AIR.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/CLANNAD.webp",
@@ -73,7 +82,9 @@
       "size": 14968,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/CLANNAD.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/Charlotte.webp",
@@ -81,7 +92,9 @@
       "size": 16200,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/Charlotte.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/OVERLORD.webp",
@@ -89,7 +102,9 @@
       "size": 22354,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/OVERLORD.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/Re：clksdysjsh.webp",
@@ -97,7 +112,9 @@
       "size": 23238,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/Re：clksdysjsh.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/bg.webp",
@@ -105,7 +122,9 @@
       "size": 9744,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/bg.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/ddd.webp",
@@ -113,7 +132,9 @@
       "size": 20968,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/ddd.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/eva.webp",
@@ -121,7 +142,9 @@
       "size": 20277,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/eva.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/gzxb.avif",
@@ -129,7 +152,8 @@
       "size": 23234,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "classification": "content"
     },
     {
       "path": "public/assets/anime/hydxjxrwgb.webp",
@@ -137,7 +161,9 @@
       "size": 19039,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/hydxjxrwgb.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/jdgjj.webp",
@@ -145,7 +171,9 @@
       "size": 19720,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/jdgjj.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/lg.webp",
@@ -153,7 +181,9 @@
       "size": 3548,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/lg.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/mkxdcdcp.webp",
@@ -161,7 +191,8 @@
       "size": 76854,
       "format": "webp",
       "width": 660,
-      "height": 880
+      "height": 880,
+      "classification": "content"
     },
     {
       "path": "public/assets/anime/sczndgmtx.webp",
@@ -169,7 +200,9 @@
       "size": 16459,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/sczndgmtx.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/xfhclrzf.webp",
@@ -177,7 +210,9 @@
       "size": 19282,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/xfhclrzf.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/xrkd.webp",
@@ -185,7 +220,9 @@
       "size": 28928,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/xrkd.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/yszm.webp",
@@ -193,7 +230,9 @@
       "size": 26762,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/yszm.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/yzk.webp",
@@ -201,7 +240,9 @@
       "size": 374131,
       "format": "png",
       "width": 452,
-      "height": 640
+      "height": 640,
+      "source": "public/assets/anime/yzk.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/yzsc.webp",
@@ -209,7 +250,9 @@
       "size": 22898,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/yzsc.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/zebyytla.webp",
@@ -217,7 +260,9 @@
       "size": 12555,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/zebyytla.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/zgmssdywt.webp",
@@ -225,7 +270,9 @@
       "size": 17409,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/zgmssdywt.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/zllyhhy.webp",
@@ -233,7 +280,9 @@
       "size": 11376,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/zllyhhy.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/anime/zxfdnyw.webp",
@@ -241,7 +290,9 @@
       "size": 19755,
       "format": "avif",
       "width": 308,
-      "height": 410
+      "height": 410,
+      "source": "public/assets/anime/zxfdnyw.avif",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/1.webp",
@@ -249,7 +300,9 @@
       "size": 690713,
       "format": "jpeg",
       "width": 2358,
-      "height": 1450
+      "height": 1450,
+      "source": "public/assets/desktop-banner/1.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/2.webp",
@@ -257,7 +310,9 @@
       "size": 2473481,
       "format": "png",
       "width": 2308,
-      "height": 1298
+      "height": 1298,
+      "source": "public/assets/desktop-banner/2.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/3.webp",
@@ -265,7 +320,9 @@
       "size": 3464680,
       "format": "jpeg",
       "width": 3840,
-      "height": 2160
+      "height": 2160,
+      "source": "public/assets/desktop-banner/3.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/4.webp",
@@ -273,7 +330,9 @@
       "size": 3038307,
       "format": "jpeg",
       "width": 3840,
-      "height": 2160
+      "height": 2160,
+      "source": "public/assets/desktop-banner/4.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/5.webp",
@@ -281,7 +340,9 @@
       "size": 3512492,
       "format": "png",
       "width": 3840,
-      "height": 2160
+      "height": 2160,
+      "source": "public/assets/desktop-banner/5.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/desktop-banner/6.webp",
@@ -289,7 +350,9 @@
       "size": 10132492,
       "format": "png",
       "width": 4252,
-      "height": 2392
+      "height": 2392,
+      "source": "public/assets/desktop-banner/6.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/home/default-logo.png",
@@ -297,7 +360,8 @@
       "size": 388937,
       "format": "png",
       "width": 2364,
-      "height": 722
+      "height": 722,
+      "classification": "content"
     },
     {
       "path": "public/assets/home/home-light.png",
@@ -305,7 +369,8 @@
       "size": 1040107,
       "format": "png",
       "width": 1130,
-      "height": 1254
+      "height": 1254,
+      "classification": "content"
     },
     {
       "path": "public/assets/home/home.png",
@@ -313,7 +378,8 @@
       "size": 389125,
       "format": "png",
       "width": 940,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/assets/mobile-banner/1.webp",
@@ -321,7 +387,9 @@
       "size": 595488,
       "format": "jpeg",
       "width": 1179,
-      "height": 2556
+      "height": 2556,
+      "source": "public/assets/mobile-banner/1.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/mobile-banner/2.webp",
@@ -329,7 +397,9 @@
       "size": 1519604,
       "format": "jpeg",
       "width": 2358,
-      "height": 3304
+      "height": 3304,
+      "source": "public/assets/mobile-banner/2.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/mobile-banner/3.webp",
@@ -337,7 +407,9 @@
       "size": 773983,
       "format": "jpeg",
       "width": 1350,
-      "height": 2700
+      "height": 2700,
+      "source": "public/assets/mobile-banner/3.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/mobile-banner/4.webp",
@@ -345,7 +417,9 @@
       "size": 7368891,
       "format": "png",
       "width": 1440,
-      "height": 3120
+      "height": 3120,
+      "source": "public/assets/mobile-banner/4.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/mobile-banner/5.webp",
@@ -353,7 +427,9 @@
       "size": 517824,
       "format": "jpeg",
       "width": 1894,
-      "height": 4096
+      "height": 4096,
+      "source": "public/assets/mobile-banner/5.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/mobile-banner/6.webp",
@@ -361,7 +437,9 @@
       "size": 598230,
       "format": "jpeg",
       "width": 1080,
-      "height": 2340
+      "height": 2340,
+      "source": "public/assets/mobile-banner/6.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/assets/music/cover/cl.jpg",
@@ -369,7 +447,8 @@
       "size": 6019,
       "format": "jpeg",
       "width": 130,
-      "height": 130
+      "height": 130,
+      "classification": "content"
     },
     {
       "path": "public/assets/music/cover/hitori.jpg",
@@ -377,7 +456,8 @@
       "size": 5675,
       "format": "jpeg",
       "width": 130,
-      "height": 130
+      "height": 130,
+      "classification": "content"
     },
     {
       "path": "public/assets/music/cover/xryx.jpg",
@@ -385,7 +465,8 @@
       "size": 134958,
       "format": "jpeg",
       "width": 500,
-      "height": 500
+      "height": 500,
+      "classification": "content"
     },
     {
       "path": "public/favicon/favicon.ico",
@@ -393,7 +474,9 @@
       "size": 1040107,
       "format": "png",
       "width": 1130,
-      "height": 1254
+      "height": 1254,
+      "source": "public/favicon/favicon.png",
+      "classification": "historical"
     },
     {
       "path": "public/images/albums/AcgExample/1.webp",
@@ -401,7 +484,8 @@
       "size": 399554,
       "format": "webp",
       "width": 1920,
-      "height": 1356
+      "height": 1356,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/1a7a9ff30d0b7cf03b9fdbd1dd4cf0ad90a344eb.jpg",
@@ -409,7 +493,8 @@
       "size": 1808999,
       "format": "jpeg",
       "width": 2655,
-      "height": 3700
+      "height": 3700,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/2.webp",
@@ -417,7 +502,8 @@
       "size": 286146,
       "format": "webp",
       "width": 1920,
-      "height": 1080
+      "height": 1080,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/3.webp",
@@ -425,7 +511,8 @@
       "size": 894866,
       "format": "webp",
       "width": 6400,
-      "height": 3396
+      "height": 3396,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/4.webp",
@@ -433,7 +520,8 @@
       "size": 323436,
       "format": "webp",
       "width": 2000,
-      "height": 1200
+      "height": 1200,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/464b547c424f36e7c6c38e0c2c151759a3bc68ec.jpg",
@@ -441,7 +529,8 @@
       "size": 919783,
       "format": "jpeg",
       "width": 1000,
-      "height": 1414
+      "height": 1414,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/4986499bffa3b14c572c22c1ce441fc2cd94d63f.jpg",
@@ -449,7 +538,8 @@
       "size": 1330564,
       "format": "jpeg",
       "width": 1914,
-      "height": 1080
+      "height": 1080,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/5d662a33907ffe4edd7261ea4b374ff0a01e2dde.jpg",
@@ -457,7 +547,8 @@
       "size": 1389658,
       "format": "jpeg",
       "width": 1031,
-      "height": 1403
+      "height": 1403,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/6765bb292ea65ebcff37845ee718cc0e290750052.jpg",
@@ -465,7 +556,8 @@
       "size": 1091008,
       "format": "jpeg",
       "width": 1192,
-      "height": 2000
+      "height": 2000,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/711ce964e0a5c708aa174d8f6d7ee4e4bb60d356.jpg",
@@ -473,7 +565,8 @@
       "size": 1080199,
       "format": "jpeg",
       "width": 1447,
-      "height": 2047
+      "height": 2047,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/91ae6186d2cf1af536b57c78ad7134ca1c8cbfe0.jpg",
@@ -481,7 +574,8 @@
       "size": 4249669,
       "format": "jpeg",
       "width": 2160,
-      "height": 3054
+      "height": 3054,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/ca3c3f88c47fac7bdda5b8b29ca638dcee769704.jpg",
@@ -489,7 +583,8 @@
       "size": 3368409,
       "format": "jpeg",
       "width": 1976,
-      "height": 2874
+      "height": 2874,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/cover.jpg",
@@ -497,7 +592,9 @@
       "size": 7978244,
       "format": "png",
       "width": 6400,
-      "height": 3396
+      "height": 3396,
+      "source": "public/images/albums/AcgExample/cover.png",
+      "classification": "historical"
     },
     {
       "path": "public/images/albums/AcgExample/d1.webp",
@@ -505,7 +602,8 @@
       "size": 922748,
       "format": "webp",
       "width": 5856,
-      "height": 3904
+      "height": 3904,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d2.webp",
@@ -513,7 +611,8 @@
       "size": 323436,
       "format": "webp",
       "width": 2000,
-      "height": 1200
+      "height": 1200,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d3.webp",
@@ -521,7 +620,8 @@
       "size": 217054,
       "format": "webp",
       "width": 2560,
-      "height": 1440
+      "height": 1440,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d4.webp",
@@ -529,7 +629,8 @@
       "size": 539850,
       "format": "webp",
       "width": 3840,
-      "height": 2160
+      "height": 2160,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d5.webp",
@@ -537,7 +638,8 @@
       "size": 512232,
       "format": "webp",
       "width": 2048,
-      "height": 1152
+      "height": 1152,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d6.webp",
@@ -545,7 +647,8 @@
       "size": 372210,
       "format": "webp",
       "width": 1920,
-      "height": 1080
+      "height": 1080,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d7.webp",
@@ -553,7 +656,8 @@
       "size": 372122,
       "format": "webp",
       "width": 1920,
-      "height": 1080
+      "height": 1080,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/d8.webp",
@@ -561,7 +665,8 @@
       "size": 283704,
       "format": "webp",
       "width": 2880,
-      "height": 1620
+      "height": 1620,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/db67d185b865ebeb42be0ee1948952586147971e.jpg",
@@ -569,7 +674,8 @@
       "size": 1752457,
       "format": "jpeg",
       "width": 1307,
-      "height": 2059
+      "height": 2059,
+      "classification": "content"
     },
     {
       "path": "public/images/albums/AcgExample/fd450b78411a7548183aa291bb4cbb99d0bc2bed.jpg",
@@ -577,7 +683,8 @@
       "size": 2028909,
       "format": "jpeg",
       "width": 2000,
-      "height": 2828
+      "height": 2828,
+      "classification": "content"
     },
     {
       "path": "public/images/device/ipad11.png",
@@ -585,7 +692,9 @@
       "size": 65495,
       "format": "jpeg",
       "width": 1200,
-      "height": 630
+      "height": 630,
+      "source": "public/images/device/ipad11.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/images/device/iphone17pro.png",
@@ -593,7 +702,9 @@
       "size": 66893,
       "format": "jpeg",
       "width": 653,
-      "height": 653
+      "height": 653,
+      "source": "public/images/device/iphone17pro.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/images/device/k60ultra.png",
@@ -601,7 +712,9 @@
       "size": 75071,
       "format": "jpeg",
       "width": 800,
-      "height": 800
+      "height": 800,
+      "source": "public/images/device/k60ultra.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/images/device/macminim4.png",
@@ -609,7 +722,9 @@
       "size": 26779,
       "format": "jpeg",
       "width": 980,
-      "height": 551
+      "height": 551,
+      "source": "public/images/device/macminim4.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/images/device/y9000p.png",
@@ -617,7 +732,9 @@
       "size": 239049,
       "format": "jpeg",
       "width": 1280,
-      "height": 720
+      "height": 720,
+      "source": "public/images/device/y9000p.jpg",
+      "classification": "historical"
     },
     {
       "path": "public/images/diary/1.jpg",
@@ -625,7 +742,8 @@
       "size": 1310388,
       "format": "jpeg",
       "width": 1080,
-      "height": 1920
+      "height": 1920,
+      "classification": "content"
     },
     {
       "path": "public/images/diary/sakura.jpg",
@@ -633,7 +751,8 @@
       "size": 221260,
       "format": "jpeg",
       "width": 1350,
-      "height": 900
+      "height": 900,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/agentic-os.png",
@@ -641,7 +760,8 @@
       "size": 3139596,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/ai-creator-start.png",
@@ -649,7 +769,8 @@
       "size": 2653055,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/apple-design.png",
@@ -657,7 +778,8 @@
       "size": 1786996,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/automated-editing.png",
@@ -665,7 +787,8 @@
       "size": 2320985,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/claude-code-loops.png",
@@ -673,7 +796,8 @@
       "size": 2232106,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/codex-skill-workflow.png",
@@ -681,7 +805,8 @@
       "size": 2406435,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/continuous-learning.png",
@@ -689,7 +814,8 @@
       "size": 2930984,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/douyin-growth.png",
@@ -697,7 +823,8 @@
       "size": 2380233,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/dynamic-workflows.png",
@@ -705,7 +832,8 @@
       "size": 2187011,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/graph-four-problems.png",
@@ -713,7 +841,8 @@
       "size": 3152326,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/graph-roadmap.png",
@@ -721,7 +850,8 @@
       "size": 2845387,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/harness-engineering.png",
@@ -729,7 +859,8 @@
       "size": 2441441,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/harness-loop-graph.png",
@@ -737,7 +868,8 @@
       "size": 2375363,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/hyperframes-workflow.png",
@@ -745,7 +877,8 @@
       "size": 2204999,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/instruction-subtraction.png",
@@ -753,7 +886,8 @@
       "size": 2322196,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/karpathy-loop.png",
@@ -761,7 +895,8 @@
       "size": 2566085,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/shared-memory.png",
@@ -769,7 +904,8 @@
       "size": 2458466,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/steelman-thinking.png",
@@ -777,7 +913,8 @@
       "size": 2536335,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/visual-dictionary.png",
@@ -785,7 +922,8 @@
       "size": 2686918,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/images/obsidian/wechat-publishing.png",
@@ -793,7 +931,8 @@
       "size": 2447429,
       "format": "png",
       "width": 1536,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/pio/models/pio/textures/default-costume.png",
@@ -801,7 +940,8 @@
       "size": 603024,
       "format": "png",
       "width": 1024,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/pio/models/pio/textures/pajamas-costume.png",
@@ -809,7 +949,8 @@
       "size": 470154,
       "format": "png",
       "width": 1024,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/pio/models/pio/textures/school-costume.png",
@@ -817,7 +958,8 @@
       "size": 564818,
       "format": "png",
       "width": 1024,
-      "height": 1024
+      "height": 1024,
+      "classification": "content"
     },
     {
       "path": "public/pio/static/avatar.jpg",
@@ -825,7 +967,8 @@
       "size": 4372,
       "format": "jpeg",
       "width": 80,
-      "height": 80
+      "height": 80,
+      "classification": "content"
     },
     {
       "path": "public/sakura.png",
@@ -833,7 +976,8 @@
       "size": 43921,
       "format": "png",
       "width": 328,
-      "height": 304
+      "height": 304,
+      "classification": "content"
     },
     {
       "path": "src/assets/images/avatar.webp",
@@ -841,17 +985,21 @@
       "size": 394277,
       "format": "png",
       "width": 602,
-      "height": 602
+      "height": 602,
+      "source": "src/assets/images/avatar.png",
+      "classification": "historical"
     },
     {
       "path": "public/assets/font/萝莉体 第二版.ttf",
       "sha256": "c226ee2a6a5893798de3d356ff3bbc219b61cae2dfde2f702fe80f9049480cf7",
-      "size": 10776876
+      "size": 10776876,
+      "classification": "immutable"
     },
     {
       "path": "public/assets/font/ZenMaruGothic-Medium.ttf",
       "sha256": "3cfdb98a13571ede17fcc769f5093a97c38b80a7b9b2ab754a26b4d822092b3b",
-      "size": 3810988
+      "size": 3810988,
+      "classification": "immutable"
     },
     {
       "path": "public/_astro/avatar.nWn5Mszy_18wN4e.webp",
@@ -860,226 +1008,270 @@
       "format": "webp",
       "width": 602,
       "height": 602,
-      "reason": "Byte-identical legacy static-build avatar from the main 8e03284 baseline; no reencoding."
+      "reason": "Byte-identical legacy static-build avatar from the main 8e03284 baseline; no reencoding.",
+      "classification": "immutable"
     }
   ],
   "aliases": [
     {
       "path": "public/assets/anime/AIR.webp",
       "canonical": "public/assets/anime/AIR.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "10ae06d85f4a9b83c03983d5350afca4a823c5be776f2c6422315b831ecf5638"
     },
     {
       "path": "public/assets/anime/CLANNAD.webp",
       "canonical": "public/assets/anime/CLANNAD.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "7828087b867bb7e8a4031979361cdb8fc5bf1d80a6bfb32ebdb401b1154b57c0"
     },
     {
       "path": "public/assets/anime/Charlotte.webp",
       "canonical": "public/assets/anime/Charlotte.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "9f00b2b6444fb9bea9a5972f3e1fb6032005ac6764a7d2deb332ffca4b68c4bb"
     },
     {
       "path": "public/assets/anime/OVERLORD.webp",
       "canonical": "public/assets/anime/OVERLORD.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "b991be6117315b9e3a0d15dcb09072f00796a82da0485e402ad1d16d8680c9e7"
     },
     {
       "path": "public/assets/anime/Re：clksdysjsh.webp",
       "canonical": "public/assets/anime/Re：clksdysjsh.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "e385ba0c648c59449f40f5132ccc5ceb2f81c71ebcf8e77c4d5c15b343d71a87"
     },
     {
       "path": "public/assets/anime/bg.webp",
       "canonical": "public/assets/anime/bg.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "a8c6525f9bcd8f27bb4ac1e7c6e2fb8fe219f36dba232b9165ab9838877a1aec"
     },
     {
       "path": "public/assets/anime/ddd.webp",
       "canonical": "public/assets/anime/ddd.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "61e42405cce0d088a10d7c81a5620040933eaee44a9cca3a79e86f8c0a74d8da"
     },
     {
       "path": "public/assets/anime/eva.webp",
       "canonical": "public/assets/anime/eva.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "c575a72241f6e258da6e1ddc57e31fa9fc67ddb234d49371ec8a13bf8bcefd0a"
     },
     {
       "path": "public/assets/anime/hydxjxrwgb.webp",
       "canonical": "public/assets/anime/hydxjxrwgb.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "34cee1efe4c8f91acbe77414814db14b832e6578c694f31b7a328bb1cf5bbc8e"
     },
     {
       "path": "public/assets/anime/jdgjj.webp",
       "canonical": "public/assets/anime/jdgjj.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "9b5fbcebee1fe270acb331fcdec392d84b98e58f388e25669e5740ea9308c607"
     },
     {
       "path": "public/assets/anime/lg.webp",
       "canonical": "public/assets/anime/lg.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "bdb0c71e23c56f8daea5090276bce77f97811f891bbeef849d82788235e24206"
     },
     {
       "path": "public/assets/anime/sczndgmtx.webp",
       "canonical": "public/assets/anime/sczndgmtx.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "92a4e85fae87a7b477d6a6b45857c50e45677e37c45bffb52cc617aa16f09372"
     },
     {
       "path": "public/assets/anime/xfhclrzf.webp",
       "canonical": "public/assets/anime/xfhclrzf.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "c8f4ebe1e1a802c620e3029514ee7d5d027848e4b0f17cfa4cd97cd50c085d74"
     },
     {
       "path": "public/assets/anime/xrkd.webp",
       "canonical": "public/assets/anime/xrkd.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "00d32b7043a7b1c1741758affdd81b3eb3a70e73659bfc8b087b8f9c376d147c"
     },
     {
       "path": "public/assets/anime/yszm.webp",
       "canonical": "public/assets/anime/yszm.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "4a6dbf6a8ac303a7f75295b32f9a2922f788c2c5fedb3d564d400435d9c1c891"
     },
     {
       "path": "public/assets/anime/yzk.webp",
       "canonical": "public/assets/anime/yzk.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "a30e8aff05c1ccd85ca0d69d4ec61e478966c4107d034cecf995359e0e8a42d6"
     },
     {
       "path": "public/assets/anime/yzsc.webp",
       "canonical": "public/assets/anime/yzsc.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "c5fafd023c9813f7101a227c45083a9881eb60ab2a84e2328c3620280fa790b3"
     },
     {
       "path": "public/assets/anime/zebyytla.webp",
       "canonical": "public/assets/anime/zebyytla.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "bd6dc38de466200e8aa57e99fa88fe9238ccb7622e69c646b2aebb3aab1b7df3"
     },
     {
       "path": "public/assets/anime/zgmssdywt.webp",
       "canonical": "public/assets/anime/zgmssdywt.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "292cdd7d6dc8caaa5021cb33482182df23e4f62e431bd5555638b0edbc0db59c"
     },
     {
       "path": "public/assets/anime/zllyhhy.webp",
       "canonical": "public/assets/anime/zllyhhy.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "c3d5a0e155cab54c58a49b6a1af0a39c6d6cbb41e5c2ac162a333943199c5f92"
     },
     {
       "path": "public/assets/anime/zxfdnyw.webp",
       "canonical": "public/assets/anime/zxfdnyw.avif",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "36492d06fee346f60af628a477cc83683ce72662f475c376b0ffdbec6d14e5d1"
     },
     {
       "path": "public/assets/desktop-banner/1.webp",
       "canonical": "public/assets/desktop-banner/1.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "66e53fe0349fd864ca8130a74fff96bc3884ba77c2453d3fc6b2f21711adb950"
     },
     {
       "path": "public/assets/desktop-banner/2.webp",
       "canonical": "public/assets/desktop-banner/2.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "34c1267501dd6c14d95b78ffe9c3452ebb7096f94d565e078a81d2e45fe465fb"
     },
     {
       "path": "public/assets/desktop-banner/3.webp",
       "canonical": "public/assets/desktop-banner/3.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "345a1a5abef95be8f3baa7c0c104cf456d0ea1c3fa8e5c65129dd4a60327fc62"
     },
     {
       "path": "public/assets/desktop-banner/4.webp",
       "canonical": "public/assets/desktop-banner/4.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "4e94b4a1baec9c95b988ac91b3722d374832c575b9cb7c6fee7c6e1d94411942"
     },
     {
       "path": "public/assets/desktop-banner/5.webp",
       "canonical": "public/assets/desktop-banner/5.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "ad606a4cf7505c53c13015b148bad435a21b05bdcc43c78821e4acdbeefdd7d1"
     },
     {
       "path": "public/assets/desktop-banner/6.webp",
       "canonical": "public/assets/desktop-banner/6.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "e5ea237463a0831eb922d292697316127bd1476ed9aa14216824aa111719583d"
     },
     {
       "path": "public/assets/mobile-banner/1.webp",
       "canonical": "public/assets/mobile-banner/1.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "ac534a02972ee2c0006a046aa77c3ff4a3ccaa98c0290aba609f5833172cf0e6"
     },
     {
       "path": "public/assets/mobile-banner/2.webp",
       "canonical": "public/assets/mobile-banner/2.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "70236f640a14dde579bf4694615136135fe7131a8e7088da42c073d39b7ca680"
     },
     {
       "path": "public/assets/mobile-banner/3.webp",
       "canonical": "public/assets/mobile-banner/3.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "d762f5f6c5e2218d8c50abd4058244b8388a350f5a38e04a70823e48fb2398ff"
     },
     {
       "path": "public/assets/mobile-banner/4.webp",
       "canonical": "public/assets/mobile-banner/4.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "86e34219b592f4e7e3484f7d7d566961d0161347979b69d67960a0dc25d9d4a8"
     },
     {
       "path": "public/assets/mobile-banner/5.webp",
       "canonical": "public/assets/mobile-banner/5.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "b314979fc2e66a532b4ac170b328c577c8230d3adb9153178a9e8a6c23666006"
     },
     {
       "path": "public/assets/mobile-banner/6.webp",
       "canonical": "public/assets/mobile-banner/6.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "302913eb380bd3556c34b35d0d4851f8623e43395a26623154b1bd6d8c25328c"
     },
     {
       "path": "public/favicon/favicon.ico",
       "canonical": "public/favicon/favicon.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "bffd60400b400f30dc69cea3bf6b5072ff95af6df01fc20788558c97c0a8b6b8"
     },
     {
       "path": "public/images/albums/AcgExample/cover.jpg",
       "canonical": "public/images/albums/AcgExample/cover.png",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "a3d050fdab74c9fe4c692bd02b53c31be458aede3d3d4caaf867778a9f0d5899"
     },
     {
       "path": "public/images/device/ipad11.png",
       "canonical": "public/images/device/ipad11.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "3f398e988aa575e7dc4fea512f5e419fbbc39b398820fe852581b1b7c17c528d"
     },
     {
       "path": "public/images/device/iphone17pro.png",
       "canonical": "public/images/device/iphone17pro.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "bc4cca5c8c56da2293f11aff7756a564cb891dac3ca97e3b3725ba55d6ee3733"
     },
     {
       "path": "public/images/device/k60ultra.png",
       "canonical": "public/images/device/k60ultra.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "f48b728bfadf7d696ee5cc76c19d2dcc83560b62fc76a3957fa48965d86e93a6"
     },
     {
       "path": "public/images/device/macminim4.png",
       "canonical": "public/images/device/macminim4.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "d92712aabfb614099bc6cd2be8b83292e673b0ca89cad7eda3d479bb3e1ff425"
     },
     {
       "path": "public/images/device/y9000p.png",
       "canonical": "public/images/device/y9000p.jpg",
-      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes."
+      "reason": "Retain published-content, snapshot and external historical URLs without changing original bytes.",
+      "sha256": "d6040dc73cff1ba916fddebb637f63659e7b0ecb2e45f37f5eeb53a0ba6ac85f"
     },
     {
       "path": "src/assets/images/avatar.webp",
       "canonical": "src/assets/images/avatar.png",
-      "reason": "Retain legacy source imports; preserve the known historical Cloudflare bundle URL during both builds."
+      "reason": "Retain legacy source imports; preserve the known historical Cloudflare bundle URL during both builds.",
+      "sha256": "03129bb68eeae86dfdc313748ab8f32f7a173ee0fa8e13675684bfd31c6d7e04"
     }
   ],
   "bundleAliases": [
     {
-      "source": "src/assets/images/avatar.webp",
+      "source": "src/assets/images/avatar.png",
       "output": "_astro/avatar.nWn5Mszy.webp",
-      "reason": "Original Cloudflare avatar URL observed in main 8e03284 build; retain for cached HTML and historical links."
+      "reason": "Original Cloudflare avatar URL observed in main 8e03284 build; retain for cached HTML and historical links.",
+      "sha256": "03129bb68eeae86dfdc313748ab8f32f7a173ee0fa8e13675684bfd31c6d7e04"
     },
     {
       "source": "public/_astro/avatar.nWn5Mszy_18wN4e.webp",
       "output": "_astro/avatar.nWn5Mszy_18wN4e.webp",
-      "reason": "Historical static mirror avatar URL observed in the baseline build; retain unchanged optimized bytes for cached HTML."
+      "reason": "Historical static mirror avatar URL observed in the baseline build; retain unchanged optimized bytes for cached HTML.",
+      "sha256": "47277c65436c8eb48a6ceb41779f8b184bc4b02af28829ed8fccefa3bc9eda72"
     }
   ]
 }

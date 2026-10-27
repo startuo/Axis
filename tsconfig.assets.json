@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["scripts/audit-assets.mjs", "scripts/asset-aliases.mjs"]
+  "include": ["scripts/audit-assets.mjs", "scripts/asset-aliases.mjs", "scripts/asset-alias-integration.mjs", "scripts/build-static.mjs", "scripts/build-smoke.mjs"]
 }

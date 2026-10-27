@@ -8,10 +8,10 @@ import sharp from 'sharp';
 import ts from 'typescript';
 import MarkdownIt from 'markdown-it';
 import {detectImageMime} from '../shared/media.mjs';
+import {prepareAssetAliases,verifyAssetAliases} from './asset-aliases.mjs';
 
-/** @typedef {{path:string,sha256:string,size:number,format?:string,width?:number,height?:number}} Original */
-/** @typedef {{path:string,canonical:string,reason:string}} Alias */
-/** @typedef {{originals:Original[],aliases:Alias[]}} Policy */
+/** @typedef {import('./asset-aliases.mjs').Original} Original */
+/** @typedef {import('./asset-aliases.mjs').AssetPolicy} Policy */
 /** @typedef {{code:string,path:string,message:string}} Finding */
 /** @typedef {Original & {extension:string,mismatch:boolean,references:{source:string,line:number,kind:string}[]}} ImageRow */
 const imageExtension=/\.(png|jpe?g|webp|gif|avif|svg|tiff?|bmp|ico)$/i;
@@ -19,7 +19,7 @@ const fontExtension=/\.(ttf|otf|woff2?)$/i;
 const textExtension=/\.(astro|svelte|[cm]?[jt]sx?|css|json|mdx?|ya?ml|html)$/i;
 const sha256=/** @param {Buffer} bytes */ bytes=>createHash('sha256').update(bytes).digest('hex');
 
-/** @param {{root?:string,files?:string[],policy?:Policy,budgetBytes?:number}} [options] */
+/** @param {{root?:string,files?:string[],policy?:Policy,budgetBytes?:number,output?:string}} [options] */
 export async function auditAssets(options={}){
  const root=path.resolve(options.root||process.cwd());
  /** @type {Policy} */
@@ -30,7 +30,12 @@ export async function auditAssets(options={}){
  /** @type {ImageRow[]} */ const images=[];
  /** @type {Map<string,Original>} */ const assets=new Map();
  /** @type {Map<string,string>} */ const texts=new Map();
- const aliases=new Map(policy.aliases.map(a=>[a.path,a]));
+ const virtualFiles=new Set();
+ try{
+  const plan=await prepareAssetAliases({root,policy});
+  for(const alias of policy.aliases)virtualFiles.add(alias.path);
+  if(options.output)await verifyAssetAliases(options.output,{root,policy});
+ }catch(error){errors.push({code:'ALIAS_CHANGED',path:'scripts/asset-integrity-baseline.json',message:String(error)});}
  /** @param {string} relative */
  function resolve(relative){
   const result=path.resolve(root,relative);
@@ -40,6 +45,7 @@ export async function auditAssets(options={}){
  /** @type {Map<string,boolean>} */ const existence=new Map();
  /** Check actual spelling as well as existence, including on Windows. @param {string} relative */
  async function exactExists(relative){
+  if(virtualFiles.has(relative))return true;
   if(existence.has(relative))return existence.get(relative);
   let dir=root,found=true;
   for(const part of path.relative(root,resolve(relative)).split(path.sep)){
@@ -64,18 +70,19 @@ export async function auditAssets(options={}){
    const expected=extension==='jpg'?'jpeg':extension==='tif'?'tiff':extension;
    const image={...row,format,width:meta.width,height:meta.height,extension,mismatch:format!==expected,references:[]};
    images.push(image);assets.set(file,image);
-   if(image.mismatch&&!aliases.has(file))errors.push({code:'FORMAT_MISMATCH',path:file,message:`.${extension} contains ${format}`});
+   if(image.mismatch)errors.push({code:'FORMAT_MISMATCH',path:file,message:`.${extension} contains ${format}`});
    if(bytes.length>(options.budgetBytes??2*1024*1024)||(meta.width??0)*(meta.height??0)>16_000_000)warnings.push({code:'RESOURCE_BUDGET',path:file,message:`${bytes.length} bytes; ${meta.width}x${meta.height}; original preserved`});
   }catch(error){errors.push({code:'INVALID_IMAGE',path:file,message:String(error)});}
  }
  for(const original of policy.originals){
-  const current=assets.get(original.path);
+  const current=assets.get(original.source||original.path);
   if(!current)errors.push({code:'MISSING_ORIGINAL',path:original.path,message:'Pinned original is missing'});
-  else if(['sha256','size','format','width','height'].some(key=>original[/** @type {keyof Original} */(key)]!==undefined&&original[/** @type {keyof Original} */(key)]!==current[/** @type {keyof Original} */(key)]))errors.push({code:'ORIGINAL_CHANGED',path:original.path,message:'Pinned original bytes, dimensions or format changed'});
+  else if(['sha256','size','format','width','height'].some(key=>original[/** @type {keyof Original} */(key)]!==undefined&&original[/** @type {keyof Original} */(key)]!==current[/** @type {keyof Original} */(key)]))errors.push({code:'ORIGINAL_CHANGED',path:original.path,message:original.classification==='content'?'Content baseline changed: intentional updates require an explicit reviewed baseline update.':'Immutable historical/original bytes, dimensions or format changed'});
  }
  for(const alias of policy.aliases){
-  const legacy=assets.get(alias.path),canonical=assets.get(alias.canonical);
-  if(!alias.reason||!legacy||!canonical||legacy.sha256!==canonical.sha256)errors.push({code:'ALIAS_CHANGED',path:alias.path,message:'Legacy alias requires a reason and an identical canonical asset: '+alias.canonical});
+  const canonical=assets.get(alias.canonical);
+  if(assets.has(alias.path))errors.push({code:'SOURCE_ALIAS_PRESENT',path:alias.path,message:'Legacy files belong in generated output, not in the source tree'});
+  if(!alias.reason||!alias.sha256||!canonical||canonical.sha256!==alias.sha256)errors.push({code:'ALIAS_CHANGED',path:alias.path,message:'Legacy mapping requires a valid canonical file and pinned SHA: '+alias.canonical});
   if(canonical&&images.find(i=>i.path===alias.canonical)?.mismatch)errors.push({code:'INVALID_CANONICAL',path:alias.canonical,message:'Canonical extension must match the image format'});
  }
  const quoted=/(?:["'`])([^"'`\r\n]*?\.(?:png|jpe?g|webp|gif|avif|svg|ico|ttf|otf|woff2?)(?:[?#][^"'`\s]*)?)(?:["'`])/gi;
@@ -129,9 +136,9 @@ export async function auditAssets(options={}){
  return {root,scope:'git tracked and unignored files; signature scan includes disguised extensions',filesScanned:files.length,textFiles:texts.size,images,fonts:[...assets.values()].filter(a=>fontExtension.test(a.path)),legacyAliases:policy.aliases,errors,warnings};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- const args=process.argv.slice(2),unknown=args.filter((v,i)=>v!=='--json'&&args[i-1]!=='--json');
- if(unknown.length||args.at(-1)==='--json')throw new Error('Usage: node scripts/audit-assets.mjs [--json report.json]');
- const result=await auditAssets();
+ const args=process.argv.slice(2),flags=['--json','--output'],unknown=args.filter((v,i)=>!flags.includes(v)&&!flags.includes(args[i-1]));
+ if(unknown.length||flags.includes(args.at(-1)??''))throw new Error('Usage: node scripts/audit-assets.mjs [--json report.json] [--output build-directory]');
+ const result=await auditAssets({output:args.includes('--output')?args[args.indexOf('--output')+1]:undefined});
  const output=args.indexOf('--json');if(output>=0)await writeFile(args[output+1],JSON.stringify(result,null,2));
  console.log(`Asset audit: ${result.images.length} images, ${result.fonts.length} fonts, ${result.legacyAliases.length} pinned legacy aliases; ${result.errors.length} errors, ${result.warnings.length} budget warnings.`);
  for(const row of result.errors)console.error(`${row.code} ${row.path}: ${row.message}`);

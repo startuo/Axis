@@ -25,5 +25,38 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit:assets
       - run: pnpm test:assets
+      - run: pnpm test:frontend
+      - run: pnpm test:worker
+      - run: pnpm test-font-compression
       - run: pnpm check
       - run: pnpm type-check
+  build:
+    needs: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ENABLE_CONTENT_SYNC: 'false'
+      MAIN_SITE_URL: https://example.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.22.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:cloudflare
+        env:
+          AXIS_OUT_DIR: .axis/ci/cloudflare
+      - run: pnpm test:build cloudflare .axis/ci/cloudflare
+      - run: pnpm build:static
+        env:
+          AXIS_OUT_DIR: .axis/ci/static
+      - run: pnpm test:build static .axis/ci/static
+      - run: pnpm build:mirror scripts/fixtures/asset-build-snapshot.json
+        env:
+          AXIS_OUT_DIR: .axis/ci/mirror
+      - run: pnpm test:build mirror .axis/ci/mirror scripts/fixtures/asset-build-snapshot.json
+      - run: git diff --exit-code

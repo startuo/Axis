@@ -1,7 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import path from 'node:path';
-import {preserveBundledAssetAliases} from './asset-aliases.mjs';
 const result = spawnSync(
 	process.execPath,
 	["node_modules/astro/astro.js", "build"],
@@ -16,5 +15,4 @@ const result = spawnSync(
 );
 if (result.status !== 0) process.exit(result.status ?? 1);
 const output=process.env.AXIS_OUT_DIR||'dist';
-await preserveBundledAssetAliases(output);
 writeFileSync(path.join(output,".assetsignore"), "_worker.js\n_routes.json\n");

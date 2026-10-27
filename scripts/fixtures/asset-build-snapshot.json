@@ -1,0 +1,18 @@
+{
+  "revision": 1,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "posts": [{
+    "id": "asset-build-post", "kind": "posts", "slug": "asset-build-fixture", "url": "/posts/asset-build-fixture/",
+    "title": "资源构建离线夹具", "published": "2026-01-01", "updated": "2026-01-01", "draft": false,
+    "description": "Deterministic local assets; no production content or credentials.", "tags": ["fixture"], "category": "fixture", "lang": "zh_CN", "order": 0,
+    "image": "/assets/desktop-banner/1.webp",
+    "content": "# 离线构建\n\n历史 Markdown 图片：\n\n![历史图](/assets/desktop-banner/1.webp)\n\n公式：$$E=mc^2$$\n"
+  }],
+  "albums": [{
+    "id": "asset-build-album", "kind": "albums", "slug": "AcgExample", "title": "离线相册夹具", "description": "Local original photo fixture.",
+    "hidden": false, "date": "2026-01-01", "published": "2026-01-01", "image": "/images/albums/AcgExample/cover.jpg",
+    "layout": "masonry", "columns": 3, "tags": ["fixture"], "content": "", "order": 0,
+    "photos": [{"src": "/images/albums/AcgExample/1.webp", "alt": "原始相册图", "title": "1.webp"}]
+  }],
+  "anime": [], "diary": [], "messages": [], "routes": []
+}

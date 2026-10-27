@@ -1,5 +1,6 @@
 import cloudflare from '@astrojs/cloudflare';
 import {iconIncludes} from './scripts/icon-includes.mjs';
+import {assetAliasIntegration} from './scripts/asset-alias-integration.mjs';
 import {readFileSync} from 'node:fs';
 const axisTarget=process.env.AXIS_TARGET || 'static';
 const axisSnapshot=process.env.AXIS_SNAPSHOT ? JSON.parse(readFileSync(process.env.AXIS_SNAPSHOT,'utf8')) : null;
@@ -44,6 +45,7 @@ export default defineConfig({
  adapter: axisTarget==='cloudflare'?cloudflare({imageService:'passthrough',platformProxy:{enabled:true,configPath:'wrangler.api.jsonc'}}):undefined,
 
 	integrations: [
+		assetAliasIntegration(),
 		umami({
 			shareUrl: false,
 		}),

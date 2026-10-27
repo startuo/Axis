@@ -17,7 +17,7 @@ import { readFile, writeFile, mkdir, copyFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import {canonicalPublicAsset,mirrorImageExtension,preserveBundledAssetAliases} from './asset-aliases.mjs';
+import {canonicalPublicAsset,mirrorImageExtension} from './asset-aliases.mjs';
 const origin =
 	process.env.MAIN_SITE_URL || "https://axis.1669338073.workers.dev";
 const file = process.argv[2] || ".mirror/snapshot.json";
@@ -166,7 +166,6 @@ for (const url of replacements.values()) {
 		path.join(output, "mirror-media", hash),
 	);
 }
-await preserveBundledAssetAliases(output);
 await writeFile(
 	path.join(output, "mirror-version.json"),
 	JSON.stringify({
@@ -175,8 +174,8 @@ await writeFile(
 	}),
 );
 const search = spawnSync(
-	process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-	["exec", "pagefind", "--site", output],
-	{ stdio: "inherit", shell: process.platform === "win32" },
+	process.execPath,
+	["node_modules/pagefind/lib/runner/bin.cjs", "--site", output],
+	{ stdio: "inherit" },
 );
 process.exit(search.status ?? 1);
