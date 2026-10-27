@@ -80,12 +80,19 @@ export async function prepareAssetAliases(options={}){
 }
 /** @param {string} output @param {string} root */
 async function outputRoot(output,root){
- const result=path.resolve(output),source=path.resolve(root);
+ let result=path.resolve(output);const source=path.resolve(root);
+ const volume=path.parse(result).root;
+ await safePath(volume,path.relative(volume,result).split(path.sep).join('/'));
+ // Windows temporary paths may use 8.3 names while realpath(root) uses long names.
+ // Normalize the existing ancestor before containment checks, even for a new outDir.
+ let ancestor=result;const missing=[];
+ while(true){
+  try{result=path.join(await realpath(ancestor),...missing);break;}
+  catch(error){if(/** @type {NodeJS.ErrnoException} */(error).code!=='ENOENT')throw error;const parent=path.dirname(ancestor);if(parent===ancestor)throw new Error('Output volume does not exist');missing.unshift(path.basename(ancestor));ancestor=parent;}
+ }
  const relative=path.relative(result,source);
  if(!relative||(!relative.startsWith('..'+path.sep)&&relative!=='..'&&!path.isAbsolute(relative)))throw new Error('Output must not contain the source tree');
  for(const folder of ['public','src']){const rel=path.relative(path.join(source,folder),result);if(!rel||(!rel.startsWith('..'+path.sep)&&rel!=='..'&&!path.isAbsolute(rel)))throw new Error('Output must not be a source folder');}
- const volume=path.parse(result).root;
- await safePath(volume,path.relative(volume,result).split(path.sep).join('/'));
  const info=await lstat(result).catch(error=>{if(error.code==='ENOENT')return null;throw error;});if(info?.isSymbolicLink())throw new Error('Output root cannot be a symlink');
  await mkdir(result,{recursive:true});return realpath(result);
 }

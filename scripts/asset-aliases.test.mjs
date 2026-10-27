@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,readFile,rm,symlink,stat} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,rm,symlink,stat,realpath} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {createServer} from 'node:http';
@@ -55,7 +55,10 @@ test('existing output collision is never overwritten, and output cannot target s
  const f=await fixture(t);await writeFile(path.join(f.output,'old.webp'),Buffer.from('other data'));
  await assert.rejects(()=>aliases.generateAssetAliases(f.output,f),/collision|conflict/i);
  assert.equal(await readFile(path.join(f.output,'old.webp'),'utf8'),'other data');
- for(const output of [f.root,path.join(f.root,'public'),path.join(f.root,'src')])await assert.rejects(()=>aliases.generateAssetAliases(output,f),/source|output/i);
+ for(const root of new Set([f.root,await realpath(f.root)]))for(const output of [root,path.join(root,'public'),path.join(root,'src'),path.join(root,'src','new-output')]){
+  await assert.rejects(()=>aliases.generateAssetAliases(output,f),/source|output/i);
+  assert.equal(await stat(path.join(output,'old.webp')).catch(()=>null),null,'Protected source folders must never receive aliases');
+ }
 });
 test('source and destination directory links cannot escape the selected root',async t=>{
  const f=await fixture(t),other=await fixture(t);
