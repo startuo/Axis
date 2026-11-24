@@ -11,6 +11,7 @@ import {
 import { KINDS, publicEntry, publicationStatements } from "./entries.mjs";
 import { fingerprint } from "./auth.mjs";
 import { mediaStorage } from "./media-storage.mjs";
+
 export async function buildSnapshot(env) {
 	// D1 batch is transactional: the revision and content belong to the same database snapshot.
 	const result = await env.DB.batch([
@@ -65,7 +66,8 @@ export async function mirrorRoutes(request, env, path) {
 		const snapshot = await buildSnapshot(env);
 		const storage = mediaStorage(env);
 		if (!storage) fail(503, "媒体存储尚未配置");
-		const key = "snapshots/" + snapshot.revision + "/" + crypto.randomUUID() + ".json";
+		const key =
+			"snapshots/" + snapshot.revision + "/" + crypto.randomUUID() + ".json";
 		await storage.put(key, JSON.stringify(snapshot), {
 			httpMetadata: { contentType: "application/json" },
 		});
@@ -85,12 +87,23 @@ export async function mirrorRoutes(request, env, path) {
 		const revision = Number(input.revision);
 		if (!Number.isSafeInteger(revision) || revision < 0)
 			fail(400, "Invalid revision");
-		const response = await fetch(
-			new URL("/mirror-version.json", env.MIRROR_SITE_URL),
-			{ cache: "no-store", signal: AbortSignal.timeout(15000) },
-		);
-		const deployed = await response.json();
-		if (!response.ok || deployed.revision !== revision)
+		let response;
+		try {
+			response = await fetch(
+				new URL("/mirror-version.json", env.MIRROR_SITE_URL),
+				{ cache: "no-store", signal: AbortSignal.timeout(15000) },
+			);
+		} catch {
+			fail(409, "镜像站点暂时不可达，等待重试");
+		}
+		if (!response.ok) fail(409, "镜像站点尚未就绪");
+		let deployed;
+		try {
+			deployed = await response.json();
+		} catch {
+			fail(409, "镜像版本文件尚未就绪");
+		}
+		if (!deployed || deployed.revision !== revision)
 			fail(409, "镜像线上版本尚未匹配");
 		await stmt(
 			env.DB,
@@ -111,10 +124,10 @@ export async function mirrorRoutes(request, env, path) {
 			).revision,
 			configured: Boolean(
 				env.MIRROR_TOKEN &&
-				env.MIRROR_GITHUB_TOKEN &&
-				env.MIRROR_REPOSITORY &&
-				env.MIRROR_SITE_URL &&
-				mediaStorage(env),
+					env.MIRROR_GITHUB_TOKEN &&
+					env.MIRROR_REPOSITORY &&
+					env.MIRROR_SITE_URL &&
+					mediaStorage(env),
 			),
 			items: await rows(
 				env.DB,

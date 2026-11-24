@@ -14,6 +14,13 @@ test('mirror completion requires matching deployed revision and service credenti
  await call('/api/v1/mirror/retry','POST',{},token);
  assert.equal((await call('/api/v1/mirror/complete','POST',{revision:1},token)).status,401);
  const original=globalThis.fetch;t.after(()=>globalThis.fetch=original);
+ // 镜像站切版瞬间发生网络超时或返回非 JSON 错误页时，应返回可重试的 409 而非 503
+ globalThis.fetch=async()=>{throw new DOMException('timeout','TimeoutError');};
+ assert.equal((await call('/api/v1/mirror/complete','POST',{revision:1},env.MIRROR_TOKEN)).status,409);
+ globalThis.fetch=async()=>new Response('<html>502 Bad Gateway</html>',{status:502,headers:{'Content-Type':'text/html'}});
+ assert.equal((await call('/api/v1/mirror/complete','POST',{revision:1},env.MIRROR_TOKEN)).status,409);
+ globalThis.fetch=async()=>new Response('<html>reloading</html>',{status:200,headers:{'Content-Type':'text/html'}});
+ assert.equal((await call('/api/v1/mirror/complete','POST',{revision:1},env.MIRROR_TOKEN)).status,409);
  globalThis.fetch=async()=>Response.json({revision:0});
  assert.equal((await call('/api/v1/mirror/complete','POST',{revision:1},env.MIRROR_TOKEN)).status,409);
  assert.equal(sql.prepare('SELECT status FROM mirror_jobs WHERE revision=1').get().status,'PENDING');
