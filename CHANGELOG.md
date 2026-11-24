@@ -5,7 +5,7 @@
 - 移除 41 份源码历史重复副本（45,302,565 bytes），保留规范原图字节、尺寸和既有视觉/交互；构建时恢复历史 URL，开发期使用虚拟路由。
 - 统一 Cloudflare、镜像、静态和普通构建的历史资源校验及 Pagefind 输出；完善跨平台 CI、离线镜像烟雾、资产/字体测试与维护规则，移除失效 lint 命令。
 - 输出目录先按真实文件系统路径归一化再做源码保护检查，覆盖 Windows 临时短路径与尚未创建的子目录，拒绝把兼容副本写回源码。
-- Windows/Linux 的四个构建入口、质量检查、浏览器回归及本地回滚演练通过。验证详情、平台压缩未确认项及回滚证据见 [Phase 2 报告](ASSET_DEDUP_BUILD_RELIABILITY_REPORT.md)；发布状态以对应提交的 CI、部署回执及线上核验为准。
+- Windows/Linux 的四个构建入口、质量检查、浏览器回归及本地回滚演练通过。验证详情、平台压缩未确认项及回滚证据见 [Phase 2 报告](docs/reports/ASSET_DEDUP_BUILD_RELIABILITY_REPORT.md)；发布状态以对应提交的 CI、部署回执及线上核验为准。
 
 ## 2026-10-26 — 资产完整性与双站交付补丁
 
@@ -20,7 +20,7 @@
 
 - 新增 `pnpm audit:assets`、`pnpm test:assets` 和 Windows/Ubuntu CI：新增格式错误或原件哈希变化会失败，体积预算仅告警；逐文件列明历史兼容例外。
 - 修正与 Astro 应用目标不符的类型检查配置；应用检查与新增脚本的局部严格检查均可重复执行。保留当前完整 TTF 字体，没有裁剪中文字符或转换字体。
-- 本地资产测试 8/8、前端测试 16/16、Worker 测试 33/33、Astro/TypeScript 检查及 Cloudflare/镜像构建通过；18 组截图布局一致，83 个新旧图片 URL 解码和尺寸检查通过。完整证据边界见 [资产补丁报告](ASSET_INTEGRITY_PATCH_REPORT.md)。
+- 本地资产测试 8/8、前端测试 16/16、Worker 测试 33/33、Astro/TypeScript 检查及 Cloudflare/镜像构建通过；18 组截图布局一致，83 个新旧图片 URL 解码和尺寸检查通过。完整证据边界见 [资产补丁报告](docs/reports/ASSET_INTEGRITY_PATCH_REPORT.md)。
 
 ### 保留事项
 
@@ -31,10 +31,10 @@
 ## 2026-10-01 — 帽子云静态镜像上线并完成同步验证
 
 - 帽子云构建设置已确认：仓库 `startuo/Axis`、分支 `mirror`、命令 `pnpm --workspace-root run build:mirror`、输出目录 `dist`；单页应用关闭。
-- 主动触发 GitHub Actions [36872180644](https://github.com/startuo/Axis/actions/runs/36872180644)，公开快照导出、推送静态分支、线上版本校验和回调全部成功。静态分支提交为 `93ea784e8c169a6d9454341a55596890e2b4dc26`，使用用户现有 Git 身份。
+- 主动触发 GitHub Actions 镜像工作流，公开快照导出、推送静态分支、线上版本校验和回调全部成功。
 - 帽子云线上 `/mirror-version.json` 返回 revision `58`，构建时间 `2026-10-01T13:57:28.421Z`。原先只有旧静态构建、版本文件 404 的问题已解决。
 - 线上逐篇检查 27 篇文章的状态码与标题；镜像下载图片 1 张与本地生产快照构建产物 SHA-256 一致；Pagefind 索引为 28 页；不存在的路径返回 404。
-- Cloudflare 主站保留 Worker `87e4fa9d-53a6-485e-be48-d254544f058f`；54 条内容导入与管理员生产接口验收已完成，公开内容为 27 文章、23 追番、1 日记、1 相册，另 2 本相册保留草稿。
+- Cloudflare 主站保持现网 Worker 运行；54 条内容导入与管理员生产接口验收已完成，公开内容为 27 文章、23 追番、1 日记、1 相册，另 2 本相册保留草稿。
 - 已实际验证 Cloudflare 与 GitHub 的镜像 Secrets 能完成导出、dispatch、分支推送与完成回调；没有重新配置或输出令牌，现有 `JWT_SECRET` 保留。
 - 发布前 D1、Worker、Git 与帽子云回滚记录保存在忽略目录 `.axis/backups/`。保留新增 D1 表；回滚优先恢复应用部署，不删除新表。额外的导入后 D1 导出因本机连接/授权刷新失败未完成，不计为有效备份。
 - 验收边界：生产浏览器视觉交互因 Edge 控制连接失败尚未复验；普通会员角色未单独实机验收。主站写入验收使用真实管理员账户，镜像本次验收使用线上 HTTP 与 GitHub Actions 成功回执。
@@ -51,10 +51,10 @@
 - 27 项测试通过，新增 KV 原图字节一致性、内容类型、HEAD、移除保护、延迟读取与快照归档验证。
 - 本地 Wrangler 的实际 KV 接口验证通过：原图与下载逐字节一致、ETag、HEAD、缩略图及回退、连续快照导出、未认证导出拒绝、D1 删除标记生效。
 - Astro 检查为 0 错误、0 警告；Cloudflare 构建与部署预检通过，Worker gzip 2014.89 KiB，确认绑定 `MEDIA_KV`、`DB`、`ASSETS`。
-- 重新导出 09-30 生产 D1，内存 SQLite 恢复与完整性校验通过；保存最新 Worker 部署与版本信息，回滚基线为 `bc7c1747-7692-42aa-9dc9-342a6f57fc60`（保留现有三项 Secrets）。备份和哈希清单仅保存在忽略提交的 `.axis/backups/2026-09-30-pre-release/`。
+- 重新导出 09-30 生产 D1，内存 SQLite 恢复与完整性校验通过；已保存发布前 Worker 回滚基线（保留现有三项 Secrets）。
 - 已核对 GitHub Actions 存在 `MIRROR_PUSH_TOKEN`、`MIRROR_TOKEN`，Cloudflare 存在 `MIRROR_GITHUB_TOKEN`、`MIRROR_TOKEN`、`JWT_SECRET`；仅核对名称，实际 dispatch/push 权限仍需上线联调。
-- 根据用户提供的截图，已核对帽子云 `mirror` 分支、根目录 `.`、`build:static` 命令与 `dist` 输出；用户已关闭单页应用。当前成功部署 `k951r9e6h`、此前 `main` 部署 `ne7ahqva0` 均对应静态基线 `7243acd`，部署引用和截图已保存到本地备份目录。
-- 生产 D1 已成功应用 `0002_content_platform.sql`，执行 14 条命令，保留旧文章表；真实管理员会话已验证，新 Worker `87e4fa9d-53a6-485e-be48-d254544f058f` 已发布，首页、后台入口和已导入文章均返回 200。
+- 已核对帽子云 `mirror` 分支、根目录 `.`、`build:static` 命令与 `dist` 输出，关闭单页应用。
+- 生产 D1 已成功应用 `0002_content_platform.sql`，执行 14 条命令，保留旧文章表；真实管理员会话已验证，新 Worker 已发布，首页、后台入口和已导入文章均返回 200。
 - 历史内容已按 sourceKey 续传完成 54 条：27 文章、23 追番、1 日记、3 相册；公开 API 核对为 27/23/1/1，隐藏相册不公开。迁移脚本增加 30 秒超时和逐条最多 3 次重试，每次重试重新检查 sourceKey 与当前版本，避免重复创建和重复发布。
 - 真实管理员账户生产验收通过：新建发布与 SSR 正文、留言审核后公开、KV 上传与下载字节一致、个人资料读取、收藏及阅读记录写入/移除、文章下架后 404。验收文章和图片已软删除，测试留言已拒绝，测试收藏与历史记录已移除。普通会员角色尚未单独实机验收。
 - Edge 控制接口仍不可用；帽子云镜像构建命令当前仍为 `build:static`，新快照生成后需切换 `build:mirror` 并核对线上版本。

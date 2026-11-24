@@ -155,8 +155,8 @@
 ```powershell
 pnpm build:static
 $env:AXIS_TEST_DIST = 'dist'
-# 已安装 Playwright 时无需此覆盖；本机使用随工作区运行时提供的包。
-$env:AXIS_PLAYWRIGHT_MODULE = 'C:\Users\lenovo\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\node_modules\playwright\index.mjs'
+# 已安装 Playwright 时无需此覆盖；如需指定自定义 Playwright 模块路径可设置如下环境变量：
+$env:AXIS_PLAYWRIGHT_MODULE = '<path-to-playwright>/index.mjs'
 $env:AXIS_TEST_MEDIA = '1'
 $env:AXIS_TEST_VISIBILITY_FIXTURE = '1'
 pnpm test:frontend:browser

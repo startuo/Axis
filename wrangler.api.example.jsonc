@@ -1,0 +1,46 @@
+{
+	// 开源自部署模板：复制或覆盖为 wrangler.api.jsonc 后，填入你自己的 Cloudflare 资源 ID 与域名。
+	"name": "axis",
+	"main": "workers/entry.mjs",
+	"compatibility_date": "2026-09-16",
+	"assets": {
+		"directory": "./dist",
+		"binding": "ASSETS",
+		"run_worker_first": true,
+		"not_found_handling": "404-page"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "axis-db",
+			// 执行 `pnpm exec wrangler d1 create axis-db` 后替换为你的 D1 Database ID
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "workers/migrations"
+		}
+	],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"vars": {
+		"MAIN_SITE_URL": "https://your-worker.your-subdomain.workers.dev",
+		"MIRROR_SITE_URL": "https://your-static-mirror.example.com",
+		"MIRROR_REPOSITORY": "your-github-user/your-repo",
+		// 设为 "false" 可关闭公开注册，仅保留已有账号登录
+		"ALLOW_REGISTRATION": "true"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	},
+	"kv_namespaces": [
+		{
+			"binding": "MEDIA_KV",
+			// 执行 `pnpm exec wrangler kv namespace create axis-media` 后替换为你的 KV Namespace ID
+			"id": "00000000000000000000000000000000"
+		}
+	]
+}

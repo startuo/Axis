@@ -1,102 +1,170 @@
 [
   {
     "slug": "agentic-os",
-    "source": "Agentic OS - Fable 5 构建者指南.md",
+    "source": "01-代理工程与环路系统/02-系统与记忆/Agentic OS - Fable 5 构建者指南.md",
     "category": "Agent 工程"
   },
   {
     "slug": "apple-design",
-    "source": "Apple设计语言深度分析.md",
+    "source": "04-设计与视觉/Apple设计语言深度分析.md",
     "category": "设计"
   },
   {
     "slug": "claude-code-loops",
-    "source": "Claude Code 循环系统入门.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Claude Code 循环系统入门.md",
     "category": "Agent 工程"
   },
   {
     "slug": "hyperframes-workflow",
-    "source": "Codex Hyperframes AI视频复刻工作流 - 深度拆解.md",
+    "source": "02-工作流与工具链/Codex Hyperframes AI视频复刻工作流 - 深度拆解.md",
     "category": "内容生产"
   },
   {
     "slug": "codex-skill-workflow",
-    "source": "Codex Skill 工作流沉淀方法论 - 深度研究.md",
+    "source": "02-工作流与工具链/Codex Skill 工作流沉淀方法论 - 深度研究.md",
     "category": "Agent 工程"
   },
   {
     "slug": "automated-editing",
-    "source": "Codex自动化剪辑工作流 - 从抄爆款到批量生产.md",
+    "source": "02-工作流与工具链/Codex自动化剪辑工作流 - 从抄爆款到批量生产.md",
     "category": "内容生产"
   },
   {
     "slug": "dynamic-workflows",
-    "source": "Dynamic Workflows 与环路工程 - 从提示到系统.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Dynamic Workflows 与环路工程 - 从提示到系统.md",
     "category": "Agent 工程"
   },
   {
     "slug": "instruction-subtraction",
-    "source": "GPT-6 Astra 技能与提示重审 - 指令减法的艺术.md",
+    "source": "01-代理工程与环路系统/03-最新实践/GPT-6 Astra 技能与提示重审 - 指令减法的艺术.md",
     "category": "Agent 工程"
   },
   {
     "slug": "graph-roadmap",
-    "source": "Graph Engineering 14步路线图 - Claude Code 实战课程.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Graph Engineering 14步路线图 - Claude Code 实战课程.md",
     "category": "Agent 工程"
   },
   {
     "slug": "graph-four-problems",
-    "source": "Graph Engineering 四个硬问题 - 深度研究.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Graph Engineering 四个硬问题 - 深度研究.md",
     "category": "Agent 工程"
   },
   {
     "slug": "harness-loop-graph",
-    "source": "Harness vs Loop vs Graph Engineering - 三层架构深度研究.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Harness vs Loop vs Graph Engineering - 三层架构深度研究.md",
     "category": "Agent 工程"
   },
   {
     "slug": "harness-engineering",
-    "source": "Harness工程学习总结.md",
+    "source": "01-代理工程与环路系统/01-基础原理/Harness工程学习总结.md",
     "category": "Agent 工程"
   },
   {
     "slug": "continuous-learning",
-    "source": "How to Build an AI That Never Stops Learning - 深度研究.md",
+    "source": "01-代理工程与环路系统/02-系统与记忆/How to Build an AI That Never Stops Learning - 深度研究.md",
     "category": "Agent 工程"
   },
   {
     "slug": "shared-memory",
-    "source": "Memmy-Agent 跨Agent共享记忆系统 - 深度分析.md",
+    "source": "01-代理工程与环路系统/02-系统与记忆/Memmy-Agent 跨Agent共享记忆系统 - 深度分析.md",
     "category": "Agent 工程"
   },
   {
     "slug": "visual-dictionary",
-    "source": "Vibe Coding 视觉词典 - 网页设计AI提示词工程系统.md",
+    "source": "04-设计与视觉/Vibe Coding 视觉词典 - 网页设计AI提示词工程系统.md",
     "category": "设计"
   },
   {
     "slug": "steelman-thinking",
-    "source": "双向钢人论证Prompt - 深度思考的核心方法论.md",
+    "source": "05-思维方法论/双向钢人论证Prompt - 深度思考的核心方法论.md",
     "category": "思考方法"
   },
   {
     "slug": "wechat-publishing",
-    "source": "微信公众号全自动发布方案.md",
+    "source": "03-内容创作与增长/微信公众号全自动发布方案.md",
     "category": "内容生产"
   },
   {
     "slug": "douyin-growth",
-    "source": "抖音万粉复盘 - 内容增长的概率游戏与系统策略.md",
+    "source": "03-内容创作与增长/抖音万粉复盘 - 内容增长的概率游戏与系统策略.md",
     "category": "内容生产"
   },
   {
     "slug": "ai-creator-start",
-    "source": "普通人怎么吃上第一碗AI饭 - AI自媒体起号方法论.md",
+    "source": "03-内容创作与增长/普通人怎么吃上第一碗AI饭 - AI自媒体起号方法论.md",
     "category": "内容生产"
   },
   {
     "slug": "karpathy-loop",
-    "source": "环路工程-卡帕西方法.md",
+    "source": "01-代理工程与环路系统/01-基础原理/环路工程-卡帕西方法.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "harness-six-layers",
+    "source": "01-代理工程与环路系统/01-基础原理/Harness 六层官方架构与环路图表进阶法则.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "agent-demo-to-platform",
+    "source": "01-代理工程与环路系统/01-基础原理/从 Agent Demo 到 Agent Platform - 六层工程能力深度拆解.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "enterprise-agent-architecture",
+    "source": "01-代理工程与环路系统/01-基础原理/企业级 Agent 架构 - LLM 只是能力组件而非系统.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "graph-engineering-practice",
+    "source": "01-代理工程与环路系统/01-基础原理/图工程实战 - 如何构建替代循环的代理系统.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "claude-memory-architecture",
+    "source": "01-代理工程与环路系统/02-系统与记忆/Claude 记忆架构 - 梦境整理与智能体记忆的组成部分.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "memory-tax-paper",
+    "source": "01-代理工程与环路系统/02-系统与记忆/Memory Tax 论文精读 - 记忆系统的净价值与记忆税.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "rsi-self-improvement-memory",
+    "source": "01-代理工程与环路系统/02-系统与记忆/RSI 与自我提升记忆 - Harness 自修复的闭环.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "self-improving-memory-paths",
+    "source": "01-代理工程与环路系统/02-系统与记忆/自我改进记忆的三条路线 - 外部日志、权重内化与强化学习.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "deepseek-superagent-design",
+    "source": "01-代理工程与环路系统/03-最新实践/DeepSeek 超级代理设计 - 注意力经济学与领域模型.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "rsihub-agent-evolution",
+    "source": "01-代理工程与环路系统/03-最新实践/RSIHub_2610.32253_中文结构版.md",
+    "category": "Agent 工程",
+    "title": "RSIHub：面向智能体演化方法的可组合框架（arXiv:2610.32253）",
+    "published": "2026-10-22",
+    "tags": ["agent-evolution", "rsihub", "paper"]
+  },
+  {
+    "slug": "superplane-factory-pattern",
+    "source": "01-代理工程与环路系统/03-最新实践/SuperPlane 工厂模式 - 大规模运行编码代理.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "ai-agent-collaboration-practices",
+    "source": "01-代理工程与环路系统/03-最新实践/与AI代理协作的方式 - 2026年10月十五条实践.md",
+    "category": "Agent 工程"
+  },
+  {
+    "slug": "skill-self-evolution-guide",
+    "source": "02-工作流与工具链/Skill 自进化改造指南 - Agent 帮我进化，我只负责反馈.md",
     "category": "Agent 工程"
   }
 ]

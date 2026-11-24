@@ -42,7 +42,10 @@ export interface AdminFeedbackQuery {
 	status?: FeedbackStatus | "ALL";
 }
 
-function buildUrl(path: string, query?: Record<string, string | number | undefined>) {
+function buildUrl(
+	path: string,
+	query?: Record<string, string | number | undefined>,
+) {
 	const url = apiUrl(path);
 
 	Object.entries(query ?? {}).forEach(([key, value]) => {
@@ -76,6 +79,7 @@ async function request<T>(
 	const { token, headers, body, ...rest } = options;
 	const response = await fetch(buildUrl(path), {
 		...rest,
+		credentials: "same-origin",
 		body,
 		headers: {
 			Accept: "application/json",
@@ -95,9 +99,13 @@ async function request<T>(
 	return payload as T;
 }
 
+export function getFeedbackSession() {
+	return request<{ authenticated: boolean }>("/auth/session");
+}
+
 export function submitFeedbackMessage(
-	token: string,
 	payload: FeedbackMessagePayload,
+	token?: string,
 ) {
 	return request<AdminFeedbackMessage>("/feedback/messages", {
 		token,
@@ -112,7 +120,10 @@ export function listPublicFeedbackMessages(limit = 80) {
 	);
 }
 
-export function listAdminFeedbackMessages(token: string, query: AdminFeedbackQuery = {}) {
+export function listAdminFeedbackMessages(
+	token: string,
+	query: AdminFeedbackQuery = {},
+) {
 	const params: Record<string, string | number | undefined> = {
 		page: query.page ?? 1,
 		pageSize: query.pageSize ?? 20,
@@ -124,12 +135,15 @@ export function listAdminFeedbackMessages(token: string, query: AdminFeedbackQue
 
 	return request<PaginatedFeedbackMessages>(
 		`/feedback/messages/admin?${new URLSearchParams(
-			Object.entries(params).reduce<Record<string, string>>((acc, [key, value]) => {
-				if (value !== undefined) {
-					acc[key] = String(value);
-				}
-				return acc;
-			}, {}),
+			Object.entries(params).reduce<Record<string, string>>(
+				(acc, [key, value]) => {
+					if (value !== undefined) {
+						acc[key] = String(value);
+					}
+					return acc;
+				},
+				{},
+			),
 		).toString()}`,
 		{ token },
 	);
@@ -140,9 +154,12 @@ export function updateFeedbackMessageStatus(
 	id: string,
 	status: FeedbackStatus,
 ) {
-	return request<AdminFeedbackMessage>(`/feedback/messages/admin/${id}/status`, {
-		token,
-		method: "PATCH",
-		body: JSON.stringify({ status }),
-	});
+	return request<AdminFeedbackMessage>(
+		`/feedback/messages/admin/${id}/status`,
+		{
+			token,
+			method: "PATCH",
+			body: JSON.stringify({ status }),
+		},
+	);
 }

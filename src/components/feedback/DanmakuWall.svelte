@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from "svelte";
 	import {
+		getFeedbackSession,
 		listPublicFeedbackMessages,
 		submitFeedbackMessage,
 		type FeedbackMessage,
@@ -27,7 +28,7 @@
 	const palette = ["#fb78ad", "#8be9fd", "#ffb86c", "#b7f071", "#c792ea", "#f8f8f2"];
 
 	let stageElement: HTMLDivElement;
-	let token = "";
+	let authenticated = false;
 	let text = "";
 	let color = palette[0];
 	let loading = true;
@@ -56,7 +57,7 @@
 
 	$: remaining = MAX_LENGTH - text.length;
 	$: canSubmit =
-		token.length > 0 &&
+		authenticated &&
 		text.trim().length > 0 &&
 		remaining >= 0 &&
 		!submitting &&
@@ -69,10 +70,15 @@
 
 	onMount(() => {
 		disposed = false;
-		token =
-			localStorage.getItem(TOKEN_KEY) ??
-			localStorage.getItem(LEGACY_TOKEN_KEY) ??
-			"";
+		localStorage.removeItem(TOKEN_KEY);
+		localStorage.removeItem(LEGACY_TOKEN_KEY);
+		void getFeedbackSession()
+			.then((state) => {
+				if (!disposed) authenticated = Boolean(state.authenticated);
+			})
+			.catch(() => {
+				if (!disposed) authenticated = false;
+			});
 
 		cleanupRouteHandlers = setupRouteHandlers();
 		void startPlayback();
@@ -471,7 +477,7 @@
 		notice = "";
 
 		const normalizedText = text.trim();
-		if (!token) {
+		if (!authenticated) {
 			error = "请先登录博客账户，再发送弹幕留言。";
 			return;
 		}
@@ -497,7 +503,7 @@
 				timestamp: Date.now(),
 			};
 
-			await submitFeedbackMessage(token, payload);
+			await submitFeedbackMessage(payload);
 			text = "";
 			notice = "留言已提交，审核通过后会出现在留言大屏。";
 		} catch (caughtError) {
@@ -555,7 +561,7 @@
 					bind:value={text}
 					maxlength={MAX_LENGTH}
 					rows="2"
-					placeholder={token ? "写一句 50 字内的弹幕留言" : "登录后即可发送留言"}
+					placeholder={authenticated ? "写一句 50 字内的弹幕留言" : "登录后即可发送留言"}
 				></textarea>
 				<div class="launcher-meta">
 					<div class="palette" aria-label="选择弹幕颜色">
@@ -575,7 +581,7 @@
 			</div>
 
 			<div class="launcher-actions">
-				{#if !token}
+				{#if !authenticated}
 					<a href="/admin">登录</a>
 				{/if}
 				<button type="submit" disabled={!canSubmit}>

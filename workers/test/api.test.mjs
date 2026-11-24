@@ -60,6 +60,71 @@ test('auth rate limit survives requests; invalid JWT secret fails closed',async 
   env.JWT_SECRET='short';
   assert.equal((await call('/api/v1/auth/me','GET',undefined,'fake')).status,503);
 });
+test('failed logins from an attacker IP do not lock out the admin from their own IP',async t=>{
+  const {call,admin}=setup(t); await admin();
+  for(let i=0;i<10;i++) assert.equal((await call('/api/v1/auth/login','POST',{account:'owner@test.dev',password:'wrong-password'},undefined,'198.51.100.10')).status,401);
+  assert.equal((await call('/api/v1/auth/login','POST',{account:'owner@test.dev',password:'wrong-password'},undefined,'198.51.100.10')).status,429);
+  const ok=await call('/api/v1/auth/login','POST',{account:'owner@test.dev',password:'long-password-123'},undefined,'203.0.113.5');
+  assert.equal(ok.status,200);
+  assert.equal(ok.data.expiresIn,'24h');
+});
+test('registration switch disables public signups cleanly',async t=>{
+  const {call,env}=setup(t);
+  env.ALLOW_REGISTRATION='false';
+  assert.equal((await call('/api/v1/auth/config')).data.allowRegistration,false);
+  assert.equal((await call('/api/v1/auth/session')).data.allowRegistration,false);
+  assert.equal((await call('/api/v1/auth/register','POST',{username:'blocked',email:'b@test.dev',password:'long-password'})).status,403);
+});
+test('HttpOnly cookie session hides token in cookie mode, enforces same-origin CSRF, and clears on logout',async t=>{
+  const {env,register}=setup(t); await register('cookieuser');
+  const loginRes=await worker.fetch(new Request('https://axis.test/api/v1/auth/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Axis-Session-Mode':'cookie','CF-Connecting-IP':'203.0.113.8'},
+    body:JSON.stringify({account:'cookieuser@test.dev',password:'long-password-123'}),
+  }),env);
+  assert.equal(loginRes.status,200);
+  const loginData=await loginRes.json();
+  assert.equal(loginData.accessToken,undefined);
+  assert.equal(loginData.tokenType,'Cookie');
+  const setCookie=loginRes.headers.get('set-cookie')||'';
+  assert.match(setCookie,/axis_session=[^;]+/);
+  assert.match(setCookie,/HttpOnly/);
+  assert.match(setCookie,/SameSite=Strict/);
+  assert.match(setCookie,/Secure/);
+  const cookiePair=setCookie.split(';')[0];
+
+  const sessRes=await worker.fetch(new Request('https://axis.test/api/v1/auth/session',{headers:{Cookie:cookiePair}}),env);
+  assert.equal(sessRes.status,200);
+  assert.equal((await sessRes.json()).authenticated,true);
+
+  const crossOrigin=await worker.fetch(new Request('https://axis.test/api/v1/feedback/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Cookie:cookiePair,Origin:'https://evil.example'},
+    body:JSON.stringify({text:'hi',color:'#abcdef'}),
+  }),env);
+  assert.equal(crossOrigin.status,403);
+
+  const noOrigin=await worker.fetch(new Request('https://axis.test/api/v1/feedback/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Cookie:cookiePair},
+    body:JSON.stringify({text:'hi',color:'#abcdef'}),
+  }),env);
+  assert.equal(noOrigin.status,403);
+
+  const sameOrigin=await worker.fetch(new Request('https://axis.test/api/v1/feedback/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',Cookie:cookiePair,Origin:'https://axis.test','Sec-Fetch-Site':'same-origin'},
+    body:JSON.stringify({text:'hi',color:'#abcdef'}),
+  }),env);
+  assert.equal(sameOrigin.status,201);
+
+  const logoutRes=await worker.fetch(new Request('https://axis.test/api/v1/auth/logout',{
+    method:'POST',
+    headers:{Cookie:cookiePair,Origin:'https://axis.test','Sec-Fetch-Site':'same-origin'},
+  }),env);
+  assert.equal(logoutRes.status,200);
+  assert.match(logoutRes.headers.get('set-cookie')||'',/Max-Age=0/);
+});
 test('revoking database role invalidates admin access even with an existing token',async t=>{
   const {call,admin,sql}=setup(t); const token=await admin();
   sql.prepare("UPDATE users SET role='USER'").run();

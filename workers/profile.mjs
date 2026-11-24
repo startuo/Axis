@@ -11,6 +11,7 @@ import {
 	feedback,
 } from "./core.mjs";
 import { publicEntry, refreshMediaRefs } from "./entries.mjs";
+import { mediaStorage } from "./media-storage.mjs";
 export async function profileRoutes(request, env, path) {
 	if (!path.startsWith("/me/")) return null;
 	const user = await currentUser(request, env);
@@ -64,6 +65,38 @@ export async function profileRoutes(request, env, path) {
 				avatarUrl,
 			])),
 		]);
+		// 更换头像后清理不再被引用的旧头像，释放普通用户配额并避免 KV 孤儿膨胀
+		const oldAvatar = existing.avatarUrl ?? "";
+		if (
+			user.role !== "ADMIN" &&
+			oldAvatar &&
+			oldAvatar !== avatarUrl &&
+			/^\/media\/[a-f0-9-]{36}$/.test(oldAvatar)
+		) {
+			const oldId = oldAvatar.slice(7);
+			const ref = await one(
+				env.DB,
+				"SELECT mediaId FROM media_refs WHERE mediaId=? LIMIT 1",
+				oldId,
+			);
+			if (!ref) {
+				await stmt(
+					env.DB,
+					"UPDATE media SET deletedAt=? WHERE id=? AND ownerId=? AND deletedAt IS NULL",
+					now(),
+					oldId,
+					user.id,
+				).run();
+				const storage = mediaStorage(env);
+				if (storage) {
+					await Promise.allSettled([
+						storage.delete(oldId),
+						storage.delete(oldId + "/display"),
+						storage.delete(oldId + "/thumb"),
+					]);
+				}
+			}
+		}
 		return json({ nickname, bio, avatarUrl, readingHistory });
 	}
 	if (path === "/me/messages" && request.method === "GET") {

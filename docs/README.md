@@ -1,12 +1,12 @@
 # STAR 博客文档
 
-- [Cloudflare Workers + D1 后端部署](CLOUDFLARE_DEPLOYMENT.md)
-
 - [项目介绍与快速开始](../README.md)
+- [内容平台架构与双站上线说明](CONTENT_PLATFORM.md)
+- [Cloudflare Workers + D1 后端部署](CLOUDFLARE_DEPLOYMENT.md)
 - [Obsidian 文章同步](OBSIDIAN_SYNC.md)
-- [静态网站与独立后端部署](MAOZIYUN_DEPLOYMENT.md)
-- [功能与验证记录](DELIVERY_CHECKS.md)
+- [国内静态镜像部署](MAOZIYUN_DEPLOYMENT.md)
+- [静态资源维护规范](ASSET_MAINTENANCE.md)
 - [安全修复记录](security-fixes.md)
 - [安全审查历史报告](security-review.md)
+- [工程验收报告归档](reports/)
 - [配图索引](illustrations/README.md)
-- [Markdown 在线编辑](MARKDOWN_EDITOR.md)

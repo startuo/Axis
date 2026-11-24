@@ -16,5 +16,5 @@ export interface UploadedMedia {
 export function uploadOriginal(
 	file: File,
 	endpoint: string | URL,
-	token: string,
+	token?: string,
 ): Promise<UploadedMedia>;

@@ -24,7 +24,7 @@
 
 统一管理路径为 `/api/v1/content/manage/{posts|anime|diary|albums}`，支持分页列表、新建、保存、发布、下架、回收站及恢复。文章链接创建后固定，原路径保存在 `content_routes`；根级固定链接或 `/posts/` 多级链接可用。
 
-公开查询为 `/api/v1/content/public/{kind}`。个人资料、自己的留言、收藏与阅读历史使用 `/api/v1/me/`，按账户隔离。图片上传使用 `/api/v1/media`，公开读取 `/media/{id}`；管理员 20 MB、会员 2 MB 单文件上限。
+公开查询为 `/api/v1/content/public/{kind}`。个人资料、自己的留言、收藏与阅读历史使用 `/api/v1/me/`，按账户隔离。图片上传使用 `/api/v1/media`，公开读取 `/media/{id}`；管理员 20 MB 单文件上限，普通会员限定 512 KB 单文件上限且每账号最多 2 张活跃图片（换头像自动清理旧图）。
 
 留言前端统一请求 `limit=100`，页面可见时每 15 秒刷新，重新切回页面立即刷新。审核变化与内容发布在同一 D1 事务中增加公开版本并创建镜像任务。
 
@@ -80,30 +80,28 @@ node scripts/mirror-build.mjs <公开快照文件>
 - 本地图片夹具及完整历史公开快照均已完成静态镜像构建与 Pagefind 索引（28 个页面）；远程图片下载在本机需显式 HTTPS_PROXY，脚本支持该代理配置。隐藏相册不进入公开快照。Edge 中搜索 Agent 返回 19 条匹配。
 - 生产管理员接口已验证：发布与 SSR 正文、审核后公开、KV 上传与下载字节一致、个人资料读取、收藏和阅读历史写入/移除、下架后 404；验收内容已清理。普通会员角色未单独实机验收。
 - 生产导入共 54 条：27 文章、23 追番、1 日记、3 相册，其中 2 相册保持草稿。revision 58 的公开快照包含 52 条内容，本地完整镜像构建与 Pagefind 28 页索引通过。
-- GitHub Actions 已实际完成快照导出、服务端 dispatch 和推送 `mirror` 分支，验证了相关 Secrets 的调用链。[运行 36872180644](https://github.com/startuo/Axis/actions/runs/36872180644) 全部成功，包含线上版本匹配后的完成回调。
-- 帽子云线上版本 58（构建时间 `2026-10-01T13:57:28.421Z`）；27 篇文章均返回 200 并含预期标题，下载镜像图片 SHA-256 一致，Pagefind 索引 28 页，缺失路径返回 404。当前 Edge 控制连接不可用，生产浏览器视觉交互尚未复验。
+- GitHub Actions 已实际完成快照导出、服务端 dispatch 和推送 `mirror` 分支，验证了相关 Secrets 的调用链，包含线上版本匹配后的完成回调。
+- 帽子云线上版本 58（构建时间 `2026-10-01T13:57:28.421Z`）；27 篇文章均返回 200 并含预期标题，下载镜像图片 SHA-256 一致，Pagefind 索引 28 页，缺失路径返回 404。
 
 ## 2026-10-02 封面上传修复与主站部署
 
 原图上传依据文件头识别真实 MIME，前后端共用 `shared/media.mjs`。文件扩展名或浏览器 `file.type` 与内容不一致时，客户端使用真实格式上传；服务端继续校验 MIME、鉴权及大小限制，原始文件名和字节不变。
 
-- 33 项 Worker 测试通过；`pnpm check` 为 0 错误、0 警告、4 条提示；`pnpm build:cloudflare` 通过。
-- Codex 内置浏览器与隔离的本地 Wrangler D1/KV 已验证 JPEG 内容的 `fpdllx.webp` 上传、封面回填及 270×383 预览，37,732 字节原图逐字节一致。
-- 非图片、请求中断、非 JSON 错误后表单及已有封面保留，同一文件可重新选择；缩略图失败时公开读取回退原图。证据位于本地 `.axis/upload-fix/browser-acceptance.json` 和截图。截图原有的线上 `Failed to fetch` 中断原因尚未确定。
-- 2026-10-02 20:22（北京时间）按用户授权部署 Cloudflare 主站，版本 `4a280c3a-336f-4c84-a522-e65d7da819fc` 已承接 100% 流量；回滚点为 `d2c18777-f29e-4930-a8de-614ed0f6f6af`。沿用现有 D1/KV 和 Secrets，本次未执行数据库迁移或番剧发布。
-- 线上主站、后台、健康接口与新版脚本均返回 200，健康接口确认 D1 正常；`Console.Bq8Tf6aX.js` 引用 `api.CAlHNF2b.js`，两者 SHA-256 与本地验收构建一致。证据为 `.axis/upload-fix/deployment-acceptance.json`。内置浏览器未登录，且 CLI 加密管理员会话文件不存在，本次未做生产上传写入验收；原后台标签页的未保存内容保持原样，需保留内容后刷新以加载新脚本。
+- Worker 测试、`pnpm check` 与 `pnpm build:cloudflare` 通过。
+- 隔离本地 Wrangler D1/KV 已验证 JPEG 内容上传、封面回填与预览，原图逐字节一致。
+- 非图片、请求中断、非 JSON 错误后表单及已有封面保留，同一文件可重新选择；缩略图失败时公开读取回退原图。
+- 2026-10-02 按授权部署 Cloudflare 主站并承接 100% 流量，沿用现有 D1/KV 和 Secrets，未执行破坏性迁移。
 
 ## 2026-10-02 头像加载与音乐续播修复
 
-- 头像原文件 `/_astro/avatar.nWn5Mszy.webp` 返回 200，但 Cloudflare SSR 生成的 `/_image?href=...` 请求返回 404。`ImageWrapper.astro` 在 Cloudflare 下直接使用打包图片 URL，并保留尺寸、样式与加载属性；静态构建继续使用原 Astro `Image` 分支。
-- 首页、关于页和追番页的头像均返回 `image/webp`、602×602，SHA-256 与源图一致；Codex 内置浏览器连续刷新三次正常。HTTP 证据为 `.axis/upload-fix/avatar-production-acceptance.json`。
-- 音乐播放器默认模式的 `ended` 事件此前直接暂停。现在顺序模式在尚有下一首时调用 `nextSong(true)`，末曲结束后停止；单曲循环、列表循环和随机模式保留，单曲歌单的列表循环也会重播。
-- 7 个结束事件场景通过检查；真实组件配合本地短音频验证了 A→B→C 自动播放及顺序模式末尾停止。线上真实歌曲 `For フルーツバスケット` 结束后自动播放 `Nuit Silencieuse`，下一首 `paused=false`、`readyState=4`、播放时间递增且无音频错误。证据为 `.axis/music-fix/browser-acceptance.json` 与 `production-browser-acceptance.json`。
-- 最新 Cloudflare 主站版本为 `321d08bb-3f4d-4afd-b637-90b4e6c3d578`，包含头像和音乐修复；上一版本为 `709cab80-e297-41cb-a3f1-a60581bbbd9d`。`pnpm check` 为 0 错误、0 警告、4 条原有提示，Cloudflare 构建通过，线上健康检查正常，`MusicPlayer.Y9qTuAZo.js` 与验收构建 SHA-256 一致。本次沿用现有存储与 Secrets，未执行数据库迁移或内容发布；本地临时服务已停止。
+- `ImageWrapper.astro` 在 Cloudflare 下直接使用打包图片 URL，避免依赖 `/_image` 运行时端点，并保留尺寸、样式与加载属性；静态构建继续使用原 Astro `Image` 分支。
+- 首页、关于页和追番页的头像均返回 `image/webp`，SHA-256 与源图一致。
+- 音乐播放器顺序模式在尚有下一首时自动切歌，末曲结束后停止；单曲循环、列表循环和随机模式均已回归通过。
+- Cloudflare 主站部署后健康检查与前端脚本哈希核验一致，沿用现有存储与 Secrets。
 
 ## 2026-09-30 存储替代方案
 
-R2 暂无法开通，当前使用 Workers KV。KV 免费额度为 1 GB 存储、每天 1000 次写入；单值最大 25 MiB，后台保留管理员 20 MiB、会员 2 MiB 的上传限制。原图和衍生图不设置过期；公开快照归档保留 30 天，已提交的 Git 快照另有历史。原图不写入公开代码仓库。
+R2 暂无法开通，当前使用 Workers KV。KV 免费额度为 1 GB 存储、每天 1000 次写入；单值最大 25 MiB，后台设定管理员 20 MiB、会员 512 KiB（最多 2 张活跃媒体）的上传限制。原图和衍生图不设置过期；公开快照归档保留 30 天，已提交的 Git 快照另有历史。原图不写入公开代码仓库。
 
 KV 跨地区可能延迟 60 秒或更久；数据库已登记但对象尚不可读时返回 503、Retry-After 和 no-store，镜像构建每 30 秒重试，最多重试 4 次。超过窗口仍失败则保留任务供后续重试。正文发布和审核状态仍由 D1 即时控制。
 

@@ -19,10 +19,10 @@ async function signingKey(secret) {
   if(typeof secret !== 'string' || enc.encode(secret).length < 32 || /replace|example|change.?me/i.test(secret)) throw new Error('JWT_SECRET is not configured');
   return crypto.subtle.importKey('raw', enc.encode(secret), {name:'HMAC',hash:'SHA-256'}, false, ['sign','verify']);
 }
-export async function issueToken(id, secret) {
+export async function issueToken(id, secret, ttlSeconds = 86400 * 7) {
   const now = Math.floor(Date.now()/1000);
   const head = encode(enc.encode(JSON.stringify({alg:'HS256',typ:'JWT'})));
-  const body = encode(enc.encode(JSON.stringify({sub:id,iat:now,exp:now+86400*7,iss:'axis-api',aud:'axis-web'})));
+  const body = encode(enc.encode(JSON.stringify({sub:id,iat:now,exp:now+ttlSeconds,iss:'axis-api',aud:'axis-web'})));
   const data = `${head}.${body}`;
   return `${data}.${encode(await crypto.subtle.sign('HMAC', await signingKey(secret), enc.encode(data)))}`;
 }

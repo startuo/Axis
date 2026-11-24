@@ -13,7 +13,7 @@
 必须在项目根目录执行 Docker Compose，否则会出现 `no configuration file provided: not found`。
 
 ```powershell
-Set-Location "F:\一些乱起八糟的AI开发\Axis gw\Star个人博客后端测试"
+Set-Location "<repo-root>"
 docker compose up -d
 pnpm --filter api prisma:migrate:deploy
 pnpm --filter api prisma:seed
@@ -205,7 +205,7 @@ visitorSocket.emit("presence:heartbeat", {
 
 ## 6. 常见问题
 
-- `no configuration file provided: not found`：你不在项目根目录。先执行 `Set-Location "F:\一些乱起八糟的AI开发\Axis gw\Star个人博客后端测试"`。
+- `no configuration file provided: not found`：你不在项目根目录。先执行 `Set-Location "<repo-root>"`。
 - Admin 登录失败：先执行 `pnpm --filter api prisma:seed` 生成默认管理员。
 - Socket 一直未连接：确认后端运行在 `3001`，并且登录用户角色是 `ADMIN`。
 - 页面无热门文章：在 Admin 文章列表点击“模拟阅读”，或请求公开文章详情接口。

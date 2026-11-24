@@ -79,17 +79,14 @@ pnpm test:worker
 
 统计面板每 30 秒刷新，可见页面每 60 秒发送在线心跳，90 秒内活跃视为在线。UV/在线按 Cloudflare 可信 IP 的每日摘要去重，同一 NAT 网络的访客可能合并；PV 统计数据库文章的详情读取，不代表全部静态文章访问量。每日定时清理过期限流、在线记录和 7 天前阅读明细，文章累计阅读数保留。
 
-登录、注册、留言、阅读和心跳均有服务端限流。密码使用 Web Crypto PBKDF2-SHA256（100,000 次）加随机盐；JWT 为 HS256、有效期 7 天，管理员角色每次从数据库校验。应在实际流量下观察 Workers CPU 和 D1 配额，免费额度不是无限容量。
+登录、注册、留言、阅读和心跳均有服务端限流。密码使用 Web Crypto PBKDF2-SHA256（100,000 次）加随机盐；JWT 为 HS256，管理员会话有效期 24 小时、普通会员 7 天，浏览器端通过 `HttpOnly; SameSite=Strict; Secure` Cookie 传递并在写操作上校验同源 `Origin`，管理员角色每次从数据库校验。支持通过 `ALLOW_REGISTRATION="false"` 关闭公开注册，普通用户媒体上传限定单文件 ≤ 512 KB、每账号最多 2 张活跃图片（更换头像自动清理旧图）。应在实际流量下观察 Workers CPU、D1 和 KV 配额，免费额度不是无限容量。
 
-现有 src/content/ 下的 Markdown 可在管理员后台的「Markdown 文章」区编辑并提交到 GitHub，详见 [Markdown 编辑配置](MARKDOWN_EDITOR.md)。D1 在线文章另行管理。保存到 GitHub 后自动重建两站，保留原文章路径、搜索和 RSS；不会反写本机 Obsidian Vault。
-
-旧 `apps/api`、PostgreSQL/Redis 配置及相关依赖已移除。静态托管仍可使用 `pnpm build:static`，但不提供后端。
+旧的 `src/content/` 在线 GitHub Markdown 直写入口与 `apps/api`、PostgreSQL/Redis 配置及相关依赖均已移除；在线内容统一由后台 `/admin` 写入 D1 并自动同步至静态镜像。静态托管仍可使用 `pnpm build:static`，但不提供后端。
 
 官方文档：[D1 创建与绑定](https://developers.cloudflare.com/d1/get-started/)、[D1 迁移](https://developers.cloudflare.com/d1/reference/migrations/)、[静态资源与 API](https://developers.cloudflare.com/workers/static-assets/)。
 
 ## 验证记录
 
-- 16 项 Worker 测试通过，涵盖 API 鉴权、数据库操作、Markdown 路径限制、Front Matter、版本冲突及 GitHub 错误处理。GitHub 写入测试使用模拟接口。
-- Astro 检查 117 文件，0 错误、警告或提示；全栈构建生成 56 页、搜索索引 28 页。
-- Wrangler 全栈 dry-run 通过，包含 DB 与 ASSETS 绑定。
-- 现有 axis-db 已部署，Axis-star 已设为 ADMIN。Markdown 保存仍需配置 Worker 加密变量 GITHUB_TOKEN。
+- Worker 单元测试覆盖 API 鉴权、HttpOnly Cookie 与 CSRF 拦截、防锁号登录限流、注册开关、媒体配额与 D1 迁移。
+- Astro 检查与全栈构建、Wrangler 绑定预检均通过。
+- 现有生产 `axis-db` 与管理员账号已完成初始化（不在此文档记录具体管理员用户名）。

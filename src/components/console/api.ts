@@ -43,25 +43,41 @@ export interface Media extends UploadedMedia {
 	variantWarnings?: string[];
 }
 export const TOKEN_KEY = "star_blog_auth_token";
-export function token() {
-	return (
-		localStorage.getItem(TOKEN_KEY) ??
-		localStorage.getItem("star_blog_admin_token") ??
-		""
-	);
+export interface SessionUser {
+	id: string;
+	username: string;
+	email?: string;
+	role: string;
+}
+export interface SessionState {
+	authenticated: boolean;
+	user: SessionUser | null;
+	allowRegistration: boolean;
+}
+// 清理历史版本遗留在 localStorage 中的明文令牌
+export function clearLegacyTokens() {
+	if (
+		typeof localStorage === "undefined" ||
+		typeof localStorage.removeItem !== "function"
+	)
+		return;
+	localStorage.removeItem(TOKEN_KEY);
+	localStorage.removeItem("star_blog_admin_token");
 }
 export async function api<T>(
 	path: string,
 	method = "GET",
 	data?: unknown,
+	extraHeaders?: Record<string, string>,
 ): Promise<T> {
 	const response = await fetch(apiUrl(path), {
 		method,
+		credentials: "same-origin",
 		headers: {
-			Authorization: `Bearer ${token()}`,
 			...(data !== undefined
 				? { "Content-Type": "application/json" }
 				: {}),
+			...extraHeaders,
 		},
 		body: data === undefined ? undefined : JSON.stringify(data),
 	});
@@ -70,40 +86,56 @@ export async function api<T>(
 		throw new Error(payload?.message ?? `请求失败 (${response.status})`);
 	return payload;
 }
+export function getSession(): Promise<SessionState> {
+	return api<SessionState>("/auth/session");
+}
 export async function upload(file: File): Promise<Media> {
-	const data = await uploadOriginal(file, apiUrl("/media"), token());
+	const data = await uploadOriginal(file, apiUrl("/media"));
 	const warnings: string[] = [];
 	let bitmap: ImageBitmap | null = null;
 	try {
 		bitmap = await createImageBitmap(new Blob([file], { type: data.type }));
 		if (bitmap.width * bitmap.height > 40000000) {
-			warnings.push("原图已上传，图片尺寸较大，未生成预览图，可继续使用原图。");
-		} else for (const [variant, width, label] of [
-			["display", 1600, "展示图"], ["thumb", 400, "缩略图"],
-		] as const) {
-			const canvas = document.createElement("canvas");
-			try {
-				const scale = Math.min(1, width / bitmap.width);
-				canvas.width = Math.round(bitmap.width * scale);
-				canvas.height = Math.round(bitmap.height * scale);
-				const context = canvas.getContext("2d");
-				if (!context) throw new Error("Canvas unavailable");
-				context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-				const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/webp", 0.85));
-				if (!blob) throw new Error("Image encoding failed");
-				const response = await fetch(apiUrl(`/media/${data.id}/variants/${variant}`), {
-					method: "POST",
-					headers: { Authorization: `Bearer ${token()}`, "Content-Type": blob.type },
-					body: blob,
-				});
-				if (!response.ok) throw new Error(`HTTP ${response.status}`);
-			} catch (error) {
-				const reason = error instanceof Error ? error.message : String(error);
-				warnings.push(`原图已上传，${label}生成失败（${reason}），可继续使用原图。`);
-			} finally {
-				canvas.width = canvas.height = 0;
+			warnings.push(
+				"原图已上传，图片尺寸较大，未生成预览图，可继续使用原图。",
+			);
+		} else
+			for (const [variant, width, label] of [
+				["display", 1600, "展示图"],
+				["thumb", 400, "缩略图"],
+			] as const) {
+				const canvas = document.createElement("canvas");
+				try {
+					const scale = Math.min(1, width / bitmap.width);
+					canvas.width = Math.round(bitmap.width * scale);
+					canvas.height = Math.round(bitmap.height * scale);
+					const context = canvas.getContext("2d");
+					if (!context) throw new Error("Canvas unavailable");
+					context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+					const blob = await new Promise<Blob | null>((resolve) =>
+						canvas.toBlob(resolve, "image/webp", 0.85),
+					);
+					if (!blob) throw new Error("Image encoding failed");
+					const response = await fetch(
+						apiUrl(`/media/${data.id}/variants/${variant}`),
+						{
+							method: "POST",
+							credentials: "same-origin",
+							headers: { "Content-Type": blob.type },
+							body: blob,
+						},
+					);
+					if (!response.ok) throw new Error(`HTTP ${response.status}`);
+				} catch (error) {
+					const reason =
+						error instanceof Error ? error.message : String(error);
+					warnings.push(
+						`原图已上传，${label}生成失败（${reason}），可继续使用原图。`,
+					);
+				} finally {
+					canvas.width = canvas.height = 0;
+				}
 			}
-		}
 	} catch {
 		warnings.push("原图已上传，浏览器未能生成预览图，可继续使用原图。");
 	} finally {

@@ -4,7 +4,7 @@
 - 图片：public/images/obsidian/wechat-publishing.png
 - 生成方式：内置 image_gen
 - 尺寸：1536 × 1024，横版 PNG
-- 原始图片：C:\Users\lenovo\.codex\generated_images\01a0a32c-59ad-7243-a19f-34ea3b4c9506\exec-7c1ad7fc-2723-408d-b8a8-94b4fddc2dec.png
+- 原始图片：<local-generated-image>
 - 目视验证：已检查；选题卡与灯泡、文章排版、风景配图、人工审核印章、时钟与日历、手机发布展示完整，无文字与水印，纸带串联流程。
 
 ## 最终提示词

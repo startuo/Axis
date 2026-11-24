@@ -2,6 +2,7 @@ import {
 	fail,
 	json,
 	now,
+	day,
 	stmt,
 	rows,
 	one,
@@ -10,13 +11,19 @@ import {
 } from "./core.mjs";
 import { mediaStorage } from "./media-storage.mjs";
 import { detectImageMime, IMAGE_MIME_TYPES } from "../shared/media.mjs";
+
+const MEMBER_MEDIA_LIMIT = 2;
+const MEMBER_MAX_BYTES = 512 * 1024;
+const ADMIN_MAX_BYTES = 20 * 1024 * 1024;
+
 export async function mediaRoutes(request, env, path) {
 	if (!path.startsWith("/media")) return null;
 	const storage = mediaStorage(env);
 	if (!storage) fail(503, "媒体存储尚未配置");
 	const user = await currentUser(request, env);
+	const isAdmin = user.role === "ADMIN";
 	if (path === "/media" && request.method === "GET") {
-		if (user.role !== "ADMIN") fail(403, "Administrator access required");
+		if (!isAdmin) fail(403, "Administrator access required");
 		return json({
 			items: (
 				await rows(
@@ -40,15 +47,26 @@ export async function mediaRoutes(request, env, path) {
 			))
 		)
 			fail(403, "不能修改其他用户的图片");
+		// 收紧普通用户上传配额与频率，防止 KV 额度滥用与公网图床盗用
+		if (!isAdmin && !variant) {
+			const owned = await one(
+				env.DB,
+				"SELECT COUNT(*) AS count FROM media WHERE ownerId=? AND deletedAt IS NULL",
+				user.id,
+			);
+			if ((owned?.count ?? 0) >= MEMBER_MEDIA_LIMIT)
+				fail(403, `普通用户最多保留 ${MEMBER_MEDIA_LIMIT} 张图片，请先更换或移除旧头像`);
+			await limit(env.DB, "upload-member-global:" + day(), 30, 86400);
+		}
 		await limit(
 			env.DB,
 			(variant ? "variant:" : "upload:") + user.id,
-			variant ? 60 : 20,
+			isAdmin ? (variant ? 60 : 20) : variant ? 6 : 3,
 			3600,
 		);
 		const type = request.headers.get("content-type")?.split(";")[0];
 		if (!IMAGE_MIME_TYPES.includes(type)) fail(415, "仅支持 JPEG、PNG、WebP、GIF、AVIF");
-		const max = user.role === "ADMIN" ? 20 * 1024 * 1024 : 2 * 1024 * 1024;
+		const max = isAdmin ? ADMIN_MAX_BYTES : MEMBER_MAX_BYTES;
 		const reader = request.body?.getReader();
 		if (!reader) fail(400, "缺少图片");
 		let size = 0;
@@ -102,7 +120,7 @@ export async function mediaRoutes(request, env, path) {
 	}
 	const id = path.slice("/media/".length);
 	if (request.method === "DELETE") {
-		if (user.role !== "ADMIN") fail(403, "Administrator access required");
+		if (!isAdmin) fail(403, "Administrator access required");
 		if (
 			await one(
 				env.DB,
@@ -142,13 +160,15 @@ export async function serveMedia(request, env) {
 		(["display", "thumb"].includes(variant)
 			? await storage.get(id + "/" + variant)
 			: null) ?? (await storage.get(id));
-	if (!object) return new Response("Media temporarily unavailable", {
-		status: env.MEDIA_KV ? 503 : 404,
-		headers: { "Cache-Control": "no-store", "Retry-After": "30" },
-	});
+	if (!object)
+		return new Response("Media temporarily unavailable", {
+			status: env.MEDIA_KV ? 503 : 404,
+			headers: { "Cache-Control": "no-store", "Retry-After": "30" },
+		});
 	const headers = new Headers({
 		"Cache-Control": "public,max-age=86400",
 		"X-Content-Type-Options": "nosniff",
+		"Content-Security-Policy": "default-src 'none'; sandbox",
 		...(object.httpEtag ? { ETag: object.httpEtag } : {}),
 	});
 	object.writeHttpMetadata(headers);

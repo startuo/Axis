@@ -4,7 +4,7 @@
 - 图片：`public/images/obsidian/steelman-thinking.png`
 - 生成方式：内置 `image_gen`，单张生成，无 CLI。
 - 尺寸：1536 × 1024。
-- 原始输出：`C:\Users\lenovo\.codex\generated_images\01a0a0d0-b745-72a1-b397-3d572abb6276\exec-901631dc-ad6e-4ec9-8632-10459f35095e.png`
+- 原始输出：`<local-generated-image>`
 
 ## 最终提示词
 

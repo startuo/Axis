@@ -39,7 +39,7 @@ export function detectImageMime(bytes) {
 	return null;
 }
 
-export async function uploadOriginal(file, endpoint, token) {
+export async function uploadOriginal(file, endpoint, token = "") {
 	let header;
 	try {
 		header = new Uint8Array(await file.slice(0, 64).arrayBuffer());
@@ -53,13 +53,15 @@ export async function uploadOriginal(file, endpoint, token) {
 		);
 	let response;
 	try {
+		const headers = {
+			"Content-Type": type,
+			"X-File-Name": encodeURIComponent(file.name),
+		};
+		if (token) headers.Authorization = `Bearer ${token}`;
 		response = await fetch(endpoint, {
 			method: "POST",
-			headers: {
-				Authorization: `Bearer ${token}`,
-				"Content-Type": type,
-				"X-File-Name": encodeURIComponent(file.name),
-			},
+			credentials: "same-origin",
+			headers,
 			body: file,
 		});
 	} catch (error) {

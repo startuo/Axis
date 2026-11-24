@@ -6,7 +6,7 @@
 - 尺寸：1536 × 1024，PNG。
 - 内容：以索引配方卡呈现布局、材质、色彩与动效，并组合成完整页面。
 - 目视验证：卡片、材质和色彩组合关系清楚，横版构图完整，无文字、水印及标志，质感与阴影自然。
-- 原始文件：`C:\Users\lenovo\.codex\generated_images\01a0a0d0-0cbb-71d0-92ba-aea26ff90900\exec-540307b4-caa2-4407-acd4-458ffb1bd2c0.png`
+- 原始文件：`<local-generated-image>`
 
 ## 最终提示词
 

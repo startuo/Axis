@@ -4,7 +4,7 @@
 - 成品：`public/images/obsidian/hyperframes-workflow.png`
 - 工具：内置 `image_gen`，真实生成，未使用 CLI。
 - 尺寸：1536 × 1024，PNG。
-- 原图：`C:\Users\lenovo\.codex\generated_images\01a09fb3-e430-73f1-8a2e-0a64023e0a63\exec-406f539c-7a0c-4bdb-91db-98de05202df5.png`
+- 原图：`<local-generated-image>`
 - 视觉验证：已查看生成图；横版、无文字，胶片拆为分镜与音轨并合成为竖屏视频，主题与文章一致。
 
 ## 最终提示词

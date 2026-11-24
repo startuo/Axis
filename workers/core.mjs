@@ -8,14 +8,43 @@ export class HttpError extends Error {
 export const fail = (status, message) => {
 	throw new HttpError(status, message);
 };
-export const json = (value, status = 200) =>
+export const SESSION_COOKIE = "axis_session";
+export const json = (value, status = 200, extraHeaders = {}) =>
 	Response.json(value, {
 		status,
 		headers: {
 			"Cache-Control": "no-store",
 			"X-Content-Type-Options": "nosniff",
+			...extraHeaders,
 		},
 	});
+export function parseCookie(request, name) {
+	const header = request.headers.get("cookie");
+	if (!header) return null;
+	for (const part of header.split(";")) {
+		const idx = part.indexOf("=");
+		if (idx <= 0) continue;
+		if (part.slice(0, idx).trim() === name) return part.slice(idx + 1).trim();
+	}
+	return null;
+}
+export function sessionCookieHeader(request, token, maxAge) {
+	const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
+	return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secure}`;
+}
+export function clearSessionCookieHeader(request) {
+	const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
+	return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secure}`;
+}
+export function assertSameOrigin(request) {
+	if (["GET", "HEAD", "OPTIONS"].includes(request.method)) return;
+	const fetchSite = request.headers.get("sec-fetch-site");
+	if (fetchSite && !["same-origin", "none"].includes(fetchSite))
+		fail(403, "Cross-site request rejected");
+	const origin = request.headers.get("origin");
+	if (!origin || origin !== new URL(request.url).origin)
+		fail(403, "Cross-site request rejected");
+}
 export const now = () => new Date().toISOString();
 export const day = () =>
 	new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
@@ -113,11 +142,42 @@ export async function limit(db, key, max, seconds = 60) {
 	if (result.count > max)
 		fail(429, "Too many requests. Please try again later.");
 }
+export async function checkLimit(db, key, max) {
+	const time = Math.floor(Date.now() / 1000);
+	const row = await one(
+		db,
+		"SELECT count FROM rate_limits WHERE key=? AND expires>?",
+		key,
+		time,
+	);
+	if ((row?.count ?? 0) >= max)
+		fail(429, "Too many requests. Please try again later.");
+}
+export async function recordLimit(db, key, seconds = 60) {
+	const time = Math.floor(Date.now() / 1000);
+	await stmt(
+		db,
+		`INSERT INTO rate_limits(key,count,expires) VALUES(?,1,?)
+    ON CONFLICT(key) DO UPDATE SET count=CASE WHEN expires<=? THEN 1 ELSE count+1 END,
+    expires=CASE WHEN expires<=? THEN excluded.expires ELSE expires END`,
+		key,
+		time + seconds,
+		time,
+		time,
+	).run();
+}
+export async function resetLimit(db, key) {
+	await stmt(db, "DELETE FROM rate_limits WHERE key=?", key).run();
+}
 export async function currentUser(request, env, admin = false) {
-	const token = request.headers
+	const bearer = request.headers
 		.get("authorization")
 		?.match(/^Bearer ([^ ]+)$/)?.[1];
+	const cookieToken = bearer ? null : parseCookie(request, SESSION_COOKIE);
+	const token = bearer ?? cookieToken;
 	if (!token || token.length > 4096) fail(401, "Please log in");
+	// 使用 Cookie 鉴权执行状态变更请求时，强制校验同源 Origin 防止 CSRF
+	if (cookieToken) assertSameOrigin(request);
 	const id = await tokenSubject(token, env.JWT_SECRET);
 	const user = id
 		? await one(env.DB, "SELECT * FROM users WHERE id=?", id)

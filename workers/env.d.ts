@@ -7,6 +7,7 @@ interface __BaseEnv_Env {
 	MAIN_SITE_URL: "https://axis.1669338073.workers.dev";
 	MIRROR_SITE_URL: "https://star-0vl490158.maozi.io";
 	MIRROR_REPOSITORY: "startuo/Axis";
+	ALLOW_REGISTRATION?: string;
 }
 declare namespace Cloudflare {
 	interface GlobalProps {

@@ -94,6 +94,44 @@ test('media authentication and per-role upload size limits still apply', async t
 	env.MEDIA = { put: async () => { throw new Error('oversized uploads must not be stored'); } };
 	const request = (body, token) => new Request(endpoint, { method: 'POST', headers: { 'Content-Type': 'image/jpeg', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body });
 	assert.equal((await worker.fetch(request(jpeg), env)).status, 401);
-	assert.equal((await worker.fetch(request(new Uint8Array(2 * 1024 * 1024 + 1), member.accessToken), env)).status, 413);
+	assert.equal((await worker.fetch(request(new Uint8Array(512 * 1024 + 1), member.accessToken), env)).status, 413);
 	assert.equal((await worker.fetch(request(new Uint8Array(20 * 1024 * 1024 + 1), token), env)).status, 413);
+});
+
+test('member media quota caps active uploads, avatar swap cleans old media, and serveMedia sets sandbox CSP', async t => {
+	const { env, call, register } = setup(t), member = await register('avataruser'), objects = new Map();
+	env.MEDIA_KV = {
+		async put(key, bytes, options) { objects.set(key, { bytes: new Uint8Array(bytes), ...options }); },
+		async getWithMetadata(key) { const item = objects.get(key); return { value: item ? new Response(item.bytes).body : null, metadata: item?.metadata }; },
+		async delete(key) { objects.delete(key); },
+	};
+	const upload = () => worker.fetch(new Request(endpoint, {
+		method: 'POST',
+		headers: { 'Content-Type': 'image/jpeg', Authorization: `Bearer ${member.accessToken}` },
+		body: jpeg,
+	}), env);
+	const first = await upload();
+	assert.equal(first.status, 201);
+	const m1 = await first.json();
+	const served = await worker.fetch(new Request('https://axis.test' + m1.url), env);
+	assert.equal(served.status, 200);
+	assert.equal(served.headers.get('content-security-policy'), "default-src 'none'; sandbox");
+
+	const second = await upload();
+	assert.equal(second.status, 201);
+	const m2 = await second.json();
+
+	// 第三次上传触发普通用户 2 张活跃媒体上限
+	const third = await upload();
+	assert.equal(third.status, 403);
+
+	// 绑定旧头像后再更换为新头像，旧头像自动清理释放配额
+	assert.equal((await call('/api/v1/me/profile', 'PATCH', { nickname: 'A', bio: '', avatarUrl: m1.url }, member.accessToken)).status, 200);
+	assert.equal((await call('/api/v1/me/profile', 'PATCH', { nickname: 'A', bio: '', avatarUrl: m2.url }, member.accessToken)).status, 200);
+	assert.equal(objects.has(m1.id), false);
+	assert.equal((await worker.fetch(new Request('https://axis.test' + m1.url), env)).status, 404);
+
+	// 配额释放后可再次上传
+	const fourth = await upload();
+	assert.equal(fourth.status, 201);
 });
